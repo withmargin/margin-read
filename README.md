@@ -33,6 +33,12 @@ Run type checks:
 npm run check
 ```
 
+Run tests with coverage:
+
+```sh
+npm test
+```
+
 Build the extension:
 
 ```sh
@@ -76,6 +82,8 @@ The Fetch models action reads available models from the selected provider:
 - Google Gemini: `GET /v1beta/models`
 
 Fetched models appear in the model selector. The custom model input remains available for unreleased models, compatible gateways, and self-hosted routes.
+
+Anthropic Claude translations use forced tool use to return structured translation data instead of free-form text. This avoids markdown-wrapped JSON responses and keeps parsing reliable.
 
 ## Privacy Position
 
