@@ -1,17 +1,27 @@
 import type { RuntimeMessage, TranslationResult } from "../shared/types";
+import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
 const TRANSLATION_CLASS = "rosetta-translation";
 const TRANSLATED_ATTR = "data-rosetta-translated";
 const BLOCK_ID_ATTR = "data-rosetta-block-id";
 const MIN_TEXT_LENGTH = 24;
-const BATCH_SIZE = 8;
+const BATCH_SIZE = 6;
+const CONCURRENCY = 2;
+const NEAR_VIEWPORT_MULTIPLIER = 1.5;
 
 let enabled = false;
 let observer: MutationObserver | undefined;
+let viewportObserver: IntersectionObserver | undefined;
 let pending = false;
 let nextId = 1;
+let runId = 0;
 
 const blockMap = new Map<string, HTMLElement>();
+const queue = new TranslationQueue<HTMLElement>({
+  batchSize: BATCH_SIZE,
+  concurrency: CONCURRENCY,
+  worker: translateBlocks
+});
 
 chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
   if (message.type === "TOGGLE_TRANSLATION") {
@@ -32,7 +42,9 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
 });
 
 function startTranslation(): void {
-  void scanAndTranslate();
+  runId += 1;
+  startViewportObserver();
+  scanAndQueue();
   observer = new MutationObserver(() => {
     if (!enabled || pending) {
       return;
@@ -40,15 +52,19 @@ function startTranslation(): void {
     pending = true;
     window.setTimeout(() => {
       pending = false;
-      void scanAndTranslate();
+      scanAndQueue();
     }, 600);
   });
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
 function stopTranslation(): void {
+  runId += 1;
+  queue.clear();
   observer?.disconnect();
   observer = undefined;
+  viewportObserver?.disconnect();
+  viewportObserver = undefined;
   document.querySelectorAll(`.${TRANSLATION_CLASS}`).forEach((node) => node.remove());
   document.querySelectorAll(`[${TRANSLATED_ATTR}]`).forEach((node) => {
     node.removeAttribute(TRANSLATED_ATTR);
@@ -57,14 +73,15 @@ function stopTranslation(): void {
   blockMap.clear();
 }
 
-async function scanAndTranslate(): Promise<void> {
+function scanAndQueue(): void {
+  if (!enabled) {
+    return;
+  }
+
   const blocks = collectTextBlocks().slice(0, 80);
-  for (let index = 0; index < blocks.length; index += BATCH_SIZE) {
-    if (!enabled) {
-      return;
-    }
-    const batch = blocks.slice(index, index + BATCH_SIZE);
-    await translateBlocks(batch);
+  queue.enqueue(blocks.map(createQueueItem));
+  for (const block of blocks) {
+    viewportObserver?.observe(block);
   }
 }
 
@@ -118,6 +135,7 @@ function collectTextBlocks(): HTMLElement[] {
 }
 
 async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
+  const activeRunId = runId;
   const segments = blocks.map((element) => {
     const id = element.getAttribute(BLOCK_ID_ATTR) ?? `block-${nextId++}`;
     element.setAttribute(BLOCK_ID_ATTR, id);
@@ -138,6 +156,10 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
     segments
   });
 
+  if (!enabled || activeRunId !== runId) {
+    return;
+  }
+
   if (!response.ok || !response.results) {
     insertErrorState(blocks, response.error ?? "Translation failed.");
     return;
@@ -153,6 +175,58 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
   if (missingBlocks.length > 0) {
     insertErrorState(missingBlocks, "The provider did not return a translation for this block.");
   }
+}
+
+function startViewportObserver(): void {
+  viewportObserver?.disconnect();
+  viewportObserver = new IntersectionObserver(
+    (entries) => {
+      const blocks = entries
+        .filter((entry) => entry.isIntersecting)
+        .map((entry) => entry.target)
+        .filter((target): target is HTMLElement => target instanceof HTMLElement && !target.hasAttribute(TRANSLATED_ATTR));
+
+      if (blocks.length > 0) {
+        queue.enqueue(blocks.map(createQueueItem));
+      }
+    },
+    {
+      root: null,
+      rootMargin: "100% 0px"
+    }
+  );
+}
+
+function createQueueItem(element: HTMLElement): TranslationQueueItem<HTMLElement> {
+  const id = element.getAttribute(BLOCK_ID_ATTR) ?? `block-${nextId++}`;
+  element.setAttribute(BLOCK_ID_ATTR, id);
+  return {
+    id,
+    priority: getQueuePriority(element),
+    distance: getViewportDistance(element),
+    value: element
+  };
+}
+
+function getQueuePriority(element: HTMLElement): QueuePriority {
+  const rect = element.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+  if (rect.bottom >= 0 && rect.top <= viewportHeight) {
+    return 0;
+  }
+  if (rect.top <= viewportHeight * (1 + NEAR_VIEWPORT_MULTIPLIER) && rect.bottom >= -viewportHeight * NEAR_VIEWPORT_MULTIPLIER) {
+    return 1;
+  }
+  return 2;
+}
+
+function getViewportDistance(element: HTMLElement): number {
+  const rect = element.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+  if (rect.bottom >= 0 && rect.top <= viewportHeight) {
+    return 0;
+  }
+  return Math.min(Math.abs(rect.top - viewportHeight), Math.abs(rect.bottom));
 }
 
 interface TranslationBatchResponse {
