@@ -57,11 +57,12 @@ describe("collectTextBlocks", () => {
 
     const blocks = collectTextBlocks(document, options);
 
-    expect(blocks.map((block) => block.textContent)).toEqual([
+    expect(blocks.map((block) => normalize(block.textContent ?? ""))).toEqual([
       "There are great startup ideas lying around unexploited right under our noses.",
       "No one likes schleps, but hackers especially dislike them and often avoid them."
     ]);
     expect(blocks.every((block) => block.dataset.toastLegacyBlock === "true")).toBe(true);
+    expect(blocks[0]?.parentElement?.tagName).toBe("FONT");
   });
 
   it("skips legacy fallback when semantic blocks exist", () => {
@@ -118,12 +119,17 @@ describe("collectTextBlocks", () => {
 
     const blocks = collectTextBlocks(document, options);
 
-    expect(blocks.map((block) => block.textContent)).toEqual([
+    expect(blocks.map((block) => normalize(block.textContent ?? ""))).toEqual([
       "There are great startup ideas lying around unexploited right under our noses.",
       "No one likes schleps, but hackers especially dislike them and often avoid them.",
       "One of the many things we do at Y Combinator is teach hackers about the inevitability of schleps."
     ]);
     expect(blocks.every((block) => block.dataset.toastBrSeparatedBlock === "true")).toBe(true);
+    const paragraph = document.querySelector("p");
+    expect(paragraph).not.toBeNull();
+    const childNodes = Array.from(paragraph?.childNodes ?? []);
+    expect(childNodes.indexOf(blocks[0])).toBeLessThan(childNodes.indexOf(blocks[1]));
+    expect(childNodes.indexOf(blocks[1])).toBeLessThan(childNodes.indexOf(blocks[2]));
   });
 
   it("splits long br-separated semantic paragraphs that would otherwise be rejected", () => {
@@ -143,6 +149,46 @@ describe("collectTextBlocks", () => {
 
     expect(blocks).toHaveLength(3);
     expect(blocks.every((block) => block.textContent && block.textContent.length < 4000)).toBe(true);
+  });
+
+  it("keeps single line breaks inside a br-separated translation block", () => {
+    const document = createDocument(`
+      <main>
+        <p>
+          First line has enough readable text for translation.
+          <br>
+          The continuation line should stay in the same source block.
+          <br><br>
+          Second paragraph has enough readable text for translation.
+        </p>
+      </main>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks).toHaveLength(2);
+    expect(blocks[0]?.querySelector("br")).not.toBeNull();
+    expect(normalize(blocks[0]?.textContent ?? "")).toContain("The continuation line should stay");
+  });
+
+  it("reuses existing br-separated source blocks on later scans", () => {
+    const document = createDocument(`
+      <main>
+        <p>
+          First paragraph has enough readable text for translation.
+          <br><br>
+          Second paragraph has enough readable text for translation.
+          <br><br>
+          Third paragraph has enough readable text for translation.
+        </p>
+      </main>
+    `);
+
+    const firstScanBlocks = collectTextBlocks(document, options);
+    const secondScanBlocks = collectTextBlocks(document, options);
+
+    expect(secondScanBlocks).toEqual(firstScanBlocks);
+    expect(document.querySelectorAll("[data-toast-br-separated-block='true']")).toHaveLength(3);
   });
 
   it("does not split containers with only single line breaks", () => {
@@ -268,9 +314,13 @@ describe("collectTextBlocks", () => {
     const blocks = collectTextBlocks(document, options);
 
     expect(blocks).toHaveLength(1);
-    expect(blocks[0]?.textContent).toBe("Visible legacy paragraph has enough text to become its own block.");
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe("Visible legacy paragraph has enough text to become its own block.");
   });
 });
+
+function normalize(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
 
 function createDocument(html: string): Document {
   const document = globalThis.document.implementation.createHTMLDocument("test");

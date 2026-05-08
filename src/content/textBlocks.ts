@@ -12,7 +12,6 @@ const MIN_SEMANTIC_BLOCKS = 3;
 const MIN_SEMANTIC_TEXT_LENGTH = 500;
 const MAX_TEXT_LENGTH = 4000;
 const BR_SEPARATED_SELECTOR = "p, td, font";
-const BR_GROUP_MARKER = "\n\n";
 
 export function collectTextBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
   const semanticBlocks = collectSemanticBlocks(document, options);
@@ -65,42 +64,7 @@ function hasEnoughSemanticContent(blocks: HTMLElement[]): boolean {
 }
 
 function splitLegacyContainer(container: HTMLElement, document: Document, options: TextBlockOptions): HTMLElement[] {
-  const blocks: HTMLElement[] = [];
-  let buffer = "";
-
-  const flush = (): void => {
-    const text = normalizeText(buffer);
-    buffer = "";
-    if (text.length < options.minTextLength) {
-      return;
-    }
-
-    const block = document.createElement("span");
-    block.textContent = text;
-    block.dataset.toastLegacyBlock = "true";
-    container.append(document.createTextNode(" "));
-    container.append(block);
-    blocks.push(block);
-  };
-
-  for (const node of Array.from(container.childNodes)) {
-    if (node instanceof HTMLBRElement) {
-      flush();
-      continue;
-    }
-
-    if (node instanceof Text) {
-      buffer += ` ${node.textContent ?? ""}`;
-      continue;
-    }
-
-    if (node instanceof HTMLElement && !shouldSkipElement(node, options)) {
-      buffer += ` ${node.innerText}`;
-    }
-  }
-
-  flush();
-  return blocks;
+  return splitTextByBrGroups(container, document, options, "toastLegacyBlock");
 }
 
 function splitBrSeparatedContainer(container: HTMLElement, document: Document, options: TextBlockOptions): HTMLElement[] {
@@ -113,19 +77,65 @@ function splitTextByBrGroups(
   options: TextBlockOptions,
   datasetKey: "toastLegacyBlock" | "toastBrSeparatedBlock"
 ): HTMLElement[] {
-  const text = getTextWithBreakMarkers(container);
-  return text
-    .split(BR_GROUP_MARKER)
-    .map(normalizeText)
-    .filter((segment) => segment.length >= options.minTextLength && segment.length <= MAX_TEXT_LENGTH)
-    .map((segment) => {
-      const block = document.createElement("span");
-      block.textContent = segment;
-      block.dataset[datasetKey] = "true";
-      container.append(document.createTextNode(" "));
-      container.append(block);
-      return block;
-    });
+  const existingBlocks = getExistingSplitBlocks(container, datasetKey, options);
+  if (existingBlocks.length > 0) {
+    return existingBlocks;
+  }
+
+  const blocks: HTMLElement[] = [];
+  let currentNodes: ChildNode[] = [];
+  let pendingBreaks: ChildNode[] = [];
+
+  const flush = (): void => {
+    const nodes = currentNodes;
+    currentNodes = [];
+    if (nodes.length === 0) {
+      return;
+    }
+
+    const text = normalizeText(nodes.map((node) => getSplitNodeText(node, options)).join(" "));
+    if (text.length < options.minTextLength || text.length > MAX_TEXT_LENGTH) {
+      return;
+    }
+
+    const firstNode = nodes.find((node) => node.parentNode === container);
+    if (!firstNode) {
+      return;
+    }
+
+    const block = document.createElement("span");
+    block.dataset[datasetKey] = "true";
+    container.insertBefore(block, firstNode);
+    for (const node of nodes) {
+      if (node.parentNode === container) {
+        block.append(node);
+      }
+    }
+    blocks.push(block);
+  };
+
+  for (const node of Array.from(container.childNodes)) {
+    if (isBreakElement(node)) {
+      pendingBreaks.push(node);
+      if (pendingBreaks.length >= 2) {
+        flush();
+        pendingBreaks = [];
+      }
+      continue;
+    }
+
+    if (pendingBreaks.length === 1) {
+      currentNodes.push(pendingBreaks[0]);
+    }
+    pendingBreaks = [];
+
+    if (getSplitNodeText(node, options).trim().length > 0) {
+      currentNodes.push(node);
+    }
+  }
+
+  flush();
+  return blocks;
 }
 
 function isBrSeparatedContainer(element: HTMLElement, options: TextBlockOptions): boolean {
@@ -141,39 +151,30 @@ function isBrSeparatedContainer(element: HTMLElement, options: TextBlockOptions)
   return breakCount >= 3 && getNormalizedText(element).length > options.minTextLength * 3;
 }
 
-function getTextWithBreakMarkers(container: HTMLElement): string {
-  let text = "";
-  let breakCount = 0;
-
-  for (const node of Array.from(container.childNodes)) {
-    if (isBreakElement(node)) {
-      breakCount += 1;
-      if (breakCount >= 2 && !text.endsWith(BR_GROUP_MARKER)) {
-        text += BR_GROUP_MARKER;
-      }
-      continue;
-    }
-
-    const nodeText = getNodeText(node);
-    if (nodeText) {
-      text += ` ${nodeText}`;
-    }
-    breakCount = 0;
-  }
-
-  return text;
-}
-
-function getNodeText(node: ChildNode): string {
+function getSplitNodeText(node: ChildNode, options: TextBlockOptions): string {
   if (node.nodeType === Node.TEXT_NODE) {
     return node.textContent ?? "";
   }
 
-  if (node instanceof HTMLElement && !node.matches("script, style, noscript")) {
+  if (node instanceof HTMLElement && !shouldSkipElement(node, options) && !node.matches("script, style, noscript")) {
     return node.innerText;
   }
 
   return "";
+}
+
+function getExistingSplitBlocks(
+  container: HTMLElement,
+  datasetKey: "toastLegacyBlock" | "toastBrSeparatedBlock",
+  options: TextBlockOptions
+): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(`[data-${toKebabCase(datasetKey)}="true"]`)).filter((element) =>
+    isTranslatableElement(element, options)
+  );
+}
+
+function toKebabCase(value: string): string {
+  return value.replace(/[A-Z]/g, (character) => `-${character.toLowerCase()}`);
 }
 
 function isBreakElement(node: ChildNode): boolean {
