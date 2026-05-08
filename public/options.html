@@ -11,6 +11,14 @@
       <h1>Rosetta Options</h1>
       <form id="settings-form">
         <label>
+          Provider
+          <select name="provider">
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic Claude</option>
+            <option value="google">Google Gemini</option>
+          </select>
+        </label>
+        <label>
           Provider endpoint
           <input name="providerEndpoint" type="url" required />
         </label>

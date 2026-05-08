@@ -1,6 +1,6 @@
-import { DEFAULT_SETTINGS } from "../shared/defaults";
+import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "../shared/defaults";
 import { getSettings, saveSettings } from "../shared/storage";
-import type { CacheMode, DisplayStyle, ExtensionSettings } from "../shared/types";
+import type { CacheMode, DisplayStyle, ExtensionSettings, TranslationProviderId } from "../shared/types";
 
 const form = document.querySelector<HTMLFormElement>("#settings-form");
 const statusEl = document.querySelector<HTMLParagraphElement>("#status");
@@ -11,6 +11,7 @@ void initialize();
 async function initialize(): Promise<void> {
   const settings = await getSettings();
   fillForm(settings);
+  bindProviderDefaults();
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -25,6 +26,7 @@ async function initialize(): Promise<void> {
 }
 
 function fillForm(settings: ExtensionSettings): void {
+  setInputValue("provider", settings.provider);
   setInputValue("providerEndpoint", settings.providerEndpoint);
   setInputValue("apiKey", settings.apiKey);
   setInputValue("model", settings.model);
@@ -37,6 +39,7 @@ function fillForm(settings: ExtensionSettings): void {
 function readForm(): ExtensionSettings {
   return {
     ...DEFAULT_SETTINGS,
+    provider: getInputValue("provider") as TranslationProviderId,
     providerEndpoint: getInputValue("providerEndpoint"),
     apiKey: getInputValue("apiKey"),
     model: getInputValue("model"),
@@ -45,6 +48,16 @@ function readForm(): ExtensionSettings {
     displayStyle: getInputValue("displayStyle") as DisplayStyle,
     cacheMode: getInputValue("cacheMode") as CacheMode
   };
+}
+
+function bindProviderDefaults(): void {
+  const providerInput = document.querySelector<HTMLSelectElement>('[name="provider"]');
+  providerInput?.addEventListener("change", () => {
+    const provider = providerInput.value as TranslationProviderId;
+    const defaults = PROVIDER_DEFAULTS[provider];
+    setInputValue("providerEndpoint", defaults.providerEndpoint);
+    setInputValue("model", defaults.model);
+  });
 }
 
 function setInputValue(name: string, value: string): void {

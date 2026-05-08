@@ -2,7 +2,10 @@ export type DisplayStyle = "below";
 
 export type CacheMode = "session" | "persistent" | "disabled";
 
+export type TranslationProviderId = "openai" | "anthropic" | "google";
+
 export interface ExtensionSettings {
+  provider: TranslationProviderId;
   providerEndpoint: string;
   apiKey: string;
   model: string;
