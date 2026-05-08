@@ -1,10 +1,12 @@
 import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "../shared/defaults";
 import { getSettings, saveSettings } from "../shared/storage";
-import type { CacheMode, DisplayStyle, ExtensionSettings, TranslationProviderId } from "../shared/types";
+import type { CacheMode, DisplayStyle, ExtensionSettings, ProviderModel, TranslationProviderId } from "../shared/types";
 
 const form = document.querySelector<HTMLFormElement>("#settings-form");
 const statusEl = document.querySelector<HTMLParagraphElement>("#status");
 const clearCacheButton = document.querySelector<HTMLButtonElement>("#clear-cache");
+const fetchModelsButton = document.querySelector<HTMLButtonElement>("#fetch-models");
+const modelOptions = document.querySelector<HTMLDataListElement>("#model-options");
 
 void initialize();
 
@@ -22,6 +24,10 @@ async function initialize(): Promise<void> {
   clearCacheButton?.addEventListener("click", async () => {
     await chrome.runtime.sendMessage({ type: "CLEAR_CACHE" });
     setStatus("Translation cache cleared.");
+  });
+
+  fetchModelsButton?.addEventListener("click", async () => {
+    await fetchModels();
   });
 }
 
@@ -57,7 +63,35 @@ function bindProviderDefaults(): void {
     const defaults = PROVIDER_DEFAULTS[provider];
     setInputValue("providerEndpoint", defaults.providerEndpoint);
     setInputValue("model", defaults.model);
+    modelOptions?.replaceChildren();
   });
+}
+
+async function fetchModels(): Promise<void> {
+  setStatus("Fetching models...");
+  const response = (await chrome.runtime.sendMessage({
+    type: "LIST_MODELS",
+    settings: readForm()
+  })) as { ok: boolean; models?: ProviderModel[]; error?: string };
+
+  if (!response.ok || !response.models) {
+    setStatus(response.error ?? "Could not fetch models.");
+    return;
+  }
+
+  renderModelOptions(response.models);
+  setStatus(`Loaded ${response.models.length} models.`);
+}
+
+function renderModelOptions(models: ProviderModel[]): void {
+  modelOptions?.replaceChildren(
+    ...models.map((model) => {
+      const option = document.createElement("option");
+      option.value = model.id;
+      option.label = model.displayName ? `${model.displayName} (${model.id})` : model.id;
+      return option;
+    })
+  );
 }
 
 function setInputValue(name: string, value: string): void {

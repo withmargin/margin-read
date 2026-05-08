@@ -27,6 +27,11 @@ export interface TranslationResult {
   text: string;
 }
 
+export interface ProviderModel {
+  id: string;
+  displayName?: string;
+}
+
 export interface TranslateBatchRequest {
   type: "TRANSLATE_BATCH";
   segments: TextSegment[];
@@ -41,6 +46,7 @@ export interface TranslateBatchResponse {
 export type RuntimeMessage =
   | TranslateBatchRequest
   | { type: "GET_SETTINGS" }
+  | { type: "LIST_MODELS"; settings: ExtensionSettings }
   | { type: "TOGGLE_TRANSLATION"; enabled?: boolean }
   | { type: "GET_PAGE_STATE" }
   | { type: "CLEAR_CACHE" };

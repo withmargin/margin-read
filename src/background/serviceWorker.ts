@@ -2,6 +2,7 @@ import { clearPersistentCache, getCachedTranslation, getSettings, setCachedTrans
 import type {
   ExtensionSettings,
   RuntimeMessage,
+  ProviderModel,
   TextSegment,
   TranslateBatchResponse,
   TranslationResult
@@ -35,6 +36,10 @@ async function handleMessage(message: RuntimeMessage): Promise<unknown> {
 
   if (message.type === "TRANSLATE_BATCH") {
     return translateBatch(message.segments);
+  }
+
+  if (message.type === "LIST_MODELS") {
+    return listProviderModels({ ...message.settings, apiKey: normalizeApiKey(message.settings.apiKey) });
   }
 
   return { ok: false, error: "Unsupported runtime message." };
@@ -97,6 +102,91 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
 
 function normalizeApiKey(apiKey: string): string {
   return apiKey.trim().replace(/^Bearer\s+/i, "").trim();
+}
+
+async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: boolean; models?: ProviderModel[]; error?: string }> {
+  if (!settings.apiKey) {
+    return { ok: false, error: "Configure an API key before fetching models." };
+  }
+
+  if (settings.provider === "openai") {
+    return { ok: true, models: await listOpenAIModels(settings) };
+  }
+
+  if (settings.provider === "anthropic") {
+    return { ok: true, models: await listAnthropicModels(settings) };
+  }
+
+  if (settings.provider === "google") {
+    return { ok: true, models: await listGoogleModels(settings) };
+  }
+
+  return { ok: false, error: "Unsupported translation provider." };
+}
+
+async function listOpenAIModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
+  const response = await fetch(getOpenAIModelsEndpoint(settings.providerEndpoint), {
+    headers: {
+      Authorization: `Bearer ${settings.apiKey}`
+    }
+  });
+  await assertProviderResponse(response);
+
+  const payload = (await response.json()) as { data?: Array<{ id?: string }> };
+  return (payload.data ?? [])
+    .filter((model): model is { id: string } => typeof model.id === "string" && model.id.length > 0)
+    .map((model) => ({ id: model.id }))
+    .sort((left, right) => left.id.localeCompare(right.id));
+}
+
+async function listAnthropicModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
+  const response = await fetch(getAnthropicModelsEndpoint(settings.providerEndpoint), {
+    headers: {
+      "x-api-key": settings.apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    }
+  });
+  await assertProviderResponse(response);
+
+  const payload = (await response.json()) as {
+    data?: Array<{ id?: string; display_name?: string }>;
+  };
+  return (payload.data ?? [])
+    .filter((model): model is { id: string; display_name?: string } => typeof model.id === "string" && model.id.length > 0)
+    .map((model) => ({ id: model.id, displayName: model.display_name }));
+}
+
+async function listGoogleModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
+  const endpoint = `${settings.providerEndpoint.replace(/\/$/, "")}?key=${encodeURIComponent(settings.apiKey)}`;
+  const response = await fetch(endpoint);
+  await assertProviderResponse(response);
+
+  const payload = (await response.json()) as {
+    models?: Array<{ name?: string; displayName?: string; supportedGenerationMethods?: string[] }>;
+  };
+  return (payload.models ?? [])
+    .filter(
+      (model): model is { name: string; displayName?: string; supportedGenerationMethods?: string[] } =>
+        typeof model.name === "string" &&
+        model.name.length > 0 &&
+        (model.supportedGenerationMethods?.includes("generateContent") ?? true)
+    )
+    .map((model) => ({ id: model.name.replace(/^models\//, ""), displayName: model.displayName }));
+}
+
+function getOpenAIModelsEndpoint(providerEndpoint: string): string {
+  const url = new URL(providerEndpoint);
+  url.pathname = "/v1/models";
+  url.search = "";
+  return url.toString();
+}
+
+function getAnthropicModelsEndpoint(providerEndpoint: string): string {
+  const url = new URL(providerEndpoint);
+  url.pathname = "/v1/models";
+  url.search = "";
+  return url.toString();
 }
 
 async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {

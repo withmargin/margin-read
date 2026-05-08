@@ -29,7 +29,8 @@
         </label>
         <label>
           Model
-          <input name="model" type="text" required />
+          <input name="model" type="text" list="model-options" required />
+          <datalist id="model-options"></datalist>
         </label>
         <label>
           Source language
@@ -55,6 +56,7 @@
         </label>
         <div class="actions">
           <button type="submit">Save settings</button>
+          <button id="fetch-models" type="button" class="secondary">Fetch models</button>
           <button id="clear-cache" type="button" class="secondary">Clear cache</button>
         </div>
       </form>
