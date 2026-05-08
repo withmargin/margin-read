@@ -33,6 +33,12 @@ Run type checks:
 npm run check
 ```
 
+Run extension manifest and security checks:
+
+```sh
+npm run check:extension
+```
+
 Run tests with coverage:
 
 ```sh

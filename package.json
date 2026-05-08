@@ -7,6 +7,7 @@
   "scripts": {
     "build": "npm run clean && rolldown -c && node scripts/copy-assets.mjs",
     "check": "tsc --noEmit",
+    "check:extension": "node scripts/check-extension.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint src vitest.config.ts rolldown.config.ts",
     "test": "vitest run --coverage",
