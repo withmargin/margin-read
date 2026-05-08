@@ -39,6 +39,7 @@ Out of scope:
 4. The service worker sends uncached segments to the configured provider endpoint.
 5. The provider returns translated text.
 6. The content script inserts translated text below the matching source block.
+7. When the user fetches models, the service worker sends a provider-specific model list request using the configured API key.
 
 ## Threats and Mitigations
 
@@ -73,6 +74,16 @@ Mitigations:
 - Make the endpoint user-configured and visible in options.
 - Do not silently redirect requests through an official backend.
 - Document that provider privacy depends on the configured endpoint.
+
+### Model List Requests
+
+Risk: Fetching models sends the configured API key to the selected provider endpoint.
+
+Mitigations:
+
+- Only fetch models when the user clicks Fetch models.
+- Use the selected provider's documented model list endpoint.
+- Keep manual model entry available as a fallback.
 
 ### Overbroad Permissions
 

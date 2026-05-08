@@ -12,6 +12,7 @@ Rosetta currently targets Chrome and Chromium browsers with Manifest V3. The MVP
 - Excluding common non-reading areas such as navigation, forms, buttons, code blocks, hidden text, and page chrome.
 - Supporting user-configured OpenAI, Anthropic Claude, and Google Gemini providers.
 - Storing provider settings in browser extension storage.
+- Fetching official provider model lists from the options page.
 - Basic persistent, session, or disabled translation cache behavior.
 - Basic error states when provider configuration or requests fail.
 - Mutation observation for dynamically inserted content.
@@ -67,6 +68,12 @@ Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
 No API key is bundled with the extension. Users must provide their own raw provider API key without a `Bearer` prefix. The endpoint field remains editable for compatible gateways and self-hosted routing.
+
+The Fetch models action reads available models from the selected provider:
+
+- OpenAI: `GET /v1/models`
+- Anthropic Claude: `GET /v1/models`
+- Google Gemini: `GET /v1beta/models`
 
 ## Privacy Position
 

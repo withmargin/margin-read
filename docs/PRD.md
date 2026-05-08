@@ -56,6 +56,7 @@ The MVP display style is below-source translation. Side-by-side layout is a late
 - Translation inserted below source text blocks.
 - OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 - Options page for endpoint, API key, model, source language, target language, and cache behavior.
+- Options page support for fetching provider model lists.
 - Basic persistent, session, or disabled cache modes.
 - Basic error state inserted near affected text blocks.
 - MutationObserver support for dynamically inserted content.
@@ -94,6 +95,7 @@ The MVP display style is below-source translation. Side-by-side layout is a late
 - The extension must send only extracted text segments, not full page HTML, to the provider.
 - The extension must show an actionable error when the API key is missing or provider requests fail.
 - The extension must support OpenAI chat completions, Anthropic Claude Messages API, and Google Gemini generateContent.
+- The extension should let users fetch available models from the selected provider.
 - The extension must not hardcode API keys.
 - The extension must store settings in browser extension storage.
 - The extension must support dynamically inserted readable content.
@@ -154,7 +156,7 @@ Provider settings include:
 - Source language or `auto`
 - Target language
 
-The provider adapter should request JSON output containing translated segments by ID. Future adapters should be able to implement the same conceptual contract without rewriting content detection or display logic.
+The provider adapter should request JSON output containing translated segments by ID. Model listing should use provider-specific official model APIs where available. Future adapters should be able to implement the same conceptual contract without rewriting content detection or display logic.
 
 ## 14. Privacy & Security Requirements
 
@@ -217,14 +219,15 @@ Later:
 ## 20. Data Flow
 
 1. User configures provider settings in the options page.
-2. User opens a webpage and clicks Translate this page.
-3. Popup sends `TOGGLE_TRANSLATION` to the active tab.
-4. Content script detects readable text blocks.
-5. Content script sends text segments to the service worker.
-6. Service worker checks cache.
-7. Service worker sends uncached text segments to the configured provider.
-8. Service worker returns translated segments to the content script.
-9. Content script inserts translations below matching source blocks.
+2. User may fetch available models from the selected provider through the service worker.
+3. User opens a webpage and clicks Translate this page.
+4. Popup sends `TOGGLE_TRANSLATION` to the active tab.
+5. Content script detects readable text blocks.
+6. Content script sends text segments to the service worker.
+7. Service worker checks cache.
+8. Service worker sends uncached text segments to the configured provider.
+9. Service worker returns translated segments to the content script.
+10. Content script inserts translations below matching source blocks.
 
 ## 21. Settings & Configuration
 
