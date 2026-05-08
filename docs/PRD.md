@@ -156,7 +156,7 @@ Provider settings include:
 - Source language or `auto`
 - Target language
 
-The provider adapter should request JSON output containing translated segments by ID. Model listing should use provider-specific official model APIs where available. Future adapters should be able to implement the same conceptual contract without rewriting content detection or display logic.
+The provider adapter should request structured output containing translated segments by ID. Claude uses forced tool use for structured translation results, while other providers may use provider-specific JSON response controls. Model listing should use provider-specific official model APIs where available. Future adapters should be able to implement the same conceptual contract without rewriting content detection or display logic.
 
 ## 14. Privacy & Security Requirements
 

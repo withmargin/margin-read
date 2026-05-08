@@ -1,4 +1,5 @@
 import { clearPersistentCache, getCachedTranslation, getSettings, setCachedTranslation } from "../shared/storage";
+import { extractJsonObject } from "../shared/json";
 import type {
   ExtensionSettings,
   RuntimeMessage,
@@ -295,6 +296,17 @@ async function requestAnthropicTranslation(
       temperature: 0,
       system:
         "You are a translation engine for a browser extension. Return only valid JSON. Preserve meaning, names, URLs, code-like tokens, and formatting where practical.",
+      tools: [
+        {
+          name: "return_translations",
+          description: "Return translated text segments for bilingual webpage reading.",
+          input_schema: getTranslationSchema()
+        }
+      ],
+      tool_choice: {
+        type: "tool",
+        name: "return_translations"
+      },
       messages: [
         {
           role: "user",
@@ -307,10 +319,17 @@ async function requestAnthropicTranslation(
   await assertProviderResponse(response);
 
   const payload = (await response.json()) as {
-    content?: Array<{ type?: string; text?: string }>;
+    content?: Array<{ type?: string; text?: string; name?: string; input?: unknown }>;
   };
-  const content = payload.content?.find((item) => item.type === "text" && item.text)?.text;
+  const toolInput = payload.content?.find(
+    (item) => item.type === "tool_use" && item.name === "return_translations" && item.input
+  )?.input;
 
+  if (toolInput) {
+    return validateTranslations(toolInput, segments);
+  }
+
+  const content = payload.content?.find((item) => item.type === "text" && item.text)?.text;
   if (!content) {
     throw new Error("Provider response did not include translated content.");
   }
@@ -374,8 +393,14 @@ async function assertProviderResponse(response: Response): Promise<void> {
 }
 
 function parseTranslations(content: string, segments: TextSegment[]): TranslationResult[] {
-  const parsed = JSON.parse(content) as { translations?: TranslationResult[] };
-  const translations = parsed.translations ?? [];
+  return validateTranslations(JSON.parse(extractJsonObject(content)), segments);
+}
+
+function validateTranslations(value: unknown, segments: TextSegment[]): TranslationResult[] {
+  const translations =
+    typeof value === "object" && value !== null && "translations" in value && Array.isArray(value.translations)
+      ? value.translations
+      : [];
   const validIds = new Set(segments.map((segment) => segment.id));
 
   return translations.filter(
@@ -384,4 +409,24 @@ function parseTranslations(content: string, segments: TextSegment[]): Translatio
       typeof translation.text === "string" &&
       translation.text.trim().length > 0
   );
+}
+
+function getTranslationSchema(): object {
+  return {
+    type: "object",
+    properties: {
+      translations: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            text: { type: "string" }
+          },
+          required: ["id", "text"]
+        }
+      }
+    },
+    required: ["translations"]
+  };
 }
