@@ -42,7 +42,7 @@ async function handleMessage(message: RuntimeMessage): Promise<unknown> {
     return listProviderModels({ ...message.settings, apiKey: normalizeApiKey(message.settings.apiKey) });
   }
 
-  return { ok: false, error: "Unsupported runtime message." };
+  return { ok: false, error: `Unsupported runtime message: ${getRuntimeMessageType(message)}.` };
 }
 
 async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchResponse> {
@@ -102,6 +102,19 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
 
 function normalizeApiKey(apiKey: string): string {
   return apiKey.trim().replace(/^Bearer\s+/i, "").trim();
+}
+
+function getRuntimeMessageType(message: unknown): string {
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    typeof message.type === "string"
+  ) {
+    return message.type;
+  }
+
+  return "unknown";
 }
 
 async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: boolean; models?: ProviderModel[]; error?: string }> {
