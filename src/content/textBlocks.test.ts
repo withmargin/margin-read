@@ -66,14 +66,40 @@ describe("collectTextBlocks", () => {
 
   it("skips legacy fallback when semantic blocks exist", () => {
     const document = createDocument(`
-      <main><p>This semantic paragraph is enough to avoid legacy fallback.</p></main>
+      <main>
+        <p>This semantic paragraph is enough to help avoid legacy fallback.</p>
+        <p>This second semantic paragraph is enough to help avoid legacy fallback.</p>
+        <p>This third semantic paragraph is enough to help avoid legacy fallback.</p>
+      </main>
       <table><tr><td>Legacy text should not be split when semantic text exists.</td></tr></table>
     `);
 
     const blocks = collectTextBlocks(document, options);
 
-    expect(blocks).toHaveLength(1);
-    expect(blocks[0]?.tagName).toBe("P");
+    expect(blocks).toHaveLength(3);
+    expect(blocks.every((block) => block.tagName === "P")).toBe(true);
+  });
+
+  it("uses legacy fallback when semantic content is too sparse", () => {
+    const document = createDocument(`
+      <main><p>January 2012</p></main>
+      <table>
+        <tr>
+          <td>
+            <font>
+              There are great startup ideas lying around unexploited right under our noses.
+              <br><br>
+              No one likes schleps, but hackers especially dislike them and often avoid them.
+            </font>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks).toHaveLength(2);
+    expect(blocks.every((block) => block.dataset.toastLegacyBlock === "true")).toBe(true);
   });
 
   it("excludes translated and interactive content", () => {

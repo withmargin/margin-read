@@ -8,14 +8,17 @@ const SEMANTIC_SELECTOR =
   "article p, article li, article blockquote, article h1, article h2, article h3, main p, main li, main blockquote, main h1, main h2, main h3, p, li, blockquote, h1, h2, h3";
 
 const LEGACY_SELECTOR = "td, font, body";
+const MIN_SEMANTIC_BLOCKS = 3;
+const MIN_SEMANTIC_TEXT_LENGTH = 500;
 
 export function collectTextBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
   const semanticBlocks = collectSemanticBlocks(document, options);
-  if (semanticBlocks.length > 0) {
+  if (hasEnoughSemanticContent(semanticBlocks)) {
     return semanticBlocks;
   }
 
-  return collectLegacyBlocks(document, options);
+  const legacyBlocks = collectLegacyBlocks(document, options);
+  return legacyBlocks.length > 0 ? legacyBlocks : semanticBlocks;
 }
 
 function collectSemanticBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
@@ -36,6 +39,15 @@ function collectLegacyBlocks(document: Document, options: TextBlockOptions): HTM
 
   const blocks = splitLegacyContainer(container, document, options);
   return blocks.filter((element) => isTranslatableElement(element, options));
+}
+
+function hasEnoughSemanticContent(blocks: HTMLElement[]): boolean {
+  if (blocks.length >= MIN_SEMANTIC_BLOCKS) {
+    return true;
+  }
+
+  const totalLength = blocks.reduce((length, block) => length + getNormalizedText(block).length, 0);
+  return totalLength >= MIN_SEMANTIC_TEXT_LENGTH;
 }
 
 function splitLegacyContainer(container: HTMLElement, document: Document, options: TextBlockOptions): HTMLElement[] {
