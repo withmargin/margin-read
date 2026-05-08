@@ -1,6 +1,6 @@
 import { DEFAULT_SETTINGS } from "../shared/defaults";
 import { getSettings, saveSettings } from "../shared/storage";
-import type { CacheMode, ExtensionSettings } from "../shared/types";
+import type { CacheMode, DisplayStyle, ExtensionSettings } from "../shared/types";
 
 const form = document.querySelector<HTMLFormElement>("#settings-form");
 const statusEl = document.querySelector<HTMLParagraphElement>("#status");
@@ -30,6 +30,7 @@ function fillForm(settings: ExtensionSettings): void {
   setInputValue("model", settings.model);
   setInputValue("sourceLanguage", settings.sourceLanguage);
   setInputValue("targetLanguage", settings.targetLanguage);
+  setInputValue("displayStyle", settings.displayStyle);
   setInputValue("cacheMode", settings.cacheMode);
 }
 
@@ -41,7 +42,7 @@ function readForm(): ExtensionSettings {
     model: getInputValue("model"),
     sourceLanguage: getInputValue("sourceLanguage"),
     targetLanguage: getInputValue("targetLanguage"),
-    displayStyle: "below",
+    displayStyle: getInputValue("displayStyle") as DisplayStyle,
     cacheMode: getInputValue("cacheMode") as CacheMode
   };
 }

@@ -4,7 +4,7 @@
 
 Rosetta is a truly open-source browser extension for bilingual webpage translation. It preserves the original webpage text and inserts translated text near the corresponding source text block, with the MVP placing translations below the original paragraph or readable block.
 
-The MVP is scoped to Chrome and Chromium browser extension support. It does not attempt to replace every feature in Immersive Translate. It focuses on one core reading experience: translating normal webpages in place while keeping the source text visible and auditable.
+The MVP is scoped to Chrome and Chromium browser extension support. It does not attempt to cover every possible translation workflow. It focuses on one core reading experience: translating normal webpages in place while keeping the source text visible and auditable.
 
 ## 2. Product Positioning
 

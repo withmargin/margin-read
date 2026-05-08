@@ -18,3 +18,14 @@
   border-left-color: #c5332e;
   background: color-mix(in srgb, Canvas 90%, #c5332e 10%);
 }
+
+.rosetta-retry {
+  margin-left: 0.75em;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0.2em 0.55em;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}

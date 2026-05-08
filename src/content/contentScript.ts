@@ -144,6 +144,15 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
   }
 
   applyTranslations(response.results);
+  const translatedIds = new Set(response.results.map((result) => result.id));
+  const missingBlocks = segments
+    .filter((segment) => !translatedIds.has(segment.id))
+    .map((segment) => blockMap.get(segment.id))
+    .filter((element): element is HTMLElement => Boolean(element));
+
+  if (missingBlocks.length > 0) {
+    insertErrorState(missingBlocks, "The provider did not return a translation for this block.");
+  }
 }
 
 function applyTranslations(results: TranslationResult[]): void {
@@ -179,6 +188,25 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   }
 
   translation.dataset.state = state;
+  translation.replaceChildren();
+
+  if (state === "error") {
+    const message = document.createElement("span");
+    message.textContent = text;
+
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "rosetta-retry";
+    retry.textContent = "Retry";
+    retry.addEventListener("click", () => {
+      source.removeAttribute(TRANSLATED_ATTR);
+      void translateBlocks([source]);
+    });
+
+    translation.append(message, retry);
+    return;
+  }
+
   translation.textContent = text;
 }
 
