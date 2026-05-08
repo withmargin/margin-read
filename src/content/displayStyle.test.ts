@@ -6,6 +6,7 @@ import {
   getIntegratedFontWeight,
   getIntegratedLineHeight,
   getIntegratedMarginBottom,
+  getIntegratedMarginTop,
   getTranslationClassName,
   scaleFontSize
 } from "./displayStyle";
@@ -68,12 +69,30 @@ describe("getIntegratedLineHeight", () => {
 });
 
 describe("getIntegratedMarginBottom", () => {
-  it("scales source margin bottom down", () => {
-    expect(getIntegratedMarginBottom("24px", 20)).toBe("0.65em");
+  it("preserves paragraph rhythm after the translation", () => {
+    expect(getIntegratedMarginBottom("24px", 30, 20)).toBe("1.2em");
   });
 
   it("falls back when margin bottom is not pixel-based", () => {
-    expect(getIntegratedMarginBottom("auto", 20)).toBe("0.45em");
+    expect(getIntegratedMarginBottom("auto", 30, 20)).toBe("0.8em");
+  });
+
+  it("uses a tighter heading rhythm", () => {
+    expect(getIntegratedMarginBottom("40px", 80, 60, true)).toBe("0.67em");
+  });
+});
+
+describe("getIntegratedMarginTop", () => {
+  it("uses a small positive gap when the source has no bottom margin", () => {
+    expect(getIntegratedMarginTop("0px", 30, 20, false)).toBe("0.33em");
+  });
+
+  it("counteracts source bottom margin to keep translation attached to the source", () => {
+    expect(getIntegratedMarginTop("24px", 30, 20, false)).toBe("-0.87em");
+  });
+
+  it("uses a smaller heading gap", () => {
+    expect(getIntegratedMarginTop("0px", 80, 60, true)).toBe("0.19em");
   });
 });
 
@@ -97,8 +116,8 @@ describe("deriveIntegratedStyleTokens", () => {
     ).toMatchObject({
       fontSize: "20px",
       lineHeight: "1.43",
-      marginTop: "0.18em",
-      marginBottom: "0.42em"
+      marginTop: "-0.45em",
+      marginBottom: "1.14em"
     });
   });
 });
@@ -143,7 +162,8 @@ describe("applyIntegratedStyle", () => {
     expect(translation.style.fontWeight).toBe("500");
     expect(translation.style.lineHeight).toBe("1.5");
     expect(translation.style.maxWidth).toBe("640px");
-    expect(translation.style.marginTop).toBe("0.18em");
+    expect(translation.style.marginTop).toBe("-0.87em");
+    expect(translation.style.marginBottom).toBe("1.2em");
   });
 
   it("does not force a max width when the source has none", () => {

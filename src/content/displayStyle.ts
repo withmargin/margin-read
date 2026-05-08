@@ -48,6 +48,7 @@ export function deriveIntegratedStyleTokens(
 ): IntegratedStyleTokens {
   const sourceFontSize = parseCssPixels(style.fontSize) ?? 16;
   const heading = isHeading(source.tagName);
+  const sourceLineHeight = getSourceLineHeightPixels(style.lineHeight, sourceFontSize, heading);
 
   return {
     fontFamily: style.fontFamily,
@@ -58,8 +59,8 @@ export function deriveIntegratedStyleTokens(
     textAlign: style.textAlign,
     color: style.color,
     maxWidth: style.maxWidth === "none" ? "" : style.maxWidth,
-    marginTop: heading ? "0.12em" : "0.18em",
-    marginBottom: heading ? "0.35em" : getIntegratedMarginBottom(style.marginBottom, sourceFontSize)
+    marginTop: getIntegratedMarginTop(style.marginBottom, sourceLineHeight, sourceFontSize, heading),
+    marginBottom: getIntegratedMarginBottom(style.marginBottom, sourceLineHeight, sourceFontSize, heading)
   };
 }
 
@@ -100,13 +101,33 @@ export function getIntegratedLineHeight(lineHeight: string, sourceFontSize: numb
   return String(roundCssNumber(clamp(lineHeightPixels / sourceFontSize, 1.42, 1.58)));
 }
 
-export function getIntegratedMarginBottom(marginBottom: string, sourceFontSize: number): string {
+export function getIntegratedMarginTop(
+  sourceMarginBottom: string,
+  sourceLineHeight: number,
+  sourceFontSize: number,
+  heading: boolean
+): string {
+  const marginPixels = parseCssPixels(sourceMarginBottom) ?? 0;
+  const desiredGapPixels = sourceLineHeight * (heading ? 0.14 : 0.22);
+  const marginTopPixels = Math.max(desiredGapPixels - marginPixels, marginPixels > 0 ? -marginPixels + 4 : 0);
+  return `${roundCssNumber(marginTopPixels / sourceFontSize)}em`;
+}
+
+export function getIntegratedMarginBottom(
+  marginBottom: string,
+  sourceLineHeight: number,
+  sourceFontSize: number,
+  heading = false
+): string {
   const marginPixels = parseCssPixels(marginBottom);
-  if (marginPixels === undefined || sourceFontSize <= 0) {
-    return "0.45em";
+  if (marginPixels === undefined || sourceFontSize <= 0 || sourceLineHeight <= 0) {
+    return heading ? "0.45em" : "0.8em";
   }
 
-  return `${roundCssNumber(Math.min((marginPixels * 0.55) / sourceFontSize, 0.65))}em`;
+  const fallbackRhythm = (sourceLineHeight * (heading ? 0.45 : 0.8)) / sourceFontSize;
+  const sourceRhythm = marginPixels / sourceFontSize;
+  const maxRhythm = heading ? 0.9 : 1.8;
+  return `${roundCssNumber(clamp(Math.max(sourceRhythm, fallbackRhythm), heading ? 0.35 : 0.75, maxRhythm))}em`;
 }
 
 function isHeading(tagName: string): boolean {
@@ -120,6 +141,15 @@ function parseCssPixels(value: string): number | undefined {
 
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function getSourceLineHeightPixels(lineHeight: string, sourceFontSize: number, heading: boolean): number {
+  const lineHeightPixels = parseCssPixels(lineHeight);
+  if (lineHeightPixels !== undefined) {
+    return lineHeightPixels;
+  }
+
+  return sourceFontSize * (heading ? 1.25 : 1.5);
 }
 
 function clamp(value: number, min: number, max: number): number {
