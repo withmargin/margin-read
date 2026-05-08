@@ -75,6 +75,8 @@ The Fetch models action reads available models from the selected provider:
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
 
+Fetched models appear in the model selector. The custom model input remains available for unreleased models, compatible gateways, and self-hosted routes.
+
 ## Privacy Position
 
 Rosetta sends only selected text segments to the configured provider. It does not send full page HTML by default, does not require login, does not use cloud sync, and does not include telemetry by default. Provider requests are made by the extension service worker using the endpoint and API key configured by the user.

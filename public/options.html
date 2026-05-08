@@ -29,8 +29,11 @@
         </label>
         <label>
           Model
-          <input name="model" type="text" list="model-options" required />
-          <datalist id="model-options"></datalist>
+          <select id="model-select">
+            <option value="">Fetch models or use custom model below</option>
+          </select>
+          <input name="model" type="text" required />
+          <span class="hint">Select a fetched model or enter a custom model name.</span>
         </label>
         <label>
           Source language

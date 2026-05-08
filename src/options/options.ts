@@ -6,7 +6,7 @@ const form = document.querySelector<HTMLFormElement>("#settings-form");
 const statusEl = document.querySelector<HTMLParagraphElement>("#status");
 const clearCacheButton = document.querySelector<HTMLButtonElement>("#clear-cache");
 const fetchModelsButton = document.querySelector<HTMLButtonElement>("#fetch-models");
-const modelOptions = document.querySelector<HTMLDataListElement>("#model-options");
+const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
 
 void initialize();
 
@@ -28,6 +28,12 @@ async function initialize(): Promise<void> {
 
   fetchModelsButton?.addEventListener("click", async () => {
     await fetchModels();
+  });
+
+  modelSelect?.addEventListener("change", () => {
+    if (modelSelect.value) {
+      setInputValue("model", modelSelect.value);
+    }
   });
 }
 
@@ -63,7 +69,7 @@ function bindProviderDefaults(): void {
     const defaults = PROVIDER_DEFAULTS[provider];
     setInputValue("providerEndpoint", defaults.providerEndpoint);
     setInputValue("model", defaults.model);
-    modelOptions?.replaceChildren();
+    resetModelSelect();
   });
 }
 
@@ -84,14 +90,23 @@ async function fetchModels(): Promise<void> {
 }
 
 function renderModelOptions(models: ProviderModel[]): void {
-  modelOptions?.replaceChildren(
+  modelSelect?.replaceChildren(
+    createModelOption("", "Select a model"),
     ...models.map((model) => {
-      const option = document.createElement("option");
-      option.value = model.id;
-      option.label = model.displayName ? `${model.displayName} (${model.id})` : model.id;
-      return option;
+      return createModelOption(model.id, model.displayName ? `${model.displayName} (${model.id})` : model.id);
     })
   );
+}
+
+function resetModelSelect(): void {
+  modelSelect?.replaceChildren(createModelOption("", "Fetch models or use custom model below"));
+}
+
+function createModelOption(value: string, label: string): HTMLOptionElement {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  return option;
 }
 
 function setInputValue(name: string, value: string): void {
