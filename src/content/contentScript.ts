@@ -73,8 +73,11 @@ async function startTranslation(): Promise<void> {
   } catch (error: unknown) {
     recordError(error instanceof Error ? error.message : "Could not load extension settings.");
   }
-  observer = new MutationObserver(() => {
+  observer = new MutationObserver((mutations) => {
     if (!enabled || pending) {
+      return;
+    }
+    if (mutations.every(isToastMutation)) {
       return;
     }
     pending = true;
@@ -274,6 +277,9 @@ function applyTranslations(results: TranslationResult[]): void {
 
 function insertPendingState(blocks: HTMLElement[]): void {
   for (const block of blocks) {
+    if (isLegacySplitBlock(block)) {
+      continue;
+    }
     upsertTranslation(block, "Translating...", "pending");
   }
   updateDebugCounts();
@@ -290,7 +296,7 @@ function insertErrorState(blocks: HTMLElement[], message: string): void {
 function upsertTranslation(source: HTMLElement, text: string, state: "pending" | "done" | "error"): void {
   let translation = source.nextElementSibling;
   if (!translation?.classList.contains(TRANSLATION_CLASS)) {
-    translation = document.createElement("div");
+    translation = createTranslationElement(source);
     source.insertAdjacentElement("afterend", translation);
   }
 
@@ -299,7 +305,7 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   }
 
   translation.className = getTranslationClassName(displayStyle);
-  translation.dataset.toastSource = source.dataset.toastXBlock ? "x" : "web";
+  translation.dataset.toastSource = getTranslationSource(source);
   translation.dataset.state = state;
   translation.removeAttribute("style");
   if (displayStyle === "integrated") {
@@ -325,6 +331,47 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   }
 
   translation.textContent = text;
+}
+
+function createTranslationElement(source: HTMLElement): HTMLElement {
+  return document.createElement(isLegacySplitBlock(source) ? "span" : "div");
+}
+
+function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
+  if (source.dataset.toastXBlock) {
+    return "x";
+  }
+  if (isLegacySplitBlock(source)) {
+    return "legacy";
+  }
+  return "web";
+}
+
+function isLegacySplitBlock(element: HTMLElement): boolean {
+  return element.dataset.toastLegacyBlock === "true" || element.dataset.toastBrSeparatedBlock === "true";
+}
+
+function isToastMutation(mutation: MutationRecord): boolean {
+  if (mutation.target instanceof HTMLElement && isToastManagedNode(mutation.target)) {
+    return true;
+  }
+
+  const nodes = [...Array.from(mutation.addedNodes), ...Array.from(mutation.removedNodes)];
+  return nodes.length > 0 && nodes.every(isToastManagedNode);
+}
+
+function isToastManagedNode(node: Node): boolean {
+  if (!(node instanceof HTMLElement)) {
+    return false;
+  }
+
+  return (
+    node.classList.contains(TRANSLATION_CLASS) ||
+    node.hasAttribute(TRANSLATED_ATTR) ||
+    node.hasAttribute(BLOCK_ID_ATTR) ||
+    node.dataset.toastLegacyBlock === "true" ||
+    node.dataset.toastBrSeparatedBlock === "true"
+  );
 }
 
 function getSiblingText(element: HTMLElement, key: "previousElementSibling" | "nextElementSibling"): string | undefined {

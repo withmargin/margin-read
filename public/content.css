@@ -23,6 +23,12 @@
   overflow-wrap: anywhere;
 }
 
+.toast-translation[data-toast-source="legacy"] {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .toast-translation--highlighted {
   margin: 0.45em 0 0.85em;
   padding: 0.65em 0.75em;
