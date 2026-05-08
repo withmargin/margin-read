@@ -1,0 +1,17 @@
+{
+  "name": "rosetta",
+  "version": "0.1.0",
+  "description": "A privacy-first, open-source bilingual webpage translation browser extension.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc --noEmit",
+    "clean": "node scripts/clean.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "esbuild": "^0.21.5",
+    "typescript": "^5.5.4"
+  }
+}

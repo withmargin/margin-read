@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Rosetta",
+  "description": "Open-source bilingual webpage translation that preserves the original reading context.",
+  "version": "0.1.0",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Rosetta"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["<all_urls>"]
+}

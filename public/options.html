@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rosetta Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Rosetta Options</h1>
+      <form id="settings-form">
+        <label>
+          Provider endpoint
+          <input name="providerEndpoint" type="url" required />
+        </label>
+        <label>
+          API key
+          <input name="apiKey" type="password" autocomplete="off" />
+        </label>
+        <label>
+          Model
+          <input name="model" type="text" required />
+        </label>
+        <label>
+          Source language
+          <input name="sourceLanguage" type="text" placeholder="auto" />
+        </label>
+        <label>
+          Target language
+          <input name="targetLanguage" type="text" required />
+        </label>
+        <label>
+          Cache behavior
+          <select name="cacheMode">
+            <option value="persistent">Persistent</option>
+            <option value="session">Session only</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </label>
+        <div class="actions">
+          <button type="submit">Save settings</button>
+          <button id="clear-cache" type="button" class="secondary">Clear cache</button>
+        </div>
+      </form>
+      <p id="status" role="status"></p>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

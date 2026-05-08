@@ -1,0 +1,20 @@
+.rosetta-translation {
+  box-sizing: border-box;
+  margin: 0.45em 0 0.85em;
+  padding: 0.65em 0.75em;
+  border-left: 3px solid #2f6fed;
+  background: color-mix(in srgb, Canvas 92%, #2f6fed 8%);
+  color: inherit;
+  font: inherit;
+  line-height: 1.55;
+}
+
+.rosetta-translation[data-state="pending"] {
+  border-left-color: #7a7f87;
+  opacity: 0.72;
+}
+
+.rosetta-translation[data-state="error"] {
+  border-left-color: #c5332e;
+  background: color-mix(in srgb, Canvas 90%, #c5332e 10%);
+}
