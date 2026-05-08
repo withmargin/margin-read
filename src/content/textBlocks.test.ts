@@ -102,6 +102,66 @@ describe("collectTextBlocks", () => {
     expect(blocks.every((block) => block.dataset.toastLegacyBlock === "true")).toBe(true);
   });
 
+  it("splits a br-separated article paragraph into translation blocks", () => {
+    const document = createDocument(`
+      <font size="2" face="verdana">
+        <p>
+          January 2012<br><br>
+          There are great startup ideas lying around unexploited right under our noses.
+          <br><br>
+          No one likes schleps, but hackers especially dislike them and often avoid them.
+          <br><br>
+          One of the many things we do at Y Combinator is teach hackers about the inevitability of schleps.
+        </p>
+      </font>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks.map((block) => block.textContent)).toEqual([
+      "There are great startup ideas lying around unexploited right under our noses.",
+      "No one likes schleps, but hackers especially dislike them and often avoid them.",
+      "One of the many things we do at Y Combinator is teach hackers about the inevitability of schleps."
+    ]);
+    expect(blocks.every((block) => block.dataset.toastBrSeparatedBlock === "true")).toBe(true);
+  });
+
+  it("splits long br-separated semantic paragraphs that would otherwise be rejected", () => {
+    const document = createDocument(`
+      <main>
+        <p>
+          ${"First long paragraph sentence. ".repeat(80)}
+          <br><br>
+          ${"Second long paragraph sentence. ".repeat(80)}
+          <br><br>
+          ${"Third long paragraph sentence. ".repeat(80)}
+        </p>
+      </main>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks).toHaveLength(3);
+    expect(blocks.every((block) => block.textContent && block.textContent.length < 4000)).toBe(true);
+  });
+
+  it("does not split containers with only single line breaks", () => {
+    const document = createDocument(`
+      <main>
+        <p>
+          This paragraph has enough text to be translated as one semantic block.
+          <br>
+          This line should remain part of the same paragraph because there is no blank line.
+        </p>
+      </main>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.dataset.toastBrSeparatedBlock).toBeUndefined();
+  });
+
   it("excludes translated and interactive content", () => {
     const document = createDocument(`
       <main>
