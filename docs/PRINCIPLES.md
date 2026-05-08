@@ -28,7 +28,7 @@ The MVP is only bilingual webpage translation. PDF, EPUB, subtitles, OCR, input 
 
 ### Keep Provider Choice Modular
 
-OpenAI-compatible chat completion endpoints are the first provider target. The architecture should remain open to DeepL, LibreTranslate, Ollama, local models, and self-hosted endpoints.
+OpenAI, Anthropic Claude, and Google Gemini are first-class MVP provider targets. The architecture should remain open to DeepL, LibreTranslate, Ollama, local models, and self-hosted endpoints.
 
 ### Make Scope Creep Visible
 

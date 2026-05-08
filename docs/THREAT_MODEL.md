@@ -2,7 +2,7 @@
 
 ## Scope
 
-This threat model covers the MVP browser extension for bilingual webpage translation. The MVP includes a popup, content script, service worker, options page, local settings, local cache, and an OpenAI-compatible provider adapter.
+This threat model covers the MVP browser extension for bilingual webpage translation. The MVP includes a popup, content script, service worker, options page, local settings, local cache, and OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 
 Out of scope:
 

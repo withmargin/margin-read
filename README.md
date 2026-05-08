@@ -10,7 +10,7 @@ Rosetta currently targets Chrome and Chromium browsers with Manifest V3. The MVP
 - Detecting readable text blocks such as paragraphs, headings, list items, and blockquotes.
 - Preserving the original text and inserting translations below the matching source block.
 - Excluding common non-reading areas such as navigation, forms, buttons, code blocks, hidden text, and page chrome.
-- Using a user-configured OpenAI-compatible API endpoint.
+- Supporting user-configured OpenAI, Anthropic Claude, and Google Gemini providers.
 - Storing provider settings in browser extension storage.
 - Basic persistent, session, or disabled translation cache behavior.
 - Basic error states when provider configuration or requests fail.
@@ -47,18 +47,26 @@ The build uses Rolldown and writes the unpacked extension to `dist/`.
 3. Enable Developer mode.
 4. Select Load unpacked.
 5. Choose the `dist/` directory.
-6. Open Rosetta options and configure an OpenAI-compatible endpoint, API key, model, source language, target language, and cache behavior.
+6. Open Rosetta options and configure a provider, endpoint, API key, model, source language, target language, and cache behavior.
 7. Open a normal article webpage and click Translate this page from the Rosetta popup.
 
-## OpenAI-Compatible Provider
+## Translation Providers
 
-The MVP expects a `/chat/completions` compatible endpoint. The default endpoint is:
+The MVP supports three provider adapters:
+
+- OpenAI chat completions
+- Anthropic Claude Messages API
+- Google Gemini generateContent API
+
+Default endpoints:
 
 ```text
-https://api.openai.com/v1/chat/completions
+OpenAI: https://api.openai.com/v1/chat/completions
+Anthropic Claude: https://api.anthropic.com/v1/messages
+Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-No API key is bundled with the extension. Users must provide their own key or self-hosted compatible endpoint.
+No API key is bundled with the extension. Users must provide their own key. The endpoint field remains editable for compatible gateways and self-hosted routing.
 
 ## Privacy Position
 

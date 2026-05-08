@@ -10,7 +10,7 @@ The MVP is scoped to Chrome and Chromium browser extension support. It does not 
 
 Rosetta is an open-source, privacy-first alternative for users who want bilingual webpage reading without forced login, cloud sync, proprietary backend lock-in, bundled translation quota, or default telemetry.
 
-The product should be understandable and buildable from source. Core functionality must work with user-configured translation providers, beginning with OpenAI-compatible chat completion endpoints.
+The product should be understandable and buildable from source. Core functionality must work with user-configured translation providers, beginning with OpenAI, Anthropic Claude, and Google Gemini adapters.
 
 ## 3. Product Principles
 
@@ -19,7 +19,7 @@ The product should be understandable and buildable from source. Core functionali
 - Avoid proprietary lock-in: core translation does not require an official closed backend.
 - Respect privacy: only selected text segments are sent to the configured provider.
 - Avoid forced identity: no account system is required for MVP use.
-- Keep provider choice modular: OpenAI-compatible endpoints are first, but the architecture should allow DeepL, LibreTranslate, Ollama, local models, and self-hosted endpoints later.
+- Keep provider choice modular: OpenAI, Anthropic Claude, and Google Gemini are first-class MVP providers, and the architecture should allow DeepL, LibreTranslate, Ollama, local models, and self-hosted endpoints later.
 - Keep permissions explainable: permissions should map directly to webpage translation and provider requests.
 - Prefer a working reading tool over broad feature coverage.
 - Do not include telemetry by default.
@@ -29,7 +29,7 @@ The product should be understandable and buildable from source. Core functionali
 - Readers who want bilingual access to foreign-language articles, documentation, essays, and forum posts.
 - Developers and researchers who want to inspect the source code and provider data flow.
 - Privacy-conscious users who want to choose where webpage text is sent.
-- Power users who already have OpenAI-compatible API access or self-hosted translation endpoints.
+- Power users who already have OpenAI, Anthropic Claude, Google Gemini, or compatible gateway access.
 - Open-source contributors who want a narrowly scoped extension they can maintain and improve.
 
 ## 5. Problems To Solve
@@ -54,7 +54,7 @@ The MVP display style is below-source translation. Side-by-side layout is a late
 - Popup action to enable or disable translation for the current page.
 - Content script that detects readable text blocks.
 - Translation inserted below source text blocks.
-- OpenAI-compatible provider adapter.
+- OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 - Options page for endpoint, API key, model, source language, target language, and cache behavior.
 - Basic persistent, session, or disabled cache modes.
 - Basic error state inserted near affected text blocks.
@@ -93,7 +93,7 @@ The MVP display style is below-source translation. Side-by-side layout is a late
 - The extension must insert translations below matching source text blocks in MVP.
 - The extension must send only extracted text segments, not full page HTML, to the provider.
 - The extension must show an actionable error when the API key is missing or provider requests fail.
-- The extension must support OpenAI-compatible chat completion endpoints.
+- The extension must support OpenAI chat completions, Anthropic Claude Messages API, and Google Gemini generateContent.
 - The extension must not hardcode API keys.
 - The extension must store settings in browser extension storage.
 - The extension must support dynamically inserted readable content.
@@ -143,10 +143,11 @@ Text blocks should be normalized by trimming and collapsing whitespace. Very sho
 
 ## 13. Translation Provider Requirements
 
-The first provider target is OpenAI-compatible chat completions.
+The MVP provider targets are OpenAI chat completions, Anthropic Claude Messages API, and Google Gemini generateContent.
 
 Provider settings include:
 
+- Provider
 - Provider endpoint
 - API key
 - Model
@@ -221,7 +222,7 @@ Later:
 4. Content script detects readable text blocks.
 5. Content script sends text segments to the service worker.
 6. Service worker checks cache.
-7. Service worker sends uncached text segments to the configured OpenAI-compatible provider.
+7. Service worker sends uncached text segments to the configured provider.
 8. Service worker returns translated segments to the content script.
 9. Content script inserts translations below matching source blocks.
 
@@ -230,6 +231,7 @@ Later:
 MVP settings:
 
 - `providerEndpoint`
+- `provider`
 - `apiKey`
 - `model`
 - `sourceLanguage`
@@ -263,7 +265,7 @@ Milestone 1: Working MVP
 - Manifest V3 extension scaffold.
 - Popup translation toggle.
 - Options page.
-- OpenAI-compatible provider adapter.
+- OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 - Basic text block detection.
 - Below-source translation insertion.
 - Basic cache and error states.

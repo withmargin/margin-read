@@ -7,7 +7,7 @@ Status: implemented in the initial scaffold.
 - Manifest V3 Chrome / Chromium extension.
 - Popup page translation toggle.
 - Options page for provider settings.
-- OpenAI-compatible provider adapter.
+- OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 - Readable block detection.
 - Below-source translation display.
 - Persistent, session, and disabled cache modes.
@@ -28,7 +28,7 @@ Status: implemented in the initial scaffold.
 ## Milestone 3: Provider Ecosystem
 
 - Define a formal provider adapter interface.
-- Add documentation for OpenAI-compatible local endpoints.
+- Add documentation for compatible local endpoints and gateways.
 - Add LibreTranslate support.
 - Add Ollama examples.
 - Investigate DeepL support.
