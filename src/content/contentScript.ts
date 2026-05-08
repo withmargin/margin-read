@@ -1,5 +1,6 @@
 import type { RuntimeMessage, TranslationResult } from "../shared/types";
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
+import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
 const TRANSLATION_CLASS = "toast-translation";
@@ -83,60 +84,15 @@ function scanAndQueue(): void {
     return;
   }
 
-  const blocks = collectTextBlocks().slice(0, 80);
+  const blocks = collectTextBlocks(document, {
+    minTextLength: MIN_TEXT_LENGTH,
+    translatedAttr: TRANSLATED_ATTR,
+    translationClass: TRANSLATION_CLASS
+  }).slice(0, 80);
   queue.enqueue(blocks.map(createQueueItem));
   for (const block of blocks) {
     viewportObserver?.observe(block);
   }
-}
-
-function collectTextBlocks(): HTMLElement[] {
-  const candidates = Array.from(
-    document.querySelectorAll<HTMLElement>("article p, article li, article blockquote, article h1, article h2, article h3, main p, main li, main blockquote, main h1, main h2, main h3, p, li, blockquote, h1, h2, h3")
-  );
-
-  return candidates.filter((element) => {
-    if (element.hasAttribute(TRANSLATED_ATTR)) {
-      return false;
-    }
-
-    if (element.closest(`.${TRANSLATION_CLASS}`)) {
-      return false;
-    }
-
-    if (element.closest("nav, footer, aside, form, button, pre, code, script, style, noscript, svg, canvas, textarea, select")) {
-      return false;
-    }
-
-    if (element.closest("[aria-hidden='true'], [hidden], [role='navigation'], [role='banner'], [role='contentinfo']")) {
-      return false;
-    }
-
-    const style = window.getComputedStyle(element);
-    if (
-      style.display === "none" ||
-      style.visibility === "hidden" ||
-      Number(style.opacity) === 0 ||
-      element.offsetParent === null
-    ) {
-      return false;
-    }
-
-    const text = normalizeText(element.innerText);
-    if (text.length < MIN_TEXT_LENGTH && !/^H[1-3]$/.test(element.tagName)) {
-      return false;
-    }
-
-    if (text.length > 4000) {
-      return false;
-    }
-
-    if (element.querySelector("input, textarea, select, button")) {
-      return false;
-    }
-
-    return true;
-  });
 }
 
 async function translateBlocks(blocks: HTMLElement[]): Promise<void> {

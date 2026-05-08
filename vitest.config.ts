@@ -2,12 +2,17 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: "node",
+    environment: "happy-dom",
     include: ["src/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
-      include: ["src/shared/**/*.ts", "src/content/translationQueue.ts", "src/content/displayStyle.ts"],
+      include: [
+        "src/shared/**/*.ts",
+        "src/content/translationQueue.ts",
+        "src/content/displayStyle.ts",
+        "src/content/textBlocks.ts"
+      ],
       exclude: ["src/**/*.test.ts", "src/shared/types.ts"],
       thresholds: {
         lines: 95,

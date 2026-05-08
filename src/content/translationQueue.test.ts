@@ -119,6 +119,30 @@ describe("TranslationQueue", () => {
     expect(batches.flat()).toEqual(["a"]);
     expect(queue.size).toBe(0);
   });
+
+  it("continues draining after a worker failure", async () => {
+    const batches: string[][] = [];
+    const queue = new TranslationQueue<string>({
+      batchSize: 1,
+      concurrency: 1,
+      worker: vi.fn(async (items: string[]) => {
+        batches.push(items);
+        await Promise.resolve();
+        if (items[0] === "a") {
+          throw new Error("failed");
+        }
+      })
+    });
+
+    queue.enqueue([
+      { id: "a", priority: 0, distance: 0, value: "a" },
+      { id: "b", priority: 1, distance: 0, value: "b" }
+    ]);
+
+    await waitForQueue();
+
+    expect(batches.flat()).toEqual(["a", "b"]);
+  });
 });
 
 async function waitForQueue(): Promise<void> {
