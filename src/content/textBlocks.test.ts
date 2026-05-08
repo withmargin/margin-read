@@ -38,6 +38,152 @@ describe("collectTextBlocks", () => {
     expect(blocks[0]?.tagName).toBe("P");
   });
 
+  it("uses X tweet text blocks when X optimization is enabled", () => {
+    const document = createDocument(`
+      <div aria-label="Timeline: Your Home Timeline">
+        <article data-testid="tweet" role="article">
+          <div data-testid="User-Name">Author Name @handle</div>
+          <div data-testid="tweetText" lang="en">
+            <span>Anthropic just leaked their agent roadmap in 22 minutes.</span>
+          </div>
+          <div role="group" aria-label="31 replies, 253 reposts, 2365 likes"></div>
+        </article>
+      </div>
+    `);
+
+    const blocks = collectTextBlocks(document, { ...options, xOptimizedTranslation: true });
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.getAttribute("data-testid")).toBe("tweetText");
+    expect(blocks[0]?.dataset.toastXBlock).toBe("tweet-text");
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe("Anthropic just leaked their agent roadmap in 22 minutes.");
+  });
+
+  it("does not include quoted X post text by default", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="tweetText">The main post has enough text to translate.</div>
+        <div role="link">
+          <div data-testid="tweetText">The quoted post has enough text to translate.</div>
+        </div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, { ...options, xOptimizedTranslation: true });
+
+    expect(blocks).toHaveLength(1);
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe("The main post has enough text to translate.");
+  });
+
+  it("can include quoted X post text when enabled", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="tweetText">The main post has enough text to translate.</div>
+        <div role="link">
+          <div data-testid="tweetText">The quoted post has enough text to translate.</div>
+        </div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, {
+      ...options,
+      xOptimizedTranslation: true,
+      xTranslateQuotedPosts: true
+    });
+
+    expect(blocks.map((block) => normalize(block.textContent ?? ""))).toEqual([
+      "The main post has enough text to translate.",
+      "The quoted post has enough text to translate."
+    ]);
+  });
+
+  it("skips X posts that already have native translated text when enabled", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div>Translated from Spanish <button>Show original</button></div>
+        <div data-testid="tweetText">Haha, I do not know what his trick is.</div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, {
+      ...options,
+      xOptimizedTranslation: true,
+      xSkipNativeTranslatedPosts: true
+    });
+
+    expect(blocks).toHaveLength(0);
+  });
+
+  it("uses X article title and rich text blocks when article optimization is enabled", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="twitterArticleReadView">
+          <div data-testid="twitter-article-title">
+            How to build an AI team that does not quit on Friday
+          </div>
+          <div data-testid="twitterArticleRichTextView">
+            <div data-testid="longformRichTextComponent">
+              <div class="longform-unstyled" data-block="true">
+                <div><span data-text="true">Your AI agent broke at 2am on Friday. You do not know yet.</span></div>
+              </div>
+              <h2 class="longform-header-two" data-block="true">
+                <div><span data-text="true">The 3 rules of an AI team that survives Monday</span></div>
+              </h2>
+              <blockquote class="longform-blockquote" data-block="true">
+                <div><span data-text="true">Each human role costs $2,000-$4,500/mo.</span></div>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, {
+      ...options,
+      xOptimizedTranslation: true,
+      xTranslateArticles: true
+    });
+
+    expect(blocks.map((block) => normalize(block.textContent ?? ""))).toEqual([
+      "How to build an AI team that does not quit on Friday",
+      "Your AI agent broke at 2am on Friday. You do not know yet.",
+      "The 3 rules of an AI team that survives Monday",
+      "Each human role costs $2,000-$4,500/mo."
+    ]);
+    expect(blocks.every((block) => block.dataset.toastXBlock === "article")).toBe(true);
+  });
+
+  it("skips X article media blocks and reply composers", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="twitterArticleReadView">
+          <div data-testid="twitterArticleRichTextView">
+            <div data-testid="longformRichTextComponent">
+              <section data-block="true" contenteditable="false">
+                <img alt="Image" src="image.jpg" />
+              </section>
+              <div class="longform-unstyled" data-block="true">
+                <div><span data-text="true">A readable article paragraph should still be translated.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-testid="tweetTextarea_0_label">
+          <div role="textbox" contenteditable="true">Post your reply</div>
+        </div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, {
+      ...options,
+      xOptimizedTranslation: true,
+      xTranslateArticles: true
+    });
+
+    expect(blocks).toHaveLength(1);
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe("A readable article paragraph should still be translated.");
+  });
+
   it("falls back to legacy table text split by line breaks", () => {
     const document = createDocument(`
       <table>

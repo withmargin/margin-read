@@ -2,6 +2,10 @@ export interface TextBlockOptions {
   minTextLength: number;
   translatedAttr: string;
   translationClass: string;
+  xOptimizedTranslation?: boolean;
+  xTranslateArticles?: boolean;
+  xTranslateQuotedPosts?: boolean;
+  xSkipNativeTranslatedPosts?: boolean;
 }
 
 const SEMANTIC_SELECTOR =
@@ -12,8 +16,17 @@ const MIN_SEMANTIC_BLOCKS = 3;
 const MIN_SEMANTIC_TEXT_LENGTH = 500;
 const MAX_TEXT_LENGTH = 4000;
 const BR_SEPARATED_SELECTOR = "p, td, font";
+const X_TWEET_TEXT_SELECTOR = 'article[data-testid="tweet"] [data-testid="tweetText"]';
+const X_ARTICLE_SELECTOR = '[data-testid="twitterArticleReadView"]';
+const X_ARTICLE_TITLE_SELECTOR = '[data-testid="twitter-article-title"]';
+const X_ARTICLE_BLOCK_SELECTOR = '[data-testid="longformRichTextComponent"] [data-block="true"]';
 
 export function collectTextBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
+  const xBlocks = collectXBlocks(document, options);
+  if (xBlocks.length > 0) {
+    return xBlocks;
+  }
+
   const semanticBlocks = collectSemanticBlocks(document, options);
   if (hasEnoughSemanticContent(semanticBlocks)) {
     return semanticBlocks;
@@ -21,6 +34,84 @@ export function collectTextBlocks(document: Document, options: TextBlockOptions)
 
   const legacyBlocks = collectLegacyBlocks(document, options);
   return legacyBlocks.length > 0 ? legacyBlocks : semanticBlocks;
+}
+
+function collectXBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
+  if (!options.xOptimizedTranslation || !document.querySelector('article[data-testid="tweet"]')) {
+    return [];
+  }
+
+  const articleBlocks = collectXArticleBlocks(document, options);
+  if (articleBlocks.length > 0) {
+    return articleBlocks;
+  }
+
+  return Array.from(document.querySelectorAll<HTMLElement>(X_TWEET_TEXT_SELECTOR)).filter((element) =>
+    isXTranslatableTweetText(element, options)
+  );
+}
+
+function collectXArticleBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
+  if (!options.xTranslateArticles || !document.querySelector(X_ARTICLE_SELECTOR)) {
+    return [];
+  }
+
+  const titleBlocks = Array.from(document.querySelectorAll<HTMLElement>(X_ARTICLE_TITLE_SELECTOR)).filter((element) =>
+    isXArticleTextBlock(element, options)
+  );
+  const richTextBlocks = Array.from(document.querySelectorAll<HTMLElement>(X_ARTICLE_BLOCK_SELECTOR)).filter((element) =>
+    isXArticleTextBlock(element, options)
+  );
+
+  return [...titleBlocks, ...richTextBlocks];
+}
+
+function isXTranslatableTweetText(element: HTMLElement, options: TextBlockOptions): boolean {
+  const article = element.closest<HTMLElement>('article[data-testid="tweet"]');
+  if (!article) {
+    return false;
+  }
+
+  if (!options.xTranslateQuotedPosts && isInsideQuotedPost(element, article)) {
+    return false;
+  }
+
+  if (options.xSkipNativeTranslatedPosts && hasNativeXTranslationMarker(article)) {
+    return false;
+  }
+
+  if (!isTranslatableElement(element, options)) {
+    return false;
+  }
+
+  element.dataset.toastXBlock = "tweet-text";
+  return true;
+}
+
+function isXArticleTextBlock(element: HTMLElement, options: TextBlockOptions): boolean {
+  if (element.matches("section") || element.closest("section[contenteditable='false']")) {
+    return false;
+  }
+
+  if (element.querySelector("img, video, svg") && getNormalizedText(element).length < options.minTextLength * 2) {
+    return false;
+  }
+
+  if (!isTranslatableElement(element, options)) {
+    return false;
+  }
+
+  element.dataset.toastXBlock = "article";
+  return true;
+}
+
+function isInsideQuotedPost(element: HTMLElement, article: HTMLElement): boolean {
+  const quotedContainer = element.closest<HTMLElement>('[role="link"]');
+  return Boolean(quotedContainer && article.contains(quotedContainer));
+}
+
+function hasNativeXTranslationMarker(article: HTMLElement): boolean {
+  return /Translated from\s+\w+/i.test(article.innerText);
 }
 
 function collectSemanticBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {

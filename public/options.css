@@ -22,6 +22,22 @@ form {
   gap: 16px;
 }
 
+fieldset {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  border: 1px solid #d8dde6;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+legend {
+  padding: 0 4px;
+  color: #333840;
+  font-size: 14px;
+  font-weight: 650;
+}
+
 label {
   display: grid;
   gap: 6px;

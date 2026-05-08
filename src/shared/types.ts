@@ -14,6 +14,10 @@ export interface ExtensionSettings {
   displayStyle: DisplayStyle;
   cacheMode: CacheMode;
   debugMode: boolean;
+  xOptimizedTranslation: boolean;
+  xTranslateArticles: boolean;
+  xTranslateQuotedPosts: boolean;
+  xSkipNativeTranslatedPosts: boolean;
 }
 
 export interface TextSegment {

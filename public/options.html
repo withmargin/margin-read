@@ -58,6 +58,37 @@
             <option value="disabled">Disabled</option>
           </select>
         </label>
+        <fieldset>
+          <legend>X optimization</legend>
+          <label class="checkbox">
+            <input name="xOptimizedTranslation" type="checkbox" />
+            <span>
+              Optimize X timelines
+              <span class="hint">Translate only tweet text from X timeline cards by default.</span>
+            </span>
+          </label>
+          <label class="checkbox">
+            <input name="xTranslateArticles" type="checkbox" />
+            <span>
+              Translate X articles
+              <span class="hint">Translate X longform article titles and readable rich text blocks.</span>
+            </span>
+          </label>
+          <label class="checkbox">
+            <input name="xTranslateQuotedPosts" type="checkbox" />
+            <span>
+              Translate quoted posts
+              <span class="hint">Also translate nested quoted post text inside X cards.</span>
+            </span>
+          </label>
+          <label class="checkbox">
+            <input name="xSkipNativeTranslatedPosts" type="checkbox" />
+            <span>
+              Skip X translated posts
+              <span class="hint">Avoid retranslating posts that X already marks as translated.</span>
+            </span>
+          </label>
+        </fieldset>
         <label class="checkbox">
           <input name="debugMode" type="checkbox" />
           <span>

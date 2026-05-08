@@ -16,6 +16,13 @@
   opacity: 0.92;
 }
 
+.toast-translation[data-toast-source="x"] {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .toast-translation--highlighted {
   margin: 0.45em 0 0.85em;
   padding: 0.65em 0.75em;

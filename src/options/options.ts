@@ -55,6 +55,10 @@ function fillForm(settings: ExtensionSettings): void {
   setInputValue("displayStyle", settings.displayStyle);
   setInputValue("cacheMode", settings.cacheMode);
   setCheckboxValue("debugMode", settings.debugMode);
+  setCheckboxValue("xOptimizedTranslation", settings.xOptimizedTranslation);
+  setCheckboxValue("xTranslateArticles", settings.xTranslateArticles);
+  setCheckboxValue("xTranslateQuotedPosts", settings.xTranslateQuotedPosts);
+  setCheckboxValue("xSkipNativeTranslatedPosts", settings.xSkipNativeTranslatedPosts);
 }
 
 function readForm(): ExtensionSettings {
@@ -68,7 +72,11 @@ function readForm(): ExtensionSettings {
     targetLanguage: getInputValue("targetLanguage"),
     displayStyle: getInputValue("displayStyle") as DisplayStyle,
     cacheMode: getInputValue("cacheMode") as CacheMode,
-    debugMode: getCheckboxValue("debugMode")
+    debugMode: getCheckboxValue("debugMode"),
+    xOptimizedTranslation: getCheckboxValue("xOptimizedTranslation"),
+    xTranslateArticles: getCheckboxValue("xTranslateArticles"),
+    xTranslateQuotedPosts: getCheckboxValue("xTranslateQuotedPosts"),
+    xSkipNativeTranslatedPosts: getCheckboxValue("xSkipNativeTranslatedPosts")
   };
 }
 

@@ -19,6 +19,10 @@ let nextId = 1;
 let runId = 0;
 let displayStyle: TranslationDisplayStyle = "integrated";
 let debugMode = false;
+let xOptimizedTranslation = true;
+let xTranslateArticles = true;
+let xTranslateQuotedPosts = false;
+let xSkipNativeTranslatedPosts = true;
 let debugState: PageDebugState = createDebugState();
 
 const blockMap = new Map<string, HTMLElement>();
@@ -55,6 +59,10 @@ async function startTranslation(): Promise<void> {
     const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
     displayStyle = response.settings?.displayStyle ?? "integrated";
     debugMode = response.settings?.debugMode ?? false;
+    xOptimizedTranslation = response.settings?.xOptimizedTranslation ?? true;
+    xTranslateArticles = response.settings?.xTranslateArticles ?? true;
+    xTranslateQuotedPosts = response.settings?.xTranslateQuotedPosts ?? false;
+    xSkipNativeTranslatedPosts = response.settings?.xSkipNativeTranslatedPosts ?? true;
     debugState = {
       ...createDebugState(),
       debugMode,
@@ -104,7 +112,11 @@ function scanAndQueue(): void {
   const blocks = collectTextBlocks(document, {
     minTextLength: MIN_TEXT_LENGTH,
     translatedAttr: TRANSLATED_ATTR,
-    translationClass: TRANSLATION_CLASS
+    translationClass: TRANSLATION_CLASS,
+    xOptimizedTranslation,
+    xTranslateArticles,
+    xTranslateQuotedPosts,
+    xSkipNativeTranslatedPosts
   }).slice(0, 80);
   debugState.lastScanAt = Date.now();
   debugState.detectedBlocks = blocks.length;
@@ -241,6 +253,10 @@ interface SettingsResponse {
   settings?: {
     displayStyle?: TranslationDisplayStyle;
     debugMode?: boolean;
+    xOptimizedTranslation?: boolean;
+    xTranslateArticles?: boolean;
+    xTranslateQuotedPosts?: boolean;
+    xSkipNativeTranslatedPosts?: boolean;
   };
 }
 
@@ -283,6 +299,7 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   }
 
   translation.className = getTranslationClassName(displayStyle);
+  translation.dataset.toastSource = source.dataset.toastXBlock ? "x" : "web";
   translation.dataset.state = state;
   translation.removeAttribute("style");
   if (displayStyle === "integrated") {

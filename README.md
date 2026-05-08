@@ -18,6 +18,7 @@ Toast currently targets Chrome and Chromium browsers with Manifest V3. The MVP s
 - Basic error states when provider configuration or requests fail.
 - Optional popup diagnostics for text detection, queue state, and provider errors.
 - Mutation observation for dynamically inserted content.
+- X optimization that targets tweet text and longform article blocks while avoiding profile names, action counts, media, and controls.
 
 Toast does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or official paid translation quota features.
 
@@ -75,6 +76,10 @@ Use those values to separate the main failure modes:
 - `Detected blocks: 0` means the content script did not find readable text on the page.
 - A positive detected count with no running requests usually means the translation queue needs attention.
 - Error blocks or a latest error usually point to provider configuration, authentication, model, endpoint, or response format problems.
+
+## X Optimization
+
+Toast includes an optional X-specific detector for timeline cards and longform article pages. When enabled, it targets `tweetText` content inside tweet articles and readable blocks inside X article views instead of scanning every visible text node. Quoted posts are disabled by default and can be enabled from options. Posts that X already marks as translated are skipped by default to avoid duplicate translation.
 
 ## Translation Providers
 
