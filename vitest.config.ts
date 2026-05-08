@@ -7,7 +7,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
-      include: ["src/shared/**/*.ts", "src/content/translationQueue.ts"],
+      include: ["src/shared/**/*.ts", "src/content/translationQueue.ts", "src/content/displayStyle.ts"],
       exclude: ["src/**/*.test.ts", "src/shared/types.ts"],
       thresholds: {
         lines: 95,

@@ -15,6 +15,13 @@ describe("compareQueueItems", () => {
 
     expect([far, near].sort(compareQueueItems).map((item) => item.id)).toEqual(["near", "far"]);
   });
+
+  it("uses id as a stable final tiebreaker", () => {
+    const b: TranslationQueueItem<string> = { id: "b", priority: 1, distance: 10, value: "b" };
+    const a: TranslationQueueItem<string> = { id: "a", priority: 1, distance: 10, value: "a" };
+
+    expect([b, a].sort(compareQueueItems).map((item) => item.id)).toEqual(["a", "b"]);
+  });
 });
 
 describe("TranslationQueue", () => {
@@ -62,6 +69,27 @@ describe("TranslationQueue", () => {
     queue.enqueue([
       { id: "same", priority: 2, distance: 100, value: "slow" },
       { id: "same", priority: 0, distance: 0, value: "fast" }
+    ]);
+
+    await waitForQueue();
+
+    expect(batches.flat()).toEqual(["fast"]);
+  });
+
+  it("keeps an existing pending item when a duplicate has lower priority", async () => {
+    const batches: string[][] = [];
+    const queue = new TranslationQueue<string>({
+      batchSize: 4,
+      concurrency: 1,
+      worker: vi.fn(async (items: string[]) => {
+        batches.push(items);
+        await Promise.resolve();
+      })
+    });
+
+    queue.enqueue([
+      { id: "same", priority: 0, distance: 0, value: "fast" },
+      { id: "same", priority: 2, distance: 100, value: "slow" }
     ]);
 
     await waitForQueue();

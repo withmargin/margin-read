@@ -25,7 +25,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   model: PROVIDER_DEFAULTS.openai.model,
   sourceLanguage: "auto",
   targetLanguage: "English",
-  displayStyle: "below",
+  displayStyle: "integrated",
   cacheMode: "persistent"
 };
 

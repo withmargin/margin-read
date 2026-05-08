@@ -13,6 +13,7 @@ Rosetta currently targets Chrome and Chromium browsers with Manifest V3. The MVP
 - Supporting user-configured OpenAI, Anthropic Claude, and Google Gemini providers.
 - Storing provider settings in browser extension storage.
 - Fetching official provider model lists from the options page.
+- Integrated and highlighted translation display styles.
 - Basic persistent, session, or disabled translation cache behavior.
 - Basic error states when provider configuration or requests fail.
 - Mutation observation for dynamically inserted content.

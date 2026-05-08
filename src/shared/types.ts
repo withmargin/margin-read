@@ -1,4 +1,4 @@
-export type DisplayStyle = "below";
+export type DisplayStyle = "integrated" | "highlighted";
 
 export type CacheMode = "session" | "persistent" | "disabled";
 

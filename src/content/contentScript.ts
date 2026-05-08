@@ -1,4 +1,5 @@
 import type { RuntimeMessage, TranslationResult } from "../shared/types";
+import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
 const TRANSLATION_CLASS = "rosetta-translation";
@@ -15,6 +16,7 @@ let viewportObserver: IntersectionObserver | undefined;
 let pending = false;
 let nextId = 1;
 let runId = 0;
+let displayStyle: TranslationDisplayStyle = "integrated";
 
 const blockMap = new Map<string, HTMLElement>();
 const queue = new TranslationQueue<HTMLElement>({
@@ -43,8 +45,11 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
 
 function startTranslation(): void {
   runId += 1;
-  startViewportObserver();
-  scanAndQueue();
+  void chrome.runtime.sendMessage({ type: "GET_SETTINGS" }).then((response: SettingsResponse) => {
+    displayStyle = response.settings?.displayStyle ?? "integrated";
+    startViewportObserver();
+    scanAndQueue();
+  });
   observer = new MutationObserver(() => {
     if (!enabled || pending) {
       return;
@@ -235,6 +240,13 @@ interface TranslationBatchResponse {
   error?: string;
 }
 
+interface SettingsResponse {
+  ok: boolean;
+  settings?: {
+    displayStyle?: TranslationDisplayStyle;
+  };
+}
+
 function applyTranslations(results: TranslationResult[]): void {
   for (const result of results) {
     const element = blockMap.get(result.id);
@@ -263,7 +275,6 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   let translation = source.nextElementSibling;
   if (!translation?.classList.contains(TRANSLATION_CLASS)) {
     translation = document.createElement("div");
-    translation.className = TRANSLATION_CLASS;
     source.insertAdjacentElement("afterend", translation);
   }
 
@@ -271,7 +282,12 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
     return;
   }
 
+  translation.className = getTranslationClassName(displayStyle);
   translation.dataset.state = state;
+  translation.removeAttribute("style");
+  if (displayStyle === "integrated") {
+    applyIntegratedStyle(source, translation);
+  }
   translation.replaceChildren();
 
   if (state === "error") {

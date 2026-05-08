@@ -242,7 +242,7 @@ MVP settings:
 - `displayStyle`
 - `cacheMode`
 
-`displayStyle` is currently fixed to `below`. The setting exists to preserve a stable configuration shape for later display modes.
+`displayStyle` supports `integrated` and `highlighted`. Integrated is the default because it inherits typography from the source page and minimizes visual disruption. Highlighted keeps a more explicit translation block for review-heavy reading.
 
 ## 22. Error Handling
 
