@@ -1,5 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { applyIntegratedStyle, getIntegratedFontWeight, getTranslationClassName, scaleFontSize } from "./displayStyle";
+import {
+  applyIntegratedStyle,
+  deriveIntegratedStyleTokens,
+  getIntegratedFontSize,
+  getIntegratedFontWeight,
+  getIntegratedLineHeight,
+  getIntegratedMarginBottom,
+  getTranslationClassName,
+  scaleFontSize
+} from "./displayStyle";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -13,19 +22,84 @@ describe("getTranslationClassName", () => {
 
 describe("scaleFontSize", () => {
   it("scales headings down more aggressively", () => {
-    expect(scaleFontSize("80px", "H1")).toBe("41.6px");
+    expect(scaleFontSize("80px", "H1")).toBe("32px");
   });
 
   it("keeps paragraph text close to the source size", () => {
-    expect(scaleFontSize("20px", "P")).toBe("18.4px");
+    expect(scaleFontSize("20px", "P")).toBe("16.4px");
   });
 
   it("enforces a readable minimum", () => {
-    expect(scaleFontSize("10px", "P")).toBe("13px");
+    expect(scaleFontSize("10px", "P")).toBe("14px");
   });
 
   it("returns non-pixel values unchanged when they cannot be parsed", () => {
     expect(scaleFontSize("inherit", "P")).toBe("inherit");
+  });
+});
+
+describe("getIntegratedFontSize", () => {
+  it("caps large article paragraph text", () => {
+    expect(getIntegratedFontSize(42, "P")).toBe(20);
+  });
+
+  it("keeps normal paragraph text secondary but readable", () => {
+    expect(getIntegratedFontSize(18, "P")).toBe(14.76);
+  });
+
+  it("caps large headings", () => {
+    expect(getIntegratedFontSize(80, "H1")).toBe(32);
+  });
+});
+
+describe("getIntegratedLineHeight", () => {
+  it("uses a tighter heading line height", () => {
+    expect(getIntegratedLineHeight("96px", 80, true)).toBe("1.25");
+  });
+
+  it("clamps paragraph line height ratios", () => {
+    expect(getIntegratedLineHeight("80px", 20, false)).toBe("1.58");
+    expect(getIntegratedLineHeight("20px", 20, false)).toBe("1.42");
+  });
+
+  it("falls back when line height is not pixel-based", () => {
+    expect(getIntegratedLineHeight("normal", 20, false)).toBe("1.5");
+  });
+});
+
+describe("getIntegratedMarginBottom", () => {
+  it("scales source margin bottom down", () => {
+    expect(getIntegratedMarginBottom("24px", 20)).toBe("0.65em");
+  });
+
+  it("falls back when margin bottom is not pixel-based", () => {
+    expect(getIntegratedMarginBottom("auto", 20)).toBe("0.45em");
+  });
+});
+
+describe("deriveIntegratedStyleTokens", () => {
+  it("derives compact paragraph companion typography", () => {
+    expect(
+      deriveIntegratedStyleTokens(
+        { tagName: "P" },
+        {
+          fontFamily: "Georgia",
+          fontSize: "42px",
+          fontWeight: "400",
+          lineHeight: "60px",
+          letterSpacing: "0px",
+          textAlign: "start",
+          color: "rgb(20, 20, 20)",
+          maxWidth: "680px",
+          marginBottom: "32px"
+        }
+      )
+    ).toMatchObject({
+      fontSize: "20px",
+      lineHeight: "1.43",
+      marginTop: "0.18em",
+      marginBottom: "0.42em"
+    });
   });
 });
 
@@ -57,17 +131,19 @@ describe("applyIntegratedStyle", () => {
         letterSpacing: "0px",
         textAlign: "start",
         color: "rgb(20, 20, 20)",
-        maxWidth: "640px"
+        maxWidth: "640px",
+        marginBottom: "24px"
       })
     });
 
     applyIntegratedStyle(source, translation);
 
     expect(translation.style.fontFamily).toBe("Inter");
-    expect(translation.style.fontSize).toBe("18.4px");
+    expect(translation.style.fontSize).toBe("16.4px");
     expect(translation.style.fontWeight).toBe("500");
-    expect(translation.style.lineHeight).toBe("30px");
+    expect(translation.style.lineHeight).toBe("1.5");
     expect(translation.style.maxWidth).toBe("640px");
+    expect(translation.style.marginTop).toBe("0.18em");
   });
 
   it("does not force a max width when the source has none", () => {
@@ -83,13 +159,14 @@ describe("applyIntegratedStyle", () => {
         letterSpacing: "0px",
         textAlign: "center",
         color: "black",
-        maxWidth: "none"
+        maxWidth: "none",
+        marginBottom: "24px"
       })
     });
 
     applyIntegratedStyle(source, translation);
 
-    expect(translation.style.fontSize).toBe("31.2px");
+    expect(translation.style.fontSize).toBe("30px");
     expect(translation.style.maxWidth).toBe("");
   });
 });

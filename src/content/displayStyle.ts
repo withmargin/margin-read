@@ -1,29 +1,75 @@
 export type TranslationDisplayStyle = "integrated" | "highlighted";
 
+export interface IntegratedStyleTokens {
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  lineHeight: string;
+  letterSpacing: string;
+  textAlign: string;
+  color: string;
+  maxWidth: string;
+  marginTop: string;
+  marginBottom: string;
+}
+
 export function getTranslationClassName(style: TranslationDisplayStyle): string {
   return `toast-translation toast-translation--${style}`;
 }
 
 export function applyIntegratedStyle(source: HTMLElement, translation: HTMLElement): void {
-  const style = window.getComputedStyle(source);
-  translation.style.fontFamily = style.fontFamily;
-  translation.style.fontSize = scaleFontSize(style.fontSize, source.tagName);
-  translation.style.fontWeight = getIntegratedFontWeight(style.fontWeight);
-  translation.style.lineHeight = style.lineHeight;
-  translation.style.letterSpacing = style.letterSpacing;
-  translation.style.textAlign = style.textAlign;
-  translation.style.color = style.color;
-  translation.style.maxWidth = style.maxWidth === "none" ? "" : style.maxWidth;
+  const tokens = deriveIntegratedStyleTokens(source, window.getComputedStyle(source));
+  translation.style.fontFamily = tokens.fontFamily;
+  translation.style.fontSize = tokens.fontSize;
+  translation.style.fontWeight = tokens.fontWeight;
+  translation.style.lineHeight = tokens.lineHeight;
+  translation.style.letterSpacing = tokens.letterSpacing;
+  translation.style.textAlign = tokens.textAlign;
+  translation.style.color = tokens.color;
+  translation.style.maxWidth = tokens.maxWidth;
+  translation.style.marginTop = tokens.marginTop;
+  translation.style.marginBottom = tokens.marginBottom;
+}
+
+export function deriveIntegratedStyleTokens(
+  source: Pick<HTMLElement, "tagName">,
+  style: Pick<
+    CSSStyleDeclaration,
+    | "fontFamily"
+    | "fontSize"
+    | "fontWeight"
+    | "lineHeight"
+    | "letterSpacing"
+    | "textAlign"
+    | "color"
+    | "maxWidth"
+    | "marginBottom"
+  >
+): IntegratedStyleTokens {
+  const sourceFontSize = parseCssPixels(style.fontSize) ?? 16;
+  const heading = isHeading(source.tagName);
+
+  return {
+    fontFamily: style.fontFamily,
+    fontSize: `${getIntegratedFontSize(sourceFontSize, source.tagName)}px`,
+    fontWeight: getIntegratedFontWeight(style.fontWeight),
+    lineHeight: getIntegratedLineHeight(style.lineHeight, sourceFontSize, heading),
+    letterSpacing: style.letterSpacing,
+    textAlign: style.textAlign,
+    color: style.color,
+    maxWidth: style.maxWidth === "none" ? "" : style.maxWidth,
+    marginTop: heading ? "0.12em" : "0.18em",
+    marginBottom: heading ? "0.35em" : getIntegratedMarginBottom(style.marginBottom, sourceFontSize)
+  };
 }
 
 export function scaleFontSize(fontSize: string, tagName: string): string {
-  const value = Number.parseFloat(fontSize);
-  if (!Number.isFinite(value)) {
+  const value = parseCssPixels(fontSize);
+  if (value === undefined) {
     return fontSize;
   }
 
-  const multiplier = /^H[1-3]$/.test(tagName) ? 0.52 : 0.92;
-  return `${Math.max(13, Math.round(value * multiplier * 100) / 100)}px`;
+  return `${getIntegratedFontSize(value, tagName)}px`;
 }
 
 export function getIntegratedFontWeight(fontWeight: string): string {
@@ -33,4 +79,53 @@ export function getIntegratedFontWeight(fontWeight: string): string {
   }
 
   return String(Math.min(numeric, 500));
+}
+
+export function getIntegratedFontSize(sourceFontSize: number, tagName: string): number {
+  const heading = isHeading(tagName);
+  const preferred = sourceFontSize * (heading ? 0.5 : 0.82);
+  return roundCssNumber(clamp(preferred, heading ? 16 : 14, heading ? 32 : 20));
+}
+
+export function getIntegratedLineHeight(lineHeight: string, sourceFontSize: number, heading: boolean): string {
+  if (heading) {
+    return "1.25";
+  }
+
+  const lineHeightPixels = parseCssPixels(lineHeight);
+  if (lineHeightPixels === undefined || sourceFontSize <= 0) {
+    return "1.5";
+  }
+
+  return String(roundCssNumber(clamp(lineHeightPixels / sourceFontSize, 1.42, 1.58)));
+}
+
+export function getIntegratedMarginBottom(marginBottom: string, sourceFontSize: number): string {
+  const marginPixels = parseCssPixels(marginBottom);
+  if (marginPixels === undefined || sourceFontSize <= 0) {
+    return "0.45em";
+  }
+
+  return `${roundCssNumber(Math.min((marginPixels * 0.55) / sourceFontSize, 0.65))}em`;
+}
+
+function isHeading(tagName: string): boolean {
+  return /^H[1-3]$/.test(tagName);
+}
+
+function parseCssPixels(value: string): number | undefined {
+  if (!value.endsWith("px")) {
+    return undefined;
+  }
+
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function roundCssNumber(value: number): number {
+  return Math.round(value * 100) / 100;
 }
