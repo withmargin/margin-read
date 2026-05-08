@@ -1,6 +1,12 @@
 import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "../shared/defaults";
 import { getSettings, saveSettings } from "../shared/storage";
-import type { CacheMode, DisplayStyle, ExtensionSettings, ProviderModel, TranslationProviderId } from "../shared/types";
+import type {
+  CacheMode,
+  DisplayStyle,
+  ExtensionSettings,
+  ProviderModel,
+  TranslationProviderId
+} from "../shared/types";
 
 const form = document.querySelector<HTMLFormElement>("#settings-form");
 const statusEl = document.querySelector<HTMLParagraphElement>("#status");
@@ -15,19 +21,21 @@ async function initialize(): Promise<void> {
   fillForm(settings);
   bindProviderDefaults();
 
-  form?.addEventListener("submit", async (event) => {
+  form?.addEventListener("submit", (event) => {
     event.preventDefault();
-    await saveSettings(readForm());
-    setStatus("Settings saved.");
+    void saveSettings(readForm()).then(() => {
+      setStatus("Settings saved.");
+    });
   });
 
-  clearCacheButton?.addEventListener("click", async () => {
-    await chrome.runtime.sendMessage({ type: "CLEAR_CACHE" });
-    setStatus("Translation cache cleared.");
+  clearCacheButton?.addEventListener("click", () => {
+    void chrome.runtime.sendMessage({ type: "CLEAR_CACHE" }).then(() => {
+      setStatus("Translation cache cleared.");
+    });
   });
 
-  fetchModelsButton?.addEventListener("click", async () => {
-    await fetchModels();
+  fetchModelsButton?.addEventListener("click", () => {
+    void fetchModels();
   });
 
   modelSelect?.addEventListener("change", () => {
@@ -75,10 +83,10 @@ function bindProviderDefaults(): void {
 
 async function fetchModels(): Promise<void> {
   setStatus("Fetching models...");
-  const response = (await chrome.runtime.sendMessage({
+  const response: ListModelsResponse = await chrome.runtime.sendMessage({
     type: "LIST_MODELS",
     settings: readForm()
-  })) as { ok: boolean; models?: ProviderModel[]; error?: string };
+  });
 
   if (!response.ok || !response.models) {
     setStatus(response.error ?? "Could not fetch models.");
@@ -87,6 +95,12 @@ async function fetchModels(): Promise<void> {
 
   renderModelOptions(response.models);
   setStatus(`Loaded ${response.models.length} models.`);
+}
+
+interface ListModelsResponse {
+  ok: boolean;
+  models?: ProviderModel[];
+  error?: string;
 }
 
 function renderModelOptions(models: ProviderModel[]): void {

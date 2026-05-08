@@ -15,11 +15,11 @@ void initialize();
 async function initialize(): Promise<void> {
   optionsLink?.addEventListener("click", (event) => {
     event.preventDefault();
-    chrome.runtime.openOptionsPage();
+    void chrome.runtime.openOptionsPage();
   });
 
-  toggleButton?.addEventListener("click", async () => {
-    await sendToggle(!enabled);
+  toggleButton?.addEventListener("click", () => {
+    void sendToggle(!enabled);
   });
 
   const response = await sendToActiveTab({ type: "GET_PAGE_STATE" });
@@ -47,7 +47,7 @@ async function sendToActiveTab(message: unknown): Promise<PageStateResponse | un
     return undefined;
   }
   try {
-    return (await chrome.tabs.sendMessage(tab.id, message)) as PageStateResponse;
+    return await chrome.tabs.sendMessage(tab.id, message);
   } catch {
     return { ok: false, error: "This page cannot be translated. Try a regular webpage." };
   }

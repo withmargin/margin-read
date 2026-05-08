@@ -404,10 +404,21 @@ function validateTranslations(value: unknown, segments: TextSegment[]): Translat
   const validIds = new Set(segments.map((segment) => segment.id));
 
   return translations.filter(
-    (translation) =>
+    (translation): translation is TranslationResult =>
+      isTranslationResult(translation) &&
       validIds.has(translation.id) &&
-      typeof translation.text === "string" &&
       translation.text.trim().length > 0
+  );
+}
+
+function isTranslationResult(value: unknown): value is TranslationResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "id" in value &&
+    typeof value.id === "string" &&
+    "text" in value &&
+    typeof value.text === "string"
   );
 }
 

@@ -1,4 +1,4 @@
-import type { RuntimeMessage, TranslateBatchResponse, TranslationResult } from "../shared/types";
+import type { RuntimeMessage, TranslationResult } from "../shared/types";
 
 const TRANSLATION_CLASS = "rosetta-translation";
 const TRANSLATED_ATTR = "data-rosetta-translated";
@@ -32,7 +32,7 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
 });
 
 function startTranslation(): void {
-  scanAndTranslate();
+  void scanAndTranslate();
   observer = new MutationObserver(() => {
     if (!enabled || pending) {
       return;
@@ -40,7 +40,7 @@ function startTranslation(): void {
     pending = true;
     window.setTimeout(() => {
       pending = false;
-      scanAndTranslate();
+      void scanAndTranslate();
     }, 600);
   });
   observer.observe(document.body, { childList: true, subtree: true });
@@ -133,10 +133,10 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
 
   insertPendingState(blocks);
 
-  const response = (await chrome.runtime.sendMessage({
+  const response: TranslationBatchResponse = await chrome.runtime.sendMessage({
     type: "TRANSLATE_BATCH",
     segments
-  })) as TranslateBatchResponse;
+  });
 
   if (!response.ok || !response.results) {
     insertErrorState(blocks, response.error ?? "Translation failed.");
@@ -153,6 +153,12 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
   if (missingBlocks.length > 0) {
     insertErrorState(missingBlocks, "The provider did not return a translation for this block.");
   }
+}
+
+interface TranslationBatchResponse {
+  ok: boolean;
+  results?: TranslationResult[];
+  error?: string;
 }
 
 function applyTranslations(results: TranslationResult[]): void {
@@ -180,11 +186,15 @@ function insertErrorState(blocks: HTMLElement[], message: string): void {
 }
 
 function upsertTranslation(source: HTMLElement, text: string, state: "pending" | "done" | "error"): void {
-  let translation = source.nextElementSibling as HTMLElement | null;
+  let translation = source.nextElementSibling;
   if (!translation?.classList.contains(TRANSLATION_CLASS)) {
     translation = document.createElement("div");
     translation.className = TRANSLATION_CLASS;
     source.insertAdjacentElement("afterend", translation);
+  }
+
+  if (!(translation instanceof HTMLElement)) {
+    return;
   }
 
   translation.dataset.state = state;

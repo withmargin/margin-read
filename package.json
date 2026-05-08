@@ -8,14 +8,19 @@
     "build": "npm run clean && rolldown -c && node scripts/copy-assets.mjs",
     "check": "tsc --noEmit",
     "clean": "node scripts/clean.mjs",
+    "lint": "eslint src vitest.config.ts rolldown.config.ts",
     "test": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/chrome": "^0.0.268",
     "@vitest/coverage-v8": "^4.1.5",
+    "eslint": "^10.3.0",
+    "globals": "^17.6.0",
     "rolldown": "^1.0.0",
     "typescript": "^5.5.4",
+    "typescript-eslint": "^8.59.2",
     "vitest": "^4.1.5"
   }
 }

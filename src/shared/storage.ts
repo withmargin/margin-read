@@ -2,7 +2,7 @@ import { CACHE_KEY_PREFIX, DEFAULT_SETTINGS, SETTINGS_KEY } from "./defaults";
 import type { ExtensionSettings } from "./types";
 
 export async function getSettings(): Promise<ExtensionSettings> {
-  const data = await chrome.storage.local.get(SETTINGS_KEY);
+  const data = (await chrome.storage.local.get(SETTINGS_KEY)) as Record<string, Partial<ExtensionSettings> | undefined>;
   return { ...DEFAULT_SETTINGS, ...(data[SETTINGS_KEY] ?? {}) };
 }
 
@@ -11,8 +11,9 @@ export async function saveSettings(settings: ExtensionSettings): Promise<void> {
 }
 
 export async function getCachedTranslation(key: string): Promise<string | undefined> {
-  const data = await chrome.storage.local.get(CACHE_KEY_PREFIX + key);
-  return data[CACHE_KEY_PREFIX + key];
+  const storageKey = CACHE_KEY_PREFIX + key;
+  const data = (await chrome.storage.local.get(storageKey)) as Record<string, string | undefined>;
+  return data[storageKey];
 }
 
 export async function setCachedTranslation(key: string, value: string): Promise<void> {
@@ -20,7 +21,7 @@ export async function setCachedTranslation(key: string, value: string): Promise<
 }
 
 export async function clearPersistentCache(): Promise<void> {
-  const data = await chrome.storage.local.get(null);
+  const data = (await chrome.storage.local.get(null)) as Record<string, unknown>;
   const keys = Object.keys(data).filter((key) => key.startsWith(CACHE_KEY_PREFIX));
   if (keys.length > 0) {
     await chrome.storage.local.remove(keys);

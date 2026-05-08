@@ -15,21 +15,23 @@ beforeEach(() => {
   vi.stubGlobal("chrome", {
     storage: {
       local: {
-        get: vi.fn(async (key: string | null) => {
+        get: vi.fn((key: string | null) => {
           if (key === null) {
-            return Object.fromEntries(store);
+            return Promise.resolve(Object.fromEntries(store));
           }
-          return { [key]: store.get(key) };
+          return Promise.resolve({ [key]: store.get(key) });
         }),
-        set: vi.fn(async (values: Record<string, unknown>) => {
+        set: vi.fn((values: Record<string, unknown>) => {
           for (const [key, value] of Object.entries(values)) {
             store.set(key, value);
           }
+          return Promise.resolve();
         }),
-        remove: vi.fn(async (keys: string[]) => {
+        remove: vi.fn((keys: string[]) => {
           for (const key of keys) {
             store.delete(key);
           }
+          return Promise.resolve();
         })
       }
     }
