@@ -9,5 +9,5 @@
     "skipLibCheck": true,
     "types": ["chrome"]
   },
-  "include": ["src/**/*.ts", "scripts/**/*.mjs"]
+  "include": ["src/**/*.ts", "rolldown.config.ts"]
 }

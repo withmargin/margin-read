@@ -5,13 +5,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "npm run clean && rolldown -c && node scripts/copy-assets.mjs",
     "check": "tsc --noEmit",
     "clean": "node scripts/clean.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.268",
-    "esbuild": "^0.21.5",
+    "rolldown": "^1.0.0",
     "typescript": "^5.5.4"
   }
 }

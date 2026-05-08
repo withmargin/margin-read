@@ -38,7 +38,7 @@ Build the extension:
 npm run build
 ```
 
-The built extension is written to `dist/`.
+The build uses Rolldown and writes the unpacked extension to `dist/`.
 
 ## Load in Chrome or Chromium
 
