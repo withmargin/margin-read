@@ -1,7 +1,7 @@
 export type TranslationDisplayStyle = "integrated" | "highlighted";
 
 export function getTranslationClassName(style: TranslationDisplayStyle): string {
-  return `rosetta-translation rosetta-translation--${style}`;
+  return `toast-translation toast-translation--${style}`;
 }
 
 export function applyIntegratedStyle(source: HTMLElement, translation: HTMLElement): void {

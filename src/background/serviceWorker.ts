@@ -51,7 +51,7 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
   const apiKey = normalizeApiKey(settings.apiKey);
 
   if (!apiKey) {
-    return { ok: false, error: "Configure an API key in Rosetta options before translating." };
+    return { ok: false, error: "Configure an API key in Toast options before translating." };
   }
 
   const results: TranslationResult[] = [];

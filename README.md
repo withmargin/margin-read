@@ -1,10 +1,10 @@
-# Rosetta
+# Toast Translate
 
-Rosetta is a privacy-first, truly open-source browser extension for bilingual webpage translation. It preserves the original webpage text and inserts translated text below matching source paragraphs so readers can compare both versions in the original page context.
+Toast Translate is a privacy-first, truly open-source browser extension for bilingual webpage translation. The product is called Toast in the UI. It preserves the original webpage text and inserts translated text below matching source paragraphs so readers can compare both versions in the original page context.
 
 ## MVP Scope
 
-Rosetta currently targets Chrome and Chromium browsers with Manifest V3. The MVP supports:
+Toast currently targets Chrome and Chromium browsers with Manifest V3. The MVP supports:
 
 - Translating the current webpage from the extension popup.
 - Detecting readable text blocks such as paragraphs, headings, list items, and blockquotes.
@@ -18,7 +18,7 @@ Rosetta currently targets Chrome and Chromium browsers with Manifest V3. The MVP
 - Basic error states when provider configuration or requests fail.
 - Mutation observation for dynamically inserted content.
 
-Rosetta does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or official paid translation quota features.
+Toast does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or official paid translation quota features.
 
 ## Local Development
 
@@ -62,8 +62,8 @@ The build uses Rolldown and writes the unpacked extension to `dist/`.
 3. Enable Developer mode.
 4. Select Load unpacked.
 5. Choose the `dist/` directory.
-6. Open Rosetta options and configure a provider, endpoint, API key, model, source language, target language, and cache behavior.
-7. Open a normal article webpage and click Translate this page from the Rosetta popup.
+6. Open Toast options and configure a provider, endpoint, API key, model, source language, target language, and cache behavior.
+7. Open a normal article webpage and click Translate this page from the Toast popup.
 
 ## Translation Providers
 
@@ -95,7 +95,7 @@ Anthropic Claude translations use forced tool use to return structured translati
 
 ## Privacy Position
 
-Rosetta sends only selected text segments to the configured provider. It does not send full page HTML by default, does not require login, does not use cloud sync, and does not include telemetry by default. Provider requests are made by the extension service worker using the endpoint and API key configured by the user.
+Toast sends only selected text segments to the configured provider. It does not send full page HTML by default, does not require login, does not use cloud sync, and does not include telemetry by default. Provider requests are made by the extension service worker using the endpoint and API key configured by the user.
 
 ## Documentation
 

@@ -1,4 +1,4 @@
-# Rosetta Roadmap
+# Toast Roadmap
 
 ## Milestone 1: Working Local MVP
 

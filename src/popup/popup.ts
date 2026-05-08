@@ -27,7 +27,7 @@ async function initialize(): Promise<void> {
     enabled = Boolean(response.enabled);
     render();
   } else {
-    setStatus(response?.error ?? "Open a webpage to use Rosetta.");
+    setStatus(response?.error ?? "Open a webpage to use Toast.");
   }
 }
 

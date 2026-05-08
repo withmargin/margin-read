@@ -1,4 +1,4 @@
-# Rosetta Threat Model
+# Toast Threat Model
 
 ## Scope
 
@@ -113,7 +113,7 @@ Mitigations:
 
 - Insert simple `div` translation nodes after source blocks.
 - Use a namespaced CSS class.
-- Remove Rosetta nodes and attributes when disabled.
+- Remove Toast nodes and attributes when disabled.
 - Avoid translating interactive controls and code blocks.
 
 ### Cache Privacy

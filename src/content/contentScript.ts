@@ -2,9 +2,9 @@ import type { RuntimeMessage, TranslationResult } from "../shared/types";
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
-const TRANSLATION_CLASS = "rosetta-translation";
-const TRANSLATED_ATTR = "data-rosetta-translated";
-const BLOCK_ID_ATTR = "data-rosetta-block-id";
+const TRANSLATION_CLASS = "toast-translation";
+const TRANSLATED_ATTR = "data-toast-translated";
+const BLOCK_ID_ATTR = "data-toast-block-id";
 const MIN_TEXT_LENGTH = 24;
 const BATCH_SIZE = 6;
 const CONCURRENCY = 2;
@@ -296,7 +296,7 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
 
     const retry = document.createElement("button");
     retry.type = "button";
-    retry.className = "rosetta-retry";
+    retry.className = "toast-retry";
     retry.textContent = "Retry";
     retry.addEventListener("click", () => {
       source.removeAttribute(TRANSLATED_ATTR);

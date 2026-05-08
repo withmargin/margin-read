@@ -1,10 +1,10 @@
-.rosetta-translation {
+.toast-translation {
   box-sizing: border-box;
   font: inherit;
   line-height: 1.55;
 }
 
-.rosetta-translation--integrated {
+.toast-translation--integrated {
   margin: 0.22em 0 0.7em;
   padding: 0;
   border-left: 0;
@@ -12,12 +12,12 @@
   opacity: 0.76;
 }
 
-.rosetta-translation--integrated:hover,
-.rosetta-translation--integrated:focus-within {
+.toast-translation--integrated:hover,
+.toast-translation--integrated:focus-within {
   opacity: 0.92;
 }
 
-.rosetta-translation--highlighted {
+.toast-translation--highlighted {
   margin: 0.45em 0 0.85em;
   padding: 0.65em 0.75em;
   border-left: 3px solid #2f6fed;
@@ -25,17 +25,17 @@
   color: inherit;
 }
 
-.rosetta-translation[data-state="pending"] {
+.toast-translation[data-state="pending"] {
   border-left-color: #7a7f87;
   opacity: 0.72;
 }
 
-.rosetta-translation[data-state="error"] {
+.toast-translation[data-state="error"] {
   border-left-color: #c5332e;
   background: color-mix(in srgb, Canvas 90%, #c5332e 10%);
 }
 
-.rosetta-retry {
+.toast-retry {
   margin-left: 0.75em;
   border: 1px solid currentColor;
   border-radius: 4px;

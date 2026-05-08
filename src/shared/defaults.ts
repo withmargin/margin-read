@@ -29,5 +29,5 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   cacheMode: "persistent"
 };
 
-export const SETTINGS_KEY = "rosetta.settings";
-export const CACHE_KEY_PREFIX = "rosetta.cache.";
+export const SETTINGS_KEY = "toast.settings";
+export const CACHE_KEY_PREFIX = "toast.cache.";
