@@ -24,38 +24,39 @@ Rosetta does not include PDF translation, EPUB translation, subtitle translation
 Install dependencies:
 
 ```sh
-npm install
+corepack enable
+pnpm install
 ```
 
 Run type checks:
 
 ```sh
-npm run check
+pnpm check
 ```
 
 Run extension manifest and security checks:
 
 ```sh
-npm run check:extension
+pnpm check:extension
 ```
 
 Run tests with coverage:
 
 ```sh
-npm test
+pnpm test
 ```
 
 Build the extension:
 
 ```sh
-npm run build
+pnpm build
 ```
 
 The build uses Rolldown and writes the unpacked extension to `dist/`.
 
 ## Load in Chrome or Chromium
 
-1. Build the extension with `npm run build`.
+1. Build the extension with `pnpm build`.
 2. Open `chrome://extensions`.
 3. Enable Developer mode.
 4. Select Load unpacked.

@@ -4,8 +4,9 @@
   "description": "A privacy-first, open-source bilingual webpage translation browser extension.",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.15.0",
   "scripts": {
-    "build": "npm run clean && rolldown -c && node scripts/copy-assets.mjs",
+    "build": "pnpm clean && rolldown -c && node scripts/copy-assets.mjs",
     "check": "tsc --noEmit",
     "check:extension": "node scripts/check-extension.mjs",
     "clean": "node scripts/clean.mjs",
