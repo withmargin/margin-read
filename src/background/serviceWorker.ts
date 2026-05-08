@@ -42,8 +42,9 @@ async function handleMessage(message: RuntimeMessage): Promise<unknown> {
 
 async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchResponse> {
   const settings = await getSettings();
+  const apiKey = normalizeApiKey(settings.apiKey);
 
-  if (!settings.apiKey.trim()) {
+  if (!apiKey) {
     return { ok: false, error: "Configure an API key in Rosetta options before translating." };
   }
 
@@ -78,7 +79,7 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
   }
 
   if (misses.length > 0) {
-    const translated = await requestProviderTranslation(misses, settings);
+    const translated = await requestProviderTranslation(misses, { ...settings, apiKey });
     for (const result of translated) {
       results.push(result);
       const cacheKey = missKeys.get(result.id);
@@ -92,6 +93,10 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
   }
 
   return { ok: true, results };
+}
+
+function normalizeApiKey(apiKey: string): string {
+  return apiKey.trim().replace(/^Bearer\s+/i, "").trim();
 }
 
 async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {
@@ -178,7 +183,8 @@ async function requestAnthropicTranslation(
     headers: {
       "Content-Type": "application/json",
       "x-api-key": settings.apiKey,
-      "anthropic-version": "2023-06-01"
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
     },
     body: JSON.stringify({
       model: settings.model,

@@ -66,7 +66,7 @@ Anthropic Claude: https://api.anthropic.com/v1/messages
 Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-No API key is bundled with the extension. Users must provide their own key. The endpoint field remains editable for compatible gateways and self-hosted routing.
+No API key is bundled with the extension. Users must provide their own raw provider API key without a `Bearer` prefix. The endpoint field remains editable for compatible gateways and self-hosted routing.
 
 ## Privacy Position
 

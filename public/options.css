@@ -30,6 +30,13 @@ label {
   font-weight: 650;
 }
 
+.hint {
+  color: #5d6470;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
 input,
 select {
   min-height: 38px;
