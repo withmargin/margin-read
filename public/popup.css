@@ -37,6 +37,21 @@ button {
   cursor: pointer;
 }
 
+pre {
+  box-sizing: border-box;
+  max-height: 180px;
+  overflow: auto;
+  margin: 12px 0 0;
+  border: 1px solid #d8dde6;
+  border-radius: 6px;
+  padding: 10px;
+  background: #f6f7f9;
+  color: #333840;
+  font:
+    11px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  white-space: pre-wrap;
+}
+
 a {
   display: inline-block;
   margin-top: 12px;

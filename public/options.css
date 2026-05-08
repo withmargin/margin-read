@@ -30,6 +30,17 @@ label {
   font-weight: 650;
 }
 
+label.checkbox {
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+}
+
+label.checkbox input {
+  min-height: 18px;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
 .hint {
   color: #5d6470;
   font-size: 12px;

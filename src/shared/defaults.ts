@@ -26,7 +26,8 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   sourceLanguage: "auto",
   targetLanguage: "English",
   displayStyle: "integrated",
-  cacheMode: "persistent"
+  cacheMode: "persistent",
+  debugMode: false
 };
 
 export const SETTINGS_KEY = "toast.settings";

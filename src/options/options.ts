@@ -54,6 +54,7 @@ function fillForm(settings: ExtensionSettings): void {
   setInputValue("targetLanguage", settings.targetLanguage);
   setInputValue("displayStyle", settings.displayStyle);
   setInputValue("cacheMode", settings.cacheMode);
+  setCheckboxValue("debugMode", settings.debugMode);
 }
 
 function readForm(): ExtensionSettings {
@@ -66,7 +67,8 @@ function readForm(): ExtensionSettings {
     sourceLanguage: getInputValue("sourceLanguage"),
     targetLanguage: getInputValue("targetLanguage"),
     displayStyle: getInputValue("displayStyle") as DisplayStyle,
-    cacheMode: getInputValue("cacheMode") as CacheMode
+    cacheMode: getInputValue("cacheMode") as CacheMode,
+    debugMode: getCheckboxValue("debugMode")
   };
 }
 
@@ -132,6 +134,17 @@ function setInputValue(name: string, value: string): void {
 
 function getInputValue(name: string): string {
   return document.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)?.value.trim() ?? "";
+}
+
+function setCheckboxValue(name: string, checked: boolean): void {
+  const input = document.querySelector<HTMLInputElement>(`[name="${name}"]`);
+  if (input) {
+    input.checked = checked;
+  }
+}
+
+function getCheckboxValue(name: string): boolean {
+  return document.querySelector<HTMLInputElement>(`[name="${name}"]`)?.checked ?? false;
 }
 
 function setStatus(message: string): void {

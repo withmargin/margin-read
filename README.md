@@ -16,6 +16,7 @@ Toast currently targets Chrome and Chromium browsers with Manifest V3. The MVP s
 - Integrated and highlighted translation display styles.
 - Basic persistent, session, or disabled translation cache behavior.
 - Basic error states when provider configuration or requests fail.
+- Optional popup diagnostics for text detection, queue state, and provider errors.
 - Mutation observation for dynamically inserted content.
 
 Toast does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or official paid translation quota features.
@@ -64,6 +65,16 @@ The build uses Rolldown and writes the unpacked extension to `dist/`.
 5. Choose the `dist/` directory.
 6. Open Toast options and configure a provider, endpoint, API key, model, source language, target language, and cache behavior.
 7. Open a normal article webpage and click Translate this page from the Toast popup.
+
+## Troubleshooting
+
+Enable Debug mode in Toast options when a page appears enabled but no translations are inserted. The popup will show the current page detection count, queued blocks, running requests, pending translations, completed translations, error count, the latest error, and a sample detected text block.
+
+Use those values to separate the main failure modes:
+
+- `Detected blocks: 0` means the content script did not find readable text on the page.
+- A positive detected count with no running requests usually means the translation queue needs attention.
+- Error blocks or a latest error usually point to provider configuration, authentication, model, endpoint, or response format problems.
 
 ## Translation Providers
 

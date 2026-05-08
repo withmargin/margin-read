@@ -1,4 +1,4 @@
-import type { RuntimeMessage, TranslationResult } from "../shared/types";
+import type { PageDebugState, RuntimeMessage, TranslationResult } from "../shared/types";
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
 import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
@@ -18,6 +18,8 @@ let pending = false;
 let nextId = 1;
 let runId = 0;
 let displayStyle: TranslationDisplayStyle = "integrated";
+let debugMode = false;
+let debugState: PageDebugState = createDebugState();
 
 const blockMap = new Map<string, HTMLElement>();
 const queue = new TranslationQueue<HTMLElement>({
@@ -30,27 +32,39 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
   if (message.type === "TOGGLE_TRANSLATION") {
     enabled = typeof message.enabled === "boolean" ? message.enabled : !enabled;
     if (enabled) {
-      startTranslation();
+      void startTranslation().finally(() => {
+        sendResponse({ ok: true, enabled, debug: getDebugState() });
+      });
+      return true;
     } else {
       stopTranslation();
     }
-    sendResponse({ ok: true, enabled });
+    sendResponse({ ok: true, enabled, debug: getDebugState() });
     return;
   }
 
   if (message.type === "GET_PAGE_STATE") {
-    sendResponse({ ok: true, enabled });
+    sendResponse({ ok: true, enabled, debug: getDebugState() });
     return;
   }
 });
 
-function startTranslation(): void {
+async function startTranslation(): Promise<void> {
   runId += 1;
-  void chrome.runtime.sendMessage({ type: "GET_SETTINGS" }).then((response: SettingsResponse) => {
+  try {
+    const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
     displayStyle = response.settings?.displayStyle ?? "integrated";
+    debugMode = response.settings?.debugMode ?? false;
+    debugState = {
+      ...createDebugState(),
+      debugMode,
+      enabled
+    };
     startViewportObserver();
     scanAndQueue();
-  });
+  } catch (error: unknown) {
+    recordError(error instanceof Error ? error.message : "Could not load extension settings.");
+  }
   observer = new MutationObserver(() => {
     if (!enabled || pending) {
       return;
@@ -77,6 +91,9 @@ function stopTranslation(): void {
     node.removeAttribute(BLOCK_ID_ATTR);
   });
   blockMap.clear();
+  debugState = createDebugState();
+  debugState.debugMode = debugMode;
+  debugState.enabled = false;
 }
 
 function scanAndQueue(): void {
@@ -89,10 +106,18 @@ function scanAndQueue(): void {
     translatedAttr: TRANSLATED_ATTR,
     translationClass: TRANSLATION_CLASS
   }).slice(0, 80);
+  debugState.lastScanAt = Date.now();
+  debugState.detectedBlocks = blocks.length;
+  debugState.enqueuedBlocks += blocks.length;
+  debugState.sampleText = getSampleText(blocks);
+  if (blocks.length === 0) {
+    debugState.lastError = "No readable text blocks were detected on this page.";
+  }
   queue.enqueue(blocks.map(createQueueItem));
   for (const block of blocks) {
     viewportObserver?.observe(block);
   }
+  updateDebugCounts();
 }
 
 async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
@@ -112,17 +137,27 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
 
   insertPendingState(blocks);
 
-  const response: TranslationBatchResponse = await chrome.runtime.sendMessage({
-    type: "TRANSLATE_BATCH",
-    segments
-  });
+  let response: TranslationBatchResponse;
+  try {
+    response = await chrome.runtime.sendMessage({
+      type: "TRANSLATE_BATCH",
+      segments
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Provider request failed.";
+    recordError(message);
+    insertErrorState(blocks, message);
+    return;
+  }
 
   if (!enabled || activeRunId !== runId) {
     return;
   }
 
   if (!response.ok || !response.results) {
-    insertErrorState(blocks, response.error ?? "Translation failed.");
+    const message = response.error ?? "Translation failed.";
+    recordError(message);
+    insertErrorState(blocks, message);
     return;
   }
 
@@ -134,8 +169,11 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
     .filter((element): element is HTMLElement => Boolean(element));
 
   if (missingBlocks.length > 0) {
-    insertErrorState(missingBlocks, "The provider did not return a translation for this block.");
+    const message = "The provider did not return a translation for this block.";
+    recordError(message);
+    insertErrorState(missingBlocks, message);
   }
+  updateDebugCounts();
 }
 
 function startViewportObserver(): void {
@@ -148,7 +186,9 @@ function startViewportObserver(): void {
         .filter((target): target is HTMLElement => target instanceof HTMLElement && !target.hasAttribute(TRANSLATED_ATTR));
 
       if (blocks.length > 0) {
+        debugState.enqueuedBlocks += blocks.length;
         queue.enqueue(blocks.map(createQueueItem));
+        updateDebugCounts();
       }
     },
     {
@@ -200,6 +240,7 @@ interface SettingsResponse {
   ok: boolean;
   settings?: {
     displayStyle?: TranslationDisplayStyle;
+    debugMode?: boolean;
   };
 }
 
@@ -212,12 +253,14 @@ function applyTranslations(results: TranslationResult[]): void {
     element.setAttribute(TRANSLATED_ATTR, "done");
     upsertTranslation(element, result.text, "done");
   }
+  updateDebugCounts();
 }
 
 function insertPendingState(blocks: HTMLElement[]): void {
   for (const block of blocks) {
     upsertTranslation(block, "Translating...", "pending");
   }
+  updateDebugCounts();
 }
 
 function insertErrorState(blocks: HTMLElement[], message: string): void {
@@ -225,6 +268,7 @@ function insertErrorState(blocks: HTMLElement[], message: string): void {
     block.setAttribute(TRANSLATED_ATTR, "error");
     upsertTranslation(block, message, "error");
   }
+  updateDebugCounts();
 }
 
 function upsertTranslation(source: HTMLElement, text: string, state: "pending" | "done" | "error"): void {
@@ -277,4 +321,45 @@ function getSiblingText(element: HTMLElement, key: "previousElementSibling" | "n
 
 function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function createDebugState(): PageDebugState {
+  return {
+    debugMode,
+    enabled,
+    detectedBlocks: 0,
+    enqueuedBlocks: 0,
+    queueSize: 0,
+    runningRequests: 0,
+    pendingBlocks: 0,
+    translatedBlocks: 0,
+    errorBlocks: 0
+  };
+}
+
+function getDebugState(): PageDebugState {
+  updateDebugCounts();
+  return {
+    ...debugState,
+    debugMode,
+    enabled
+  };
+}
+
+function updateDebugCounts(): void {
+  debugState.queueSize = queue.size;
+  debugState.runningRequests = queue.running;
+  debugState.pendingBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="pending"]`).length;
+  debugState.translatedBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="done"]`).length;
+  debugState.errorBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="error"]`).length;
+}
+
+function recordError(message: string): void {
+  debugState.lastError = message;
+  updateDebugCounts();
+}
+
+function getSampleText(blocks: HTMLElement[]): string | undefined {
+  const sample = blocks.map((block) => normalizeText(block.innerText)).find((text) => text.length > 0);
+  return sample?.slice(0, 160);
 }

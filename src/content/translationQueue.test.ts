@@ -143,6 +143,40 @@ describe("TranslationQueue", () => {
 
     expect(batches.flat()).toEqual(["a", "b"]);
   });
+
+  it("exposes pending and running counts for diagnostics", async () => {
+    let releaseWorker: (() => void) | undefined;
+    let calls = 0;
+    const queue = new TranslationQueue<string>({
+      batchSize: 1,
+      concurrency: 1,
+      worker: vi.fn(async () => {
+        calls += 1;
+        if (calls > 1) {
+          return;
+        }
+        await new Promise<void>((resolve) => {
+          releaseWorker = resolve;
+        });
+      })
+    });
+
+    queue.enqueue([
+      { id: "a", priority: 0, distance: 0, value: "a" },
+      { id: "b", priority: 1, distance: 0, value: "b" }
+    ]);
+
+    await Promise.resolve();
+
+    expect(queue.running).toBe(1);
+    expect(queue.size).toBe(1);
+
+    releaseWorker?.();
+    await waitForQueue();
+
+    expect(queue.running).toBe(0);
+    expect(queue.size).toBe(0);
+  });
 });
 
 async function waitForQueue(): Promise<void> {

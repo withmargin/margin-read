@@ -47,6 +47,10 @@ export class TranslationQueue<T> {
     return this.#pending.size;
   }
 
+  get running(): number {
+    return this.#running;
+  }
+
   #drain(): void {
     while (!this.#cancelled && this.#running < this.#concurrency && this.#pending.size > 0) {
       const batch = this.#takeBatch();

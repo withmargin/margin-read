@@ -13,6 +13,7 @@ export interface ExtensionSettings {
   targetLanguage: string;
   displayStyle: DisplayStyle;
   cacheMode: CacheMode;
+  debugMode: boolean;
 }
 
 export interface TextSegment {
@@ -41,6 +42,21 @@ export interface TranslateBatchResponse {
   ok: boolean;
   results?: TranslationResult[];
   error?: string;
+}
+
+export interface PageDebugState {
+  debugMode: boolean;
+  enabled: boolean;
+  lastScanAt?: number;
+  detectedBlocks: number;
+  enqueuedBlocks: number;
+  queueSize: number;
+  runningRequests: number;
+  pendingBlocks: number;
+  translatedBlocks: number;
+  errorBlocks: number;
+  lastError?: string;
+  sampleText?: string;
 }
 
 export type RuntimeMessage =
