@@ -14,27 +14,31 @@ export interface LanguageSelectElements {
   input: HTMLInputElement;
   hiddenInput: HTMLInputElement;
   listbox: HTMLElement;
+  optionIdPrefix?: string;
 }
 
 export function initializeLanguageSelect(elements: LanguageSelectElements, initialValue: string): LanguageSelectController {
   let options = LANGUAGE_OPTIONS;
   let activeIndex = -1;
   let open = false;
+  let query = "";
+  const optionIdPrefix = elements.optionIdPrefix ?? elements.listbox.id;
 
   const selectOption = (option: LanguageOption): void => {
     elements.hiddenInput.value = option.promptName;
     elements.input.value = formatLanguageOption(option);
+    query = "";
     closeListbox();
   };
 
-  const render = (query = elements.input.value): void => {
+  const render = (): void => {
     options = filterLanguageOptions(query).slice(0, 8);
     activeIndex = options.length > 0 ? Math.max(activeIndex, 0) : -1;
 
     elements.listbox.replaceChildren(
       ...options.map((option, index) => {
         const item = document.createElement("button");
-        item.id = getOptionId(index);
+        item.id = getOptionId(optionIdPrefix, index);
         item.type = "button";
         item.className = "language-option";
         item.setAttribute("role", "option");
@@ -47,7 +51,7 @@ export function initializeLanguageSelect(elements: LanguageSelectElements, initi
         return item;
       })
     );
-    elements.input.setAttribute("aria-activedescendant", activeIndex >= 0 ? getOptionId(activeIndex) : "");
+    elements.input.setAttribute("aria-activedescendant", activeIndex >= 0 ? getOptionId(optionIdPrefix, activeIndex) : "");
   };
 
   const openListbox = (): void => {
@@ -67,8 +71,9 @@ export function initializeLanguageSelect(elements: LanguageSelectElements, initi
 
   elements.input.addEventListener("focus", openListbox);
   elements.input.addEventListener("input", () => {
-    openListbox();
+    query = elements.input.value;
     activeIndex = 0;
+    openListbox();
     render();
   });
   elements.input.addEventListener("keydown", (event) => {
@@ -118,6 +123,7 @@ export function initializeLanguageSelect(elements: LanguageSelectElements, initi
     }
     elements.hiddenInput.value = value;
     elements.input.value = value;
+    query = "";
   };
 
   setValue(initialValue);
@@ -125,6 +131,6 @@ export function initializeLanguageSelect(elements: LanguageSelectElements, initi
   return { setValue };
 }
 
-function getOptionId(index: number): string {
-  return `target-language-option-${index}`;
+function getOptionId(prefix: string, index: number): string {
+  return `${prefix}-option-${index}`;
 }
