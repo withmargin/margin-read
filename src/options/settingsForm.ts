@@ -41,6 +41,9 @@ export function readForm(): ExtensionSettings {
 export function setInputValue(name: string, value: string): void {
   const input = document.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`);
   if (input) {
+    if (input instanceof HTMLSelectElement && value && !findSelectOption(input, value)) {
+      input.append(createSelectOption(value));
+    }
     input.value = value;
   }
 }
@@ -58,4 +61,15 @@ function setCheckboxValue(name: string, checked: boolean): void {
 
 function getCheckboxValue(name: string): boolean {
   return document.querySelector<HTMLInputElement>(`[name="${name}"]`)?.checked ?? false;
+}
+
+function findSelectOption(select: HTMLSelectElement, value: string): HTMLOptionElement | undefined {
+  return Array.from(select.options).find((option) => option.value === value);
+}
+
+function createSelectOption(value: string): HTMLOptionElement {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = value;
+  return option;
 }

@@ -28,6 +28,7 @@ async function initialize(): Promise<void> {
 
   fillForm(initialSettings);
   initializeTargetLanguage(initialSettings.targetLanguage);
+  initializeSourceLanguage(initialSettings.sourceLanguage);
   initializeProviderSettings({ locale, readForm, setStatus });
 
   form?.addEventListener("submit", (event) => {
@@ -52,7 +53,38 @@ function initializeTargetLanguage(initialValue: string): void {
     return;
   }
 
-  initializeLanguageSelect({ input, hiddenInput, listbox }, initialValue);
+  initializeLanguageSelect({ input, hiddenInput, listbox, optionIdPrefix: "target-language" }, initialValue);
+}
+
+function initializeSourceLanguage(initialValue: string): void {
+  const modeInput = document.querySelector<HTMLSelectElement>("#source-language-mode");
+  const specificControl = document.querySelector<HTMLElement>("#source-language-specific");
+  const input = document.querySelector<HTMLInputElement>("#source-language-combobox");
+  const hiddenInput = document.querySelector<HTMLInputElement>('[name="sourceLanguage"]');
+  const listbox = document.querySelector<HTMLElement>("#source-language-listbox");
+  if (!modeInput || !specificControl || !input || !hiddenInput || !listbox) {
+    return;
+  }
+
+  const isAuto = initialValue.trim().toLowerCase() === "auto";
+  const controller = initializeLanguageSelect(
+    { input, hiddenInput, listbox, optionIdPrefix: "source-language" },
+    isAuto ? "English" : initialValue
+  );
+
+  const syncSourceMode = (): void => {
+    const isSpecific = modeInput.value === "specific";
+    specificControl.hidden = !isSpecific;
+    if (!isSpecific) {
+      hiddenInput.value = "auto";
+    } else if (hiddenInput.value.trim().toLowerCase() === "auto") {
+      controller.setValue("English");
+    }
+  };
+
+  modeInput.value = isAuto ? "auto" : "specific";
+  syncSourceMode();
+  modeInput.addEventListener("change", syncSourceMode);
 }
 
 function setStatus(message: string): void {

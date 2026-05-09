@@ -19,8 +19,7 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
     const provider = providerInput.value as TranslationProviderId;
     const defaults = PROVIDER_DEFAULTS[provider];
     setInputValue("providerEndpoint", defaults.providerEndpoint);
-    setInputValue("model", defaults.model);
-    resetModelSelect(locale);
+    resetModelSelect(locale, defaults.model);
     updateProviderSections(provider);
   });
 
@@ -30,10 +29,11 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
     }
     setInputValue("provider", "openai-compatible");
     setInputValue("providerEndpoint", localEndpointPreset.value);
-    if (getInputValue("model") === PROVIDER_DEFAULTS.openai.model) {
-      setInputValue("model", PROVIDER_DEFAULTS["openai-compatible"].model);
-    }
-    resetModelSelect(locale);
+    const nextModel =
+      getInputValue("model") === PROVIDER_DEFAULTS.openai.model
+        ? PROVIDER_DEFAULTS["openai-compatible"].model
+        : getInputValue("model");
+    resetModelSelect(locale, nextModel);
     updateProviderSections("openai-compatible");
   });
 
@@ -48,6 +48,7 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
   });
 
   updateProviderSections((providerInput?.value as TranslationProviderId | undefined) ?? "openai");
+  resetModelSelect(locale, getInputValue("model"));
 }
 
 function updateProviderSections(provider: TranslationProviderId): void {
@@ -72,7 +73,7 @@ async function fetchModels(
     return;
   }
 
-  renderModelOptions(locale, response.models);
+  renderModelOptions(locale, response.models, readForm().model);
   setStatus(t(locale, "statusLoadedModels", { count: response.models.length }));
 }
 
@@ -82,20 +83,31 @@ interface ListModelsResponse {
   error?: string;
 }
 
-function renderModelOptions(locale: OptionsLocale, models: ProviderModel[]): void {
+function renderModelOptions(locale: OptionsLocale, models: ProviderModel[], selectedModel: string): void {
+  const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
+  const modelOptions = models.map((model) => {
+    return createModelOption(model.id, model.displayName ? `${model.displayName} (${model.id})` : model.id);
+  });
+  const hasSelectedModel = modelOptions.some((option) => option.value === selectedModel);
+  modelSelect?.replaceChildren(
+    createModelOption("", t(locale, "modelDefault")),
+    ...(selectedModel && !hasSelectedModel ? [createModelOption(selectedModel, selectedModel)] : []),
+    ...modelOptions
+  );
+  if (modelSelect && selectedModel) {
+    modelSelect.value = selectedModel;
+  }
+}
+
+function resetModelSelect(locale: OptionsLocale, selectedModel: string): void {
   const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
   modelSelect?.replaceChildren(
     createModelOption("", t(locale, "modelDefault")),
-    ...models.map((model) => {
-      return createModelOption(model.id, model.displayName ? `${model.displayName} (${model.id})` : model.id);
-    })
+    ...(selectedModel ? [createModelOption(selectedModel, selectedModel)] : [])
   );
-}
-
-function resetModelSelect(locale: OptionsLocale): void {
-  document
-    .querySelector<HTMLSelectElement>("#model-select")
-    ?.replaceChildren(createModelOption("", t(locale, "modelDefault")));
+  if (modelSelect && selectedModel) {
+    modelSelect.value = selectedModel;
+  }
 }
 
 function createModelOption(value: string, label: string): HTMLOptionElement {

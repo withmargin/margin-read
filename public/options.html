@@ -36,6 +36,10 @@
                 </select>
                 <span class="hint" data-i18n="endpointPresetHint">Presets switch the provider to OpenAI Compatible and fill the endpoint.</span>
               </label>
+              <label>
+                <span data-i18n="providerEndpoint">Endpoint URL</span>
+                <input name="providerEndpoint" type="url" required />
+              </label>
               <label class="checkbox">
                 <input name="openAICompatibleJsonMode" type="checkbox" />
                 <span>
@@ -45,21 +49,19 @@
               </label>
             </fieldset>
             <label>
-              <span data-i18n="providerEndpoint">Provider endpoint</span>
-              <input name="providerEndpoint" type="url" required />
-            </label>
-            <label>
               <span data-i18n="apiKey">API key</span>
               <input name="apiKey" type="password" autocomplete="off" />
               <span class="hint" data-i18n="apiKeyHint">Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.</span>
             </label>
             <label>
               <span data-i18n="model">Model</span>
-              <select id="model-select">
-                <option value="" data-i18n="modelDefault">Fetch models or use custom model below</option>
-              </select>
-              <input name="model" type="text" required />
-              <span class="hint" data-i18n="modelHint">Select a fetched model or enter a custom model name.</span>
+              <span class="inline-control">
+                <select id="model-select" name="model" required>
+                  <option value="" data-i18n="modelDefault">Fetch models to choose a model</option>
+                </select>
+                <button id="fetch-models" type="button" class="secondary" data-i18n="fetchModels">Fetch models</button>
+              </span>
+              <span class="hint" data-i18n="modelHint">Fetch models from the selected provider, or keep the current provider default.</span>
             </label>
           </div>
         </section>
@@ -67,11 +69,6 @@
         <section class="settings-section">
           <h2 data-i18n="targetLanguage">Target language</h2>
           <div class="section-grid">
-            <label>
-              <span data-i18n="sourceLanguage">Source language</span>
-              <input name="sourceLanguage" type="text" placeholder="auto" />
-              <span class="hint" data-i18n="sourceLanguageHint">Use auto to let the model detect the source language.</span>
-            </label>
             <label>
               <span data-i18n="targetLanguage">Target language</span>
               <span class="language-combobox">
@@ -88,6 +85,31 @@
                 <span id="target-language-listbox" class="language-listbox" role="listbox" hidden></span>
               </span>
               <span class="hint" data-i18n="targetLanguageHint">Search by English name, native name, language code, or alias.</span>
+            </label>
+            <label>
+              <span data-i18n="sourceDetection">Source detection</span>
+              <select id="source-language-mode">
+                <option value="auto" data-i18n="sourceAuto">Auto-detect per text block</option>
+                <option value="specific" data-i18n="sourceSpecific">Specific source language</option>
+              </select>
+              <span class="hint" data-i18n="sourceLanguageHint">Auto-detect is best for mixed-language webpages and timelines.</span>
+            </label>
+            <label id="source-language-specific" hidden>
+              <span data-i18n="sourceLanguage">Source language</span>
+              <span class="language-combobox">
+                <input
+                  id="source-language-combobox"
+                  type="text"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-controls="source-language-listbox"
+                  aria-expanded="false"
+                  autocomplete="off"
+                />
+                <input name="sourceLanguage" type="hidden" required />
+                <span id="source-language-listbox" class="language-listbox" role="listbox" hidden></span>
+              </span>
+              <span class="hint" data-i18n="sourceSpecificHint">Use this only when every page you translate is mostly the same source language.</span>
             </label>
           </div>
         </section>
@@ -162,7 +184,6 @@
 
         <div class="actions">
           <button type="submit" data-i18n="saveSettings">Save settings</button>
-          <button id="fetch-models" type="button" class="secondary" data-i18n="fetchModels">Fetch models</button>
           <button id="clear-cache" type="button" class="secondary" data-i18n="clearCache">Clear cache</button>
         </div>
       </form>
