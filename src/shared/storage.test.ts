@@ -4,6 +4,7 @@ import {
   clearPersistentCache,
   getCachedTranslation,
   getSettings,
+  getStoredSettings,
   saveSettings,
   setCachedTranslation
 } from "./storage";
@@ -50,6 +51,12 @@ describe("settings storage", () => {
       ...DEFAULT_SETTINGS,
       targetLanguage: "Traditional Chinese"
     });
+  });
+
+  it("returns raw saved settings when needed", async () => {
+    store.set(SETTINGS_KEY, { targetLanguage: "Traditional Chinese" });
+
+    await expect(getStoredSettings()).resolves.toEqual({ targetLanguage: "Traditional Chinese" });
   });
 
   it("saves settings under the settings key", async () => {

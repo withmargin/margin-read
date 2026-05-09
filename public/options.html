@@ -8,122 +8,165 @@
   </head>
   <body>
     <main>
-      <h1>Toast Options</h1>
+      <header class="page-header">
+        <h1 data-i18n="title">Toast Options</h1>
+      </header>
       <form id="settings-form">
-        <label>
-          Provider
-          <select name="provider">
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic Claude</option>
-            <option value="google">Google Gemini</option>
-            <option value="openai-compatible">OpenAI Compatible</option>
-          </select>
-        </label>
-        <fieldset>
-          <legend>Local LLM presets</legend>
-          <label>
-            Endpoint preset
-            <select id="local-endpoint-preset">
-              <option value="">Select a local runtime</option>
-              <option value="http://localhost:1234/v1/chat/completions">LM Studio</option>
-              <option value="http://localhost:11434/v1/chat/completions">Ollama</option>
-              <option value="http://localhost:8080/v1/chat/completions">llama.cpp server</option>
-            </select>
-            <span class="hint">Presets switch the provider to OpenAI Compatible and fill the endpoint.</span>
-          </label>
-          <label class="checkbox">
-            <input name="openAICompatibleJsonMode" type="checkbox" />
-            <span>
-              Request JSON mode
-              <span class="hint">Disable this if a local runtime rejects the OpenAI response_format field.</span>
-            </span>
-          </label>
-        </fieldset>
-        <label>
-          Provider endpoint
-          <input name="providerEndpoint" type="url" required />
-        </label>
-        <label>
-          API key
-          <input name="apiKey" type="password" autocomplete="off" />
-          <span class="hint">Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.</span>
-        </label>
-        <label>
-          Model
-          <select id="model-select">
-            <option value="">Fetch models or use custom model below</option>
-          </select>
-          <input name="model" type="text" required />
-          <span class="hint">Select a fetched model or enter a custom model name.</span>
-        </label>
-        <label>
-          Source language
-          <input name="sourceLanguage" type="text" placeholder="auto" />
-        </label>
-        <label>
-          Target language
-          <input name="targetLanguage" type="text" required />
-        </label>
-        <label>
-          Display style
-          <select name="displayStyle">
-            <option value="integrated">Integrated</option>
-            <option value="highlighted">Highlighted</option>
-          </select>
-        </label>
-        <label>
-          Cache behavior
-          <select name="cacheMode">
-            <option value="persistent">Persistent</option>
-            <option value="session">Session only</option>
-            <option value="disabled">Disabled</option>
-          </select>
-        </label>
-        <fieldset>
-          <legend>X optimization</legend>
-          <label class="checkbox">
-            <input name="xOptimizedTranslation" type="checkbox" />
-            <span>
-              Optimize X timelines
-              <span class="hint">Translate only tweet text from X timeline cards by default.</span>
-            </span>
-          </label>
-          <label class="checkbox">
-            <input name="xTranslateArticles" type="checkbox" />
-            <span>
-              Translate X articles
-              <span class="hint">Translate X longform article titles and readable rich text blocks.</span>
-            </span>
-          </label>
-          <label class="checkbox">
-            <input name="xTranslateQuotedPosts" type="checkbox" />
-            <span>
-              Translate quoted posts
-              <span class="hint">Also translate nested quoted post text inside X cards.</span>
-            </span>
-          </label>
-          <label class="checkbox">
-            <input name="xSkipNativeTranslatedPosts" type="checkbox" />
-            <span>
-              Skip X translated posts
-              <span class="hint">Avoid retranslating posts that X already marks as translated.</span>
-            </span>
-          </label>
-        </fieldset>
-        <label class="checkbox">
-          <input name="debugMode" type="checkbox" />
-          <span>
-            Debug mode
-            <span class="hint">Show page detection, queue, and provider error details in the popup.</span>
-          </span>
-        </label>
+        <section class="settings-section">
+          <h2 data-i18n="provider">Provider</h2>
+          <div class="section-grid">
+            <label>
+              <span data-i18n="provider">Provider</span>
+              <select name="provider">
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic Claude</option>
+                <option value="google">Google Gemini</option>
+                <option value="openai-compatible">OpenAI Compatible</option>
+              </select>
+            </label>
+            <fieldset data-provider-section="openai-compatible">
+              <legend data-i18n="localPresets">Local LLM presets</legend>
+              <label>
+                <span data-i18n="endpointPreset">Endpoint preset</span>
+                <select id="local-endpoint-preset">
+                  <option value="" data-i18n="localPresetDefault">Select a local runtime</option>
+                  <option value="http://localhost:1234/v1/chat/completions">LM Studio</option>
+                  <option value="http://localhost:11434/v1/chat/completions">Ollama</option>
+                  <option value="http://localhost:8080/v1/chat/completions">llama.cpp server</option>
+                </select>
+                <span class="hint" data-i18n="endpointPresetHint">Presets switch the provider to OpenAI Compatible and fill the endpoint.</span>
+              </label>
+              <label class="checkbox">
+                <input name="openAICompatibleJsonMode" type="checkbox" />
+                <span>
+                  <span data-i18n="localJsonMode">Request JSON mode</span>
+                  <span class="hint" data-i18n="localJsonHint">Disable this if a local runtime rejects the OpenAI response_format field.</span>
+                </span>
+              </label>
+            </fieldset>
+            <label>
+              <span data-i18n="providerEndpoint">Provider endpoint</span>
+              <input name="providerEndpoint" type="url" required />
+            </label>
+            <label>
+              <span data-i18n="apiKey">API key</span>
+              <input name="apiKey" type="password" autocomplete="off" />
+              <span class="hint" data-i18n="apiKeyHint">Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.</span>
+            </label>
+            <label>
+              <span data-i18n="model">Model</span>
+              <select id="model-select">
+                <option value="" data-i18n="modelDefault">Fetch models or use custom model below</option>
+              </select>
+              <input name="model" type="text" required />
+              <span class="hint" data-i18n="modelHint">Select a fetched model or enter a custom model name.</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="targetLanguage">Target language</h2>
+          <div class="section-grid">
+            <label>
+              <span data-i18n="sourceLanguage">Source language</span>
+              <input name="sourceLanguage" type="text" placeholder="auto" />
+              <span class="hint" data-i18n="sourceLanguageHint">Use auto to let the model detect the source language.</span>
+            </label>
+            <label>
+              <span data-i18n="targetLanguage">Target language</span>
+              <span class="language-combobox">
+                <input
+                  id="target-language-combobox"
+                  type="text"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-controls="target-language-listbox"
+                  aria-expanded="false"
+                  autocomplete="off"
+                />
+                <input name="targetLanguage" type="hidden" required />
+                <span id="target-language-listbox" class="language-listbox" role="listbox" hidden></span>
+              </span>
+              <span class="hint" data-i18n="targetLanguageHint">Search by English name, native name, language code, or alias.</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="displayStyle">Display style</h2>
+          <div class="section-grid">
+            <label>
+              <span data-i18n="displayStyle">Display style</span>
+              <select name="displayStyle">
+                <option value="integrated" data-i18n="displayIntegrated">Integrated</option>
+                <option value="highlighted" data-i18n="displayHighlighted">Highlighted</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="cacheBehavior">Cache behavior</span>
+              <select name="cacheMode">
+                <option value="persistent" data-i18n="cachePersistent">Persistent</option>
+                <option value="session" data-i18n="cacheSession">Session only</option>
+                <option value="disabled" data-i18n="cacheDisabled">Disabled</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="xOptimization">X optimization</h2>
+          <div class="section-grid">
+            <label class="checkbox">
+              <input name="xOptimizedTranslation" type="checkbox" />
+              <span>
+                <span data-i18n="optimizeXTimelines">Optimize X timelines</span>
+                <span class="hint" data-i18n="optimizeXHint">Translate only tweet text from X timeline cards by default.</span>
+              </span>
+            </label>
+            <label class="checkbox">
+              <input name="xTranslateArticles" type="checkbox" />
+              <span>
+                <span data-i18n="translateXArticles">Translate X articles</span>
+                <span class="hint" data-i18n="translateXArticlesHint">Translate X longform article titles and readable rich text blocks.</span>
+              </span>
+            </label>
+            <label class="checkbox">
+              <input name="xTranslateQuotedPosts" type="checkbox" />
+              <span>
+                <span data-i18n="translateQuotedPosts">Translate quoted posts</span>
+                <span class="hint" data-i18n="translateQuotedPostsHint">Also translate nested quoted post text inside X cards.</span>
+              </span>
+            </label>
+            <label class="checkbox">
+              <input name="xSkipNativeTranslatedPosts" type="checkbox" />
+              <span>
+                <span data-i18n="xSkipNative">Skip X translated posts</span>
+                <span class="hint" data-i18n="xSkipNativeHint">Avoid retranslating posts that X already marks as translated.</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="debugMode">Debug mode</h2>
+          <div class="section-grid">
+            <label class="checkbox">
+              <input name="debugMode" type="checkbox" />
+              <span>
+                <span data-i18n="debugMode">Debug mode</span>
+                <span class="hint" data-i18n="debugHint">Show page detection, queue, and provider error details in the popup.</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
         <div class="actions">
-          <button type="submit">Save settings</button>
-          <button id="fetch-models" type="button" class="secondary">Fetch models</button>
-          <button id="clear-cache" type="button" class="secondary">Clear cache</button>
+          <button type="submit" data-i18n="saveSettings">Save settings</button>
+          <button id="fetch-models" type="button" class="secondary" data-i18n="fetchModels">Fetch models</button>
+          <button id="clear-cache" type="button" class="secondary" data-i18n="clearCache">Clear cache</button>
         </div>
       </form>
-      <p id="status" role="status"></p>
+      <p id="status" role="status" aria-live="polite"></p>
     </main>
     <script type="module" src="options.js"></script>
   </body>

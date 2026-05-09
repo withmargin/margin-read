@@ -1,34 +1,70 @@
+:root {
+  --color-bg: #f6f7f9;
+  --color-panel: #ffffff;
+  --color-text: #17181a;
+  --color-muted: #5d6470;
+  --color-border: #d8dde6;
+  --color-control-border: #c9ced6;
+  --color-primary: #2f6fed;
+  --color-secondary: #e5e8ee;
+  --radius: 6px;
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 18px;
+  --space-5: 24px;
+}
+
 body {
   margin: 0;
-  color: #17181a;
-  background: #f6f7f9;
+  color: var(--color-text);
+  background: var(--color-bg);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 main {
-  max-width: 720px;
+  max-width: 880px;
   margin: 0 auto;
   padding: 32px 20px;
 }
 
+.page-header {
+  margin-bottom: var(--space-5);
+}
+
 h1 {
-  margin: 0 0 24px;
+  margin: 0;
   font-size: 24px;
+}
+
+h2 {
+  margin: 0;
+  color: #333840;
+  font-size: 16px;
 }
 
 form {
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
+}
+
+.settings-section,
+fieldset {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  background: var(--color-panel);
 }
 
 fieldset {
-  display: grid;
-  gap: 12px;
   margin: 0;
-  border: 1px solid #d8dde6;
-  border-radius: 6px;
-  padding: 14px;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 legend {
@@ -38,9 +74,25 @@ legend {
   font-weight: 650;
 }
 
+.section-grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 760px) {
+  .section-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-grid > fieldset,
+  .section-grid > label:has(#model-select) {
+    grid-column: 1 / -1;
+  }
+}
+
 label {
   display: grid;
-  gap: 6px;
+  gap: var(--space-1);
   color: #333840;
   font-size: 14px;
   font-weight: 650;
@@ -58,7 +110,8 @@ label.checkbox input {
 }
 
 .hint {
-  color: #5d6470;
+  display: block;
+  color: var(--color-muted);
   font-size: 12px;
   font-weight: 400;
   line-height: 1.4;
@@ -67,41 +120,94 @@ label.checkbox input {
 input,
 select {
   min-height: 38px;
-  border: 1px solid #c9ced6;
-  border-radius: 6px;
-  padding: 0 10px;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius);
+  padding: 0 var(--space-2);
   background: #ffffff;
-  color: #17181a;
+  color: var(--color-text);
   font: inherit;
   font-weight: 400;
+}
+
+input:focus,
+select:focus,
+button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.language-combobox {
+  position: relative;
+  display: grid;
+}
+
+.language-listbox {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius);
+  padding: 4px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgb(18 25 38 / 14%);
+}
+
+.language-option {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  justify-items: start;
+  border: 0;
+  border-radius: 4px;
+  padding: 6px 8px;
+  color: var(--color-text);
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+}
+
+.language-option small {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.language-option[aria-selected="true"],
+.language-option:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, #ffffff);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
+  gap: var(--space-2);
+  margin-top: 4px;
 }
 
 button {
   min-height: 38px;
   border: 0;
-  border-radius: 6px;
-  padding: 0 14px;
+  border-radius: var(--radius);
+  padding: 0 var(--space-3);
   color: #ffffff;
-  background: #2f6fed;
+  background: var(--color-primary);
   font: inherit;
   font-weight: 650;
   cursor: pointer;
 }
 
 button.secondary {
-  color: #17181a;
-  background: #e5e8ee;
+  color: var(--color-text);
+  background: var(--color-secondary);
 }
 
 #status {
   min-height: 24px;
-  margin-top: 18px;
+  margin-top: var(--space-4);
   color: #375f2c;
 }

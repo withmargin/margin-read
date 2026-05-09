@@ -1,173 +1,58 @@
-import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "../shared/defaults";
-import { getSettings, saveSettings } from "../shared/storage";
-import type {
-  CacheMode,
-  DisplayStyle,
-  ExtensionSettings,
-  ProviderModel,
-  TranslationProviderId
-} from "../shared/types";
+import { DEFAULT_SETTINGS } from "../shared/defaults";
+import { getSettings, getStoredSettings, saveSettings } from "../shared/storage";
+import { applyOptionsI18n, detectOptionsLocale, t } from "./i18n";
+import { initializeLanguageSelect } from "./languageSelect";
+import { getPreferredLanguageOption } from "./languages";
+import { initializeProviderSettings } from "./providerSettings";
+import { fillForm, readForm } from "./settingsForm";
 
 const form = document.querySelector<HTMLFormElement>("#settings-form");
 const statusEl = document.querySelector<HTMLParagraphElement>("#status");
 const clearCacheButton = document.querySelector<HTMLButtonElement>("#clear-cache");
-const fetchModelsButton = document.querySelector<HTMLButtonElement>("#fetch-models");
-const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
-const localEndpointPreset = document.querySelector<HTMLSelectElement>("#local-endpoint-preset");
 
 void initialize();
 
 async function initialize(): Promise<void> {
-  const settings = await getSettings();
-  fillForm(settings);
-  bindProviderDefaults();
+  const locale = detectOptionsLocale(navigator.languages);
+  applyOptionsI18n(locale);
+
+  const [settings, storedSettings] = await Promise.all([getSettings(), getStoredSettings()]);
+  const browserTargetLanguage = getPreferredLanguageOption(navigator.languages).promptName;
+  const initialSettings = {
+    ...settings,
+    targetLanguage:
+      storedSettings?.targetLanguage || settings.targetLanguage !== DEFAULT_SETTINGS.targetLanguage
+        ? settings.targetLanguage
+        : browserTargetLanguage
+  };
+
+  fillForm(initialSettings);
+  initializeTargetLanguage(initialSettings.targetLanguage);
+  initializeProviderSettings({ locale, readForm, setStatus });
 
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
     void saveSettings(readForm()).then(() => {
-      setStatus("Settings saved.");
+      setStatus(t(locale, "statusSettingsSaved"));
     });
   });
 
   clearCacheButton?.addEventListener("click", () => {
     void chrome.runtime.sendMessage({ type: "CLEAR_CACHE" }).then(() => {
-      setStatus("Translation cache cleared.");
+      setStatus(t(locale, "statusCacheCleared"));
     });
   });
-
-  fetchModelsButton?.addEventListener("click", () => {
-    void fetchModels();
-  });
-
-  modelSelect?.addEventListener("change", () => {
-    if (modelSelect.value) {
-      setInputValue("model", modelSelect.value);
-    }
-  });
-
-  localEndpointPreset?.addEventListener("change", () => {
-    if (!localEndpointPreset.value) {
-      return;
-    }
-    setInputValue("provider", "openai-compatible");
-    setInputValue("providerEndpoint", localEndpointPreset.value);
-    if (getInputValue("model") === PROVIDER_DEFAULTS.openai.model) {
-      setInputValue("model", PROVIDER_DEFAULTS["openai-compatible"].model);
-    }
-    resetModelSelect();
-  });
 }
 
-function fillForm(settings: ExtensionSettings): void {
-  setInputValue("provider", settings.provider);
-  setInputValue("providerEndpoint", settings.providerEndpoint);
-  setInputValue("apiKey", settings.apiKey);
-  setInputValue("model", settings.model);
-  setInputValue("sourceLanguage", settings.sourceLanguage);
-  setInputValue("targetLanguage", settings.targetLanguage);
-  setInputValue("displayStyle", settings.displayStyle);
-  setInputValue("cacheMode", settings.cacheMode);
-  setCheckboxValue("debugMode", settings.debugMode);
-  setCheckboxValue("xOptimizedTranslation", settings.xOptimizedTranslation);
-  setCheckboxValue("xTranslateArticles", settings.xTranslateArticles);
-  setCheckboxValue("xTranslateQuotedPosts", settings.xTranslateQuotedPosts);
-  setCheckboxValue("xSkipNativeTranslatedPosts", settings.xSkipNativeTranslatedPosts);
-  setCheckboxValue("openAICompatibleJsonMode", settings.openAICompatibleJsonMode);
-}
-
-function readForm(): ExtensionSettings {
-  return {
-    ...DEFAULT_SETTINGS,
-    provider: getInputValue("provider") as TranslationProviderId,
-    providerEndpoint: getInputValue("providerEndpoint"),
-    apiKey: getInputValue("apiKey"),
-    model: getInputValue("model"),
-    sourceLanguage: getInputValue("sourceLanguage"),
-    targetLanguage: getInputValue("targetLanguage"),
-    displayStyle: getInputValue("displayStyle") as DisplayStyle,
-    cacheMode: getInputValue("cacheMode") as CacheMode,
-    debugMode: getCheckboxValue("debugMode"),
-    xOptimizedTranslation: getCheckboxValue("xOptimizedTranslation"),
-    xTranslateArticles: getCheckboxValue("xTranslateArticles"),
-    xTranslateQuotedPosts: getCheckboxValue("xTranslateQuotedPosts"),
-    xSkipNativeTranslatedPosts: getCheckboxValue("xSkipNativeTranslatedPosts"),
-    openAICompatibleJsonMode: getCheckboxValue("openAICompatibleJsonMode")
-  };
-}
-
-function bindProviderDefaults(): void {
-  const providerInput = document.querySelector<HTMLSelectElement>('[name="provider"]');
-  providerInput?.addEventListener("change", () => {
-    const provider = providerInput.value as TranslationProviderId;
-    const defaults = PROVIDER_DEFAULTS[provider];
-    setInputValue("providerEndpoint", defaults.providerEndpoint);
-    setInputValue("model", defaults.model);
-    resetModelSelect();
-  });
-}
-
-async function fetchModels(): Promise<void> {
-  setStatus("Fetching models...");
-  const response: ListModelsResponse = await chrome.runtime.sendMessage({
-    type: "LIST_MODELS",
-    settings: readForm()
-  });
-
-  if (!response.ok || !response.models) {
-    setStatus(response.error ?? "Could not fetch models.");
+function initializeTargetLanguage(initialValue: string): void {
+  const input = document.querySelector<HTMLInputElement>("#target-language-combobox");
+  const hiddenInput = document.querySelector<HTMLInputElement>('[name="targetLanguage"]');
+  const listbox = document.querySelector<HTMLElement>("#target-language-listbox");
+  if (!input || !hiddenInput || !listbox) {
     return;
   }
 
-  renderModelOptions(response.models);
-  setStatus(`Loaded ${response.models.length} models.`);
-}
-
-interface ListModelsResponse {
-  ok: boolean;
-  models?: ProviderModel[];
-  error?: string;
-}
-
-function renderModelOptions(models: ProviderModel[]): void {
-  modelSelect?.replaceChildren(
-    createModelOption("", "Select a model"),
-    ...models.map((model) => {
-      return createModelOption(model.id, model.displayName ? `${model.displayName} (${model.id})` : model.id);
-    })
-  );
-}
-
-function resetModelSelect(): void {
-  modelSelect?.replaceChildren(createModelOption("", "Fetch models or use custom model below"));
-}
-
-function createModelOption(value: string, label: string): HTMLOptionElement {
-  const option = document.createElement("option");
-  option.value = value;
-  option.textContent = label;
-  return option;
-}
-
-function setInputValue(name: string, value: string): void {
-  const input = document.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`);
-  if (input) {
-    input.value = value;
-  }
-}
-
-function getInputValue(name: string): string {
-  return document.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`)?.value.trim() ?? "";
-}
-
-function setCheckboxValue(name: string, checked: boolean): void {
-  const input = document.querySelector<HTMLInputElement>(`[name="${name}"]`);
-  if (input) {
-    input.checked = checked;
-  }
-}
-
-function getCheckboxValue(name: string): boolean {
-  return document.querySelector<HTMLInputElement>(`[name="${name}"]`)?.checked ?? false;
+  initializeLanguageSelect({ input, hiddenInput, listbox }, initialValue);
 }
 
 function setStatus(message: string): void {

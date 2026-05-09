@@ -2,8 +2,12 @@ import { CACHE_KEY_PREFIX, DEFAULT_SETTINGS, SETTINGS_KEY } from "./defaults";
 import type { ExtensionSettings } from "./types";
 
 export async function getSettings(): Promise<ExtensionSettings> {
+  return { ...DEFAULT_SETTINGS, ...((await getStoredSettings()) ?? {}) };
+}
+
+export async function getStoredSettings(): Promise<Partial<ExtensionSettings> | undefined> {
   const data = (await chrome.storage.local.get(SETTINGS_KEY)) as Record<string, Partial<ExtensionSettings> | undefined>;
-  return { ...DEFAULT_SETTINGS, ...(data[SETTINGS_KEY] ?? {}) };
+  return data[SETTINGS_KEY];
 }
 
 export async function saveSettings(settings: ExtensionSettings): Promise<void> {
