@@ -1,5 +1,7 @@
 # Toast Translate
 
+[繁體中文](README.zh-TW.md)
+
 Toast Translate is a privacy-first browser extension for bilingual webpage translation.
 
 Toast keeps the original webpage text in place and inserts translated text below the matching source blocks, so readers can compare both versions without losing page context.
