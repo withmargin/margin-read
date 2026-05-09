@@ -48,14 +48,14 @@ Then:
 3. Select Load unpacked.
 4. Choose the generated `dist/` directory.
 5. Open Toast options.
-6. Configure a provider, endpoint, API key, model, source language, target language, and cache behavior.
+6. Configure a provider, API key, model, target language, and cache behavior.
 7. Open a webpage and click Translate this page from the Toast popup.
 
 ## Provider Setup
 
 No API key is bundled with Toast. Users provide their own raw provider API key without a `Bearer` prefix.
 
-Default endpoints:
+Built-in providers use default endpoints:
 
 ```text
 OpenAI: https://api.openai.com/v1/chat/completions
@@ -63,7 +63,7 @@ Anthropic Claude: https://api.anthropic.com/v1/messages
 Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-The endpoint field remains editable for compatible gateways and self-hosted routing.
+The endpoint field is shown only for OpenAI Compatible / Local LLM setups, where the user is expected to choose or enter a local endpoint.
 
 The Fetch models action reads available models from the selected provider:
 
@@ -71,7 +71,7 @@ The Fetch models action reads available models from the selected provider:
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
 
-Fetched models appear in the model selector. The custom model input remains available for unreleased models, compatible gateways, and self-hosted routes.
+Fetched models appear in the model selector. Toast keeps the currently configured model as an option when a provider default or previously saved model is not returned by the provider list.
 
 ## Privacy
 
@@ -103,10 +103,18 @@ To use a local runtime:
 
 1. Start the local model server.
 2. Open Toast options.
-3. Select an endpoint preset or choose OpenAI Compatible manually.
-4. Leave API key empty unless your local gateway requires one.
-5. Fetch models or enter the served model name manually.
-6. Keep Request JSON mode enabled when supported. Disable it if the local runtime rejects the `response_format` request field.
+3. Select OpenAI Compatible as the provider.
+4. Select an endpoint preset, or enter the endpoint URL shown by your runtime.
+5. Leave API key empty unless your local gateway requires one.
+6. Click Fetch models and choose a served model from the model selector.
+7. Keep Request JSON mode enabled when supported. Disable it if the local runtime rejects the `response_format` request field.
+
+Runtime notes:
+
+- LM Studio commonly serves OpenAI-compatible requests at `http://localhost:1234/v1/chat/completions`.
+- Ollama requires its OpenAI-compatible API to be available at `http://localhost:11434/v1/chat/completions`.
+- llama.cpp server must be started with an OpenAI-compatible HTTP server enabled, commonly at `http://localhost:8080/v1/chat/completions`.
+- If Fetch models fails, confirm the local server is running, the endpoint URL ends with `/v1/chat/completions`, and the runtime exposes a compatible `/v1/models` endpoint.
 
 Local model quality, speed, context length, and JSON reliability depend on the model and runtime. Instruct models with strong multilingual ability are recommended for translation.
 
@@ -192,4 +200,4 @@ Use those values to separate the main failure modes:
 
 ## License
 
-No license has been selected yet.
+MIT
