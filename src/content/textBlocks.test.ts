@@ -114,6 +114,27 @@ describe("collectTextBlocks", () => {
     expect(blocks).toHaveLength(0);
   });
 
+  it("does not let quoted post native translation markers hide the main X post", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="tweetText">The main post has enough text to translate.</div>
+        <div role="link">
+          <div>Translated from Spanish <button>Show original</button></div>
+          <div data-testid="tweetText">The quoted post has enough text to translate.</div>
+        </div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, {
+      ...options,
+      xOptimizedTranslation: true,
+      xSkipNativeTranslatedPosts: true
+    });
+
+    expect(blocks).toHaveLength(1);
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe("The main post has enough text to translate.");
+  });
+
   it("uses X article title and rich text blocks when article optimization is enabled", () => {
     const document = createDocument(`
       <article data-testid="tweet" role="article">
@@ -182,6 +203,37 @@ describe("collectTextBlocks", () => {
 
     expect(blocks).toHaveLength(1);
     expect(normalize(blocks[0]?.textContent ?? "")).toBe("A readable article paragraph should still be translated.");
+  });
+
+  it("skips X article blocks that already received integrated translations", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="twitterArticleReadView">
+          <div data-testid="twitterArticleRichTextView">
+            <div data-testid="longformRichTextComponent">
+              <h2 class="longform-header-two" data-block="true" data-toast-translated="done">
+                <div><span data-text="true">The already translated article heading</span></div>
+              </h2>
+              <div class="toast-translation toast-translation--integrated">已翻譯過的標題</div>
+              <div class="longform-unstyled" data-block="true">
+                <div><span data-text="true">A fresh readable article paragraph should still be translated.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    `);
+
+    const blocks = collectTextBlocks(document, {
+      ...options,
+      xOptimizedTranslation: true,
+      xTranslateArticles: true
+    });
+
+    expect(blocks).toHaveLength(1);
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe(
+      "A fresh readable article paragraph should still be translated."
+    );
   });
 
   it("falls back to legacy table text split by line breaks", () => {

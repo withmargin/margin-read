@@ -76,7 +76,7 @@ function isXTranslatableTweetText(element: HTMLElement, options: TextBlockOption
     return false;
   }
 
-  if (options.xSkipNativeTranslatedPosts && hasNativeXTranslationMarker(article)) {
+  if (options.xSkipNativeTranslatedPosts && hasNativeXTranslationMarker(article, element)) {
     return false;
   }
 
@@ -110,8 +110,13 @@ function isInsideQuotedPost(element: HTMLElement, article: HTMLElement): boolean
   return Boolean(quotedContainer && article.contains(quotedContainer));
 }
 
-function hasNativeXTranslationMarker(article: HTMLElement): boolean {
-  return /Translated from\s+\w+/i.test(article.innerText);
+function hasNativeXTranslationMarker(article: HTMLElement, textElement: HTMLElement): boolean {
+  return Array.from(article.querySelectorAll<HTMLElement>("div, span")).some((element) => {
+    if (element === textElement || textElement.contains(element) || isInsideQuotedPost(element, article)) {
+      return false;
+    }
+    return /Translated from\s+\w+/i.test(element.innerText);
+  });
 }
 
 function collectSemanticBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
