@@ -1,4 +1,7 @@
 import { en } from "./en";
+import { ja } from "./ja";
+import { ko } from "./ko";
+import { zhCN } from "./zh-CN";
 import { zhTW } from "./zh-TW";
 import type { MessageKey, OptionsLocale } from "./types";
 
@@ -7,11 +10,30 @@ export { MESSAGE_KEYS } from "./types";
 
 export const dictionaries = {
   en,
+  ja,
+  ko,
+  "zh-CN": zhCN,
   "zh-TW": zhTW
 } satisfies Record<OptionsLocale, Record<MessageKey, string>>;
 
 export function detectOptionsLocale(languages: readonly string[]): OptionsLocale {
-  return languages.some((language) => language.toLowerCase().startsWith("zh")) ? "zh-TW" : "en";
+  for (const language of languages) {
+    const normalized = language.toLowerCase();
+    if (normalized === "ja" || normalized.startsWith("ja-")) {
+      return "ja";
+    }
+    if (normalized === "ko" || normalized.startsWith("ko-")) {
+      return "ko";
+    }
+    if (["zh-cn", "zh-sg"].some((locale) => normalized === locale || normalized.startsWith(`${locale}-`))) {
+      return "zh-CN";
+    }
+    if (normalized === "zh" || normalized.startsWith("zh-")) {
+      return "zh-TW";
+    }
+  }
+
+  return "en";
 }
 
 export function t(locale: OptionsLocale, key: MessageKey, values: Record<string, string | number> = {}): string {
