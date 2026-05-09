@@ -50,7 +50,7 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
   const settings = await getSettings();
   const apiKey = normalizeApiKey(settings.apiKey);
 
-  if (!apiKey) {
+  if (!apiKey && settings.provider !== "openai-compatible") {
     return { ok: false, error: "Configure an API key in Toast options before translating." };
   }
 
@@ -119,11 +119,11 @@ function getRuntimeMessageType(message: unknown): string {
 }
 
 async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: boolean; models?: ProviderModel[]; error?: string }> {
-  if (!settings.apiKey) {
+  if (!settings.apiKey && settings.provider !== "openai-compatible") {
     return { ok: false, error: "Configure an API key before fetching models." };
   }
 
-  if (settings.provider === "openai") {
+  if (settings.provider === "openai" || settings.provider === "openai-compatible") {
     return { ok: true, models: await listOpenAIModels(settings) };
   }
 
@@ -140,9 +140,7 @@ async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: bo
 
 async function listOpenAIModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
   const response = await fetch(getOpenAIModelsEndpoint(settings.providerEndpoint), {
-    headers: {
-      Authorization: `Bearer ${settings.apiKey}`
-    }
+    headers: getOpenAICompatibleHeaders(settings)
   });
   await assertProviderResponse(response);
 
@@ -204,7 +202,7 @@ function getAnthropicModelsEndpoint(providerEndpoint: string): string {
 }
 
 async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {
-  if (settings.provider === "openai") {
+  if (settings.provider === "openai" || settings.provider === "openai-compatible") {
     return requestOpenAITranslation(segments, settings);
   }
 
@@ -242,14 +240,11 @@ async function requestOpenAITranslation(
 ): Promise<TranslationResult[]> {
   const response = await fetch(settings.providerEndpoint, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${settings.apiKey}`
-    },
+    headers: getOpenAICompatibleHeaders(settings),
     body: JSON.stringify({
       model: settings.model,
       temperature: 0,
-      response_format: { type: "json_object" },
+      ...(shouldRequestOpenAIJsonMode(settings) ? { response_format: { type: "json_object" } } : {}),
       messages: [
         {
           role: "system",
@@ -276,6 +271,17 @@ async function requestOpenAITranslation(
   }
 
   return parseTranslations(content, segments);
+}
+
+function getOpenAICompatibleHeaders(settings: ExtensionSettings): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    ...(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {})
+  };
+}
+
+function shouldRequestOpenAIJsonMode(settings: ExtensionSettings): boolean {
+  return settings.provider === "openai" || settings.openAICompatibleJsonMode;
 }
 
 async function requestAnthropicTranslation(

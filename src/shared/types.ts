@@ -2,7 +2,7 @@ export type DisplayStyle = "integrated" | "highlighted";
 
 export type CacheMode = "session" | "persistent" | "disabled";
 
-export type TranslationProviderId = "openai" | "anthropic" | "google";
+export type TranslationProviderId = "openai" | "anthropic" | "google" | "openai-compatible";
 
 export interface ExtensionSettings {
   provider: TranslationProviderId;
@@ -18,6 +18,7 @@ export interface ExtensionSettings {
   xTranslateArticles: boolean;
   xTranslateQuotedPosts: boolean;
   xSkipNativeTranslatedPosts: boolean;
+  openAICompatibleJsonMode: boolean;
 }
 
 export interface TextSegment {

@@ -14,8 +14,8 @@ export interface TranslationQueueOptions<T> {
 }
 
 export class TranslationQueue<T> {
-  readonly #batchSize: number;
-  readonly #concurrency: number;
+  #batchSize: number;
+  #concurrency: number;
   readonly #worker: (items: T[]) => Promise<void>;
   readonly #pending = new Map<string, TranslationQueueItem<T>>();
   #running = 0;
@@ -41,6 +41,16 @@ export class TranslationQueue<T> {
   clear(): void {
     this.#cancelled = true;
     this.#pending.clear();
+  }
+
+  configure(options: Partial<Pick<TranslationQueueOptions<T>, "batchSize" | "concurrency">>): void {
+    if (options.batchSize !== undefined) {
+      this.#batchSize = options.batchSize;
+    }
+    if (options.concurrency !== undefined) {
+      this.#concurrency = options.concurrency;
+    }
+    void this.#drain();
   }
 
   get size(): number {

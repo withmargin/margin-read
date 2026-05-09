@@ -3,7 +3,7 @@ import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "./defaults";
 
 describe("provider defaults", () => {
   it("defines defaults for every supported provider", () => {
-    expect(Object.keys(PROVIDER_DEFAULTS).sort()).toEqual(["anthropic", "google", "openai"]);
+    expect(Object.keys(PROVIDER_DEFAULTS).sort()).toEqual(["anthropic", "google", "openai", "openai-compatible"]);
   });
 
   it("uses the OpenAI provider as the initial default", () => {
@@ -17,6 +17,9 @@ describe("provider defaults", () => {
     expect(PROVIDER_DEFAULTS.anthropic.providerEndpoint).toBe("https://api.anthropic.com/v1/messages");
     expect(PROVIDER_DEFAULTS.google.providerEndpoint).toBe(
       "https://generativelanguage.googleapis.com/v1beta/models"
+    );
+    expect(PROVIDER_DEFAULTS["openai-compatible"].providerEndpoint).toBe(
+      "http://localhost:1234/v1/chat/completions"
     );
   });
 });

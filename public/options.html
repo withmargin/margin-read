@@ -16,8 +16,29 @@
             <option value="openai">OpenAI</option>
             <option value="anthropic">Anthropic Claude</option>
             <option value="google">Google Gemini</option>
+            <option value="openai-compatible">OpenAI Compatible</option>
           </select>
         </label>
+        <fieldset>
+          <legend>Local LLM presets</legend>
+          <label>
+            Endpoint preset
+            <select id="local-endpoint-preset">
+              <option value="">Select a local runtime</option>
+              <option value="http://localhost:1234/v1/chat/completions">LM Studio</option>
+              <option value="http://localhost:11434/v1/chat/completions">Ollama</option>
+              <option value="http://localhost:8080/v1/chat/completions">llama.cpp server</option>
+            </select>
+            <span class="hint">Presets switch the provider to OpenAI Compatible and fill the endpoint.</span>
+          </label>
+          <label class="checkbox">
+            <input name="openAICompatibleJsonMode" type="checkbox" />
+            <span>
+              Request JSON mode
+              <span class="hint">Disable this if a local runtime rejects the OpenAI response_format field.</span>
+            </span>
+          </label>
+        </fieldset>
         <label>
           Provider endpoint
           <input name="providerEndpoint" type="url" required />
@@ -25,7 +46,7 @@
         <label>
           API key
           <input name="apiKey" type="password" autocomplete="off" />
-          <span class="hint">Paste the raw provider API key. Do not include a Bearer prefix.</span>
+          <span class="hint">Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.</span>
         </label>
         <label>
           Model

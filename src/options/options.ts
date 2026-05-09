@@ -13,6 +13,7 @@ const statusEl = document.querySelector<HTMLParagraphElement>("#status");
 const clearCacheButton = document.querySelector<HTMLButtonElement>("#clear-cache");
 const fetchModelsButton = document.querySelector<HTMLButtonElement>("#fetch-models");
 const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
+const localEndpointPreset = document.querySelector<HTMLSelectElement>("#local-endpoint-preset");
 
 void initialize();
 
@@ -43,6 +44,18 @@ async function initialize(): Promise<void> {
       setInputValue("model", modelSelect.value);
     }
   });
+
+  localEndpointPreset?.addEventListener("change", () => {
+    if (!localEndpointPreset.value) {
+      return;
+    }
+    setInputValue("provider", "openai-compatible");
+    setInputValue("providerEndpoint", localEndpointPreset.value);
+    if (getInputValue("model") === PROVIDER_DEFAULTS.openai.model) {
+      setInputValue("model", PROVIDER_DEFAULTS["openai-compatible"].model);
+    }
+    resetModelSelect();
+  });
 }
 
 function fillForm(settings: ExtensionSettings): void {
@@ -59,6 +72,7 @@ function fillForm(settings: ExtensionSettings): void {
   setCheckboxValue("xTranslateArticles", settings.xTranslateArticles);
   setCheckboxValue("xTranslateQuotedPosts", settings.xTranslateQuotedPosts);
   setCheckboxValue("xSkipNativeTranslatedPosts", settings.xSkipNativeTranslatedPosts);
+  setCheckboxValue("openAICompatibleJsonMode", settings.openAICompatibleJsonMode);
 }
 
 function readForm(): ExtensionSettings {
@@ -76,7 +90,8 @@ function readForm(): ExtensionSettings {
     xOptimizedTranslation: getCheckboxValue("xOptimizedTranslation"),
     xTranslateArticles: getCheckboxValue("xTranslateArticles"),
     xTranslateQuotedPosts: getCheckboxValue("xTranslateQuotedPosts"),
-    xSkipNativeTranslatedPosts: getCheckboxValue("xSkipNativeTranslatedPosts")
+    xSkipNativeTranslatedPosts: getCheckboxValue("xSkipNativeTranslatedPosts"),
+    openAICompatibleJsonMode: getCheckboxValue("openAICompatibleJsonMode")
   };
 }
 

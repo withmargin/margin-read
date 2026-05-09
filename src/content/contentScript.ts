@@ -1,4 +1,4 @@
-import type { PageDebugState, RuntimeMessage, TranslationResult } from "../shared/types";
+import type { PageDebugState, RuntimeMessage, TranslationProviderId, TranslationResult } from "../shared/types";
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
 import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
@@ -9,6 +9,8 @@ const BLOCK_ID_ATTR = "data-toast-block-id";
 const MIN_TEXT_LENGTH = 24;
 const BATCH_SIZE = 6;
 const CONCURRENCY = 2;
+const LOCAL_BATCH_SIZE = 3;
+const LOCAL_CONCURRENCY = 1;
 const NEAR_VIEWPORT_MULTIPLIER = 1.5;
 
 let enabled = false;
@@ -59,6 +61,7 @@ async function startTranslation(): Promise<void> {
     const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
     displayStyle = response.settings?.displayStyle ?? "integrated";
     debugMode = response.settings?.debugMode ?? false;
+    const selectedProvider = response.settings?.provider ?? "openai";
     xOptimizedTranslation = response.settings?.xOptimizedTranslation ?? true;
     xTranslateArticles = response.settings?.xTranslateArticles ?? true;
     xTranslateQuotedPosts = response.settings?.xTranslateQuotedPosts ?? false;
@@ -68,6 +71,7 @@ async function startTranslation(): Promise<void> {
       debugMode,
       enabled
     };
+    configureTranslationQueue(selectedProvider);
     startViewportObserver();
     scanAndQueue();
   } catch (error: unknown) {
@@ -254,6 +258,7 @@ interface TranslationBatchResponse {
 interface SettingsResponse {
   ok: boolean;
   settings?: {
+    provider?: TranslationProviderId;
     displayStyle?: TranslationDisplayStyle;
     debugMode?: boolean;
     xOptimizedTranslation?: boolean;
@@ -261,6 +266,14 @@ interface SettingsResponse {
     xTranslateQuotedPosts?: boolean;
     xSkipNativeTranslatedPosts?: boolean;
   };
+}
+
+function configureTranslationQueue(provider: TranslationProviderId): void {
+  queue.configure(
+    provider === "openai-compatible"
+      ? { batchSize: LOCAL_BATCH_SIZE, concurrency: LOCAL_CONCURRENCY }
+      : { batchSize: BATCH_SIZE, concurrency: CONCURRENCY }
+  );
 }
 
 function applyTranslations(results: TranslationResult[]): void {

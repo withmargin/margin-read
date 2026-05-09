@@ -21,6 +21,7 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Avoid common non-reading areas such as navigation, forms, buttons, code blocks, hidden text, and page chrome.
 - Use user-configured provider endpoints and API keys.
 - Support OpenAI, Anthropic Claude, and Google Gemini provider adapters.
+- Support local OpenAI-compatible runtimes such as LM Studio, Ollama, and llama.cpp server.
 - Fetch provider model lists from the options page.
 - Choose integrated or highlighted translation display styles.
 - Use persistent, session, or disabled translation cache behavior.
@@ -85,6 +86,29 @@ API keys are stored in browser extension storage. Treat the browser profile as p
 Toast includes an optional X-specific detector for timeline cards and longform article pages. When enabled, it targets `tweetText` content inside tweet articles and readable blocks inside X article views instead of scanning every visible text node.
 
 Quoted posts are disabled by default and can be enabled from options. Posts that X already marks as translated are skipped by default to avoid duplicate translation.
+
+## Local LLMs
+
+Toast supports local LLM runtimes through the OpenAI Compatible provider. This provider uses the OpenAI-style `/v1/chat/completions` API, allows an empty API key, and uses a lower default translation concurrency for local inference.
+
+Common endpoint presets:
+
+```text
+LM Studio: http://localhost:1234/v1/chat/completions
+Ollama: http://localhost:11434/v1/chat/completions
+llama.cpp server: http://localhost:8080/v1/chat/completions
+```
+
+To use a local runtime:
+
+1. Start the local model server.
+2. Open Toast options.
+3. Select an endpoint preset or choose OpenAI Compatible manually.
+4. Leave API key empty unless your local gateway requires one.
+5. Fetch models or enter the served model name manually.
+6. Keep Request JSON mode enabled when supported. Disable it if the local runtime rejects the `response_format` request field.
+
+Local model quality, speed, context length, and JSON reliability depend on the model and runtime. Instruct models with strong multilingual ability are recommended for translation.
 
 ## Local Development
 

@@ -177,6 +177,28 @@ describe("TranslationQueue", () => {
     expect(queue.running).toBe(0);
     expect(queue.size).toBe(0);
   });
+
+  it("can reconfigure pending batch size before draining", async () => {
+    const batches: string[][] = [];
+    const queue = new TranslationQueue<string>({
+      batchSize: 3,
+      concurrency: 1,
+      worker: vi.fn(async (items: string[]) => {
+        batches.push(items);
+        await Promise.resolve();
+      })
+    });
+
+    queue.configure({ batchSize: 1 });
+    queue.enqueue([
+      { id: "a", priority: 0, distance: 0, value: "a" },
+      { id: "b", priority: 0, distance: 0, value: "b" }
+    ]);
+
+    await waitForQueue();
+
+    expect(batches).toEqual([["a"], ["b"]]);
+  });
 });
 
 async function waitForQueue(): Promise<void> {

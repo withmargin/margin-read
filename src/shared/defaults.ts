@@ -15,6 +15,10 @@ export const PROVIDER_DEFAULTS: Record<
   google: {
     providerEndpoint: "https://generativelanguage.googleapis.com/v1beta/models",
     model: "gemini-1.5-flash"
+  },
+  "openai-compatible": {
+    providerEndpoint: "http://localhost:1234/v1/chat/completions",
+    model: "local-model"
   }
 };
 
@@ -31,7 +35,8 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   xOptimizedTranslation: true,
   xTranslateArticles: true,
   xTranslateQuotedPosts: false,
-  xSkipNativeTranslatedPosts: true
+  xSkipNativeTranslatedPosts: true,
+  openAICompatibleJsonMode: true
 };
 
 export const SETTINGS_KEY = "toast.settings";
