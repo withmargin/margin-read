@@ -16,6 +16,7 @@ export const en = {
   endpointPreset: "Endpoint preset",
   endpointPresetHint: "Presets switch the provider to OpenAI Compatible and fill the endpoint.",
   fetchModels: "Fetch models",
+  fetchModelsBusy: "Fetching...",
   localJsonHint: "Disable this if a local runtime rejects the OpenAI response_format field.",
   localJsonMode: "Request JSON mode",
   localPresetDefault: "Select a local runtime",

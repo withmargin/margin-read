@@ -14,6 +14,7 @@ export const MESSAGE_KEYS = [
   "endpointPreset",
   "endpointPresetHint",
   "fetchModels",
+  "fetchModelsBusy",
   "localJsonHint",
   "localJsonMode",
   "localPresetDefault",

@@ -38,7 +38,7 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
   });
 
   fetchModelsButton?.addEventListener("click", () => {
-    void fetchModels(locale, readForm, setStatus);
+    void fetchModels(locale, readForm, setStatus, fetchModelsButton);
   });
 
   modelSelect?.addEventListener("change", () => {
@@ -60,21 +60,32 @@ function updateProviderSections(provider: TranslationProviderId): void {
 async function fetchModels(
   locale: OptionsLocale,
   readForm: () => ExtensionSettings,
-  setStatus: (message: string) => void
+  setStatus: (message: string) => void,
+  fetchModelsButton: HTMLButtonElement
 ): Promise<void> {
+  const buttonLabel = fetchModelsButton.textContent ?? t(locale, "fetchModels");
+  fetchModelsButton.disabled = true;
+  fetchModelsButton.setAttribute("aria-busy", "true");
+  fetchModelsButton.textContent = t(locale, "fetchModelsBusy");
   setStatus(t(locale, "statusFetchingModels"));
-  const response: ListModelsResponse = await chrome.runtime.sendMessage({
-    type: "LIST_MODELS",
-    settings: readForm()
-  });
+  try {
+    const response: ListModelsResponse = await chrome.runtime.sendMessage({
+      type: "LIST_MODELS",
+      settings: readForm()
+    });
 
-  if (!response.ok || !response.models) {
-    setStatus(response.error ?? t(locale, "statusModelsFailed"));
-    return;
+    if (!response.ok || !response.models) {
+      setStatus(response.error ?? t(locale, "statusModelsFailed"));
+      return;
+    }
+
+    renderModelOptions(locale, response.models, readForm().model);
+    setStatus(t(locale, "statusLoadedModels", { count: response.models.length }));
+  } finally {
+    fetchModelsButton.disabled = false;
+    fetchModelsButton.removeAttribute("aria-busy");
+    fetchModelsButton.textContent = buttonLabel;
   }
-
-  renderModelOptions(locale, response.models, readForm().model);
-  setStatus(t(locale, "statusLoadedModels", { count: response.models.length }));
 }
 
 interface ListModelsResponse {

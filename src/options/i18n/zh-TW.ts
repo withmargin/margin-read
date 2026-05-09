@@ -16,6 +16,7 @@ export const zhTW = {
   endpointPreset: "Endpoint preset",
   endpointPresetHint: "選擇 preset 會切換到 OpenAI Compatible 並填入 endpoint。",
   fetchModels: "取得模型列表",
+  fetchModelsBusy: "取得中...",
   localJsonHint: "如果 local runtime 拒絕 OpenAI response_format 欄位，請關閉此選項。",
   localJsonMode: "要求 JSON mode",
   localPresetDefault: "選擇 local runtime",
