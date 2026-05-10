@@ -1,4 +1,7 @@
+import { de } from "./de";
 import { en } from "./en";
+import { es } from "./es";
+import { fr } from "./fr";
 import { ja } from "./ja";
 import { ko } from "./ko";
 import { zhCN } from "./zh-CN";
@@ -9,7 +12,10 @@ export type { MessageDictionary, MessageKey, OptionsLocale } from "./types";
 export { MESSAGE_KEYS } from "./types";
 
 export const dictionaries = {
+  de,
   en,
+  es,
+  fr,
   ja,
   ko,
   "zh-CN": zhCN,
@@ -19,17 +25,18 @@ export const dictionaries = {
 export function detectOptionsLocale(languages: readonly string[]): OptionsLocale {
   for (const language of languages) {
     const normalized = language.toLowerCase();
-    if (normalized === "ja" || normalized.startsWith("ja-")) {
-      return "ja";
-    }
-    if (normalized === "ko" || normalized.startsWith("ko-")) {
-      return "ko";
-    }
-    if (["zh-cn", "zh-sg"].some((locale) => normalized === locale || normalized.startsWith(`${locale}-`))) {
+
+    if (normalized === "zh-cn" || normalized === "zh-sg" || normalized.startsWith("zh-hans")) {
       return "zh-CN";
     }
-    if (normalized === "zh" || normalized.startsWith("zh-")) {
+
+    if (normalized.startsWith("zh")) {
       return "zh-TW";
+    }
+
+    const baseLanguage = normalized.split("-")[0];
+    if (baseLanguage && baseLanguage in dictionaries) {
+      return baseLanguage as OptionsLocale;
     }
   }
 

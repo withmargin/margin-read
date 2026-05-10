@@ -7,14 +7,21 @@ describe("options i18n", () => {
     expect(detectOptionsLocale(["zh-HK", "en-US"])).toBe("zh-TW");
   });
 
-  it("uses locale-specific UI when supported", () => {
+  it("uses Simplified Chinese for Simplified Chinese browser preferences", () => {
     expect(detectOptionsLocale(["zh-CN", "en-US"])).toBe("zh-CN");
+    expect(detectOptionsLocale(["zh-Hans", "en-US"])).toBe("zh-CN");
+  });
+
+  it("uses supported non-English locales from browser preferences", () => {
     expect(detectOptionsLocale(["ja-JP", "en-US"])).toBe("ja");
     expect(detectOptionsLocale(["ko-KR", "en-US"])).toBe("ko");
+    expect(detectOptionsLocale(["es-MX", "en-US"])).toBe("es");
+    expect(detectOptionsLocale(["fr-CA", "en-US"])).toBe("fr");
+    expect(detectOptionsLocale(["de-DE", "en-US"])).toBe("de");
   });
 
   it("falls back to English for unsupported locales", () => {
-    expect(detectOptionsLocale(["fr-FR", "en-US"])).toBe("en");
+    expect(detectOptionsLocale(["it-IT", "en-US"])).toBe("en");
   });
 
   it("interpolates status messages", () => {

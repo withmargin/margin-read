@@ -1,6 +1,6 @@
 # Toast Translate
 
-[English](README.md)
+語言：[English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
 Toast Translate 是一個以隱私為優先的雙語網頁翻譯瀏覽器擴充功能。
 

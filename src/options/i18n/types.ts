@@ -52,4 +52,4 @@ export const MESSAGE_KEYS = [
 
 export type MessageKey = (typeof MESSAGE_KEYS)[number];
 export type MessageDictionary = Record<MessageKey, string>;
-export type OptionsLocale = "en" | "ja" | "ko" | "zh-CN" | "zh-TW";
+export type OptionsLocale = "de" | "en" | "es" | "fr" | "ja" | "ko" | "zh-CN" | "zh-TW";
