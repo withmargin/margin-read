@@ -50,14 +50,14 @@ pnpm build
 3. 選擇 Load unpacked。
 4. 選擇產生出的 `dist/` 目錄。
 5. 開啟 Toast options。
-6. 設定 provider、endpoint、API key、model、來源語言、目標語言與快取行為。
+6. 設定 provider、API key、model、目標語言與快取行為。
 7. 開啟一個網頁，從 Toast popup 點擊 Translate this page。
 
 ## Provider 設定
 
 Toast 不會內建任何 API key。你需要提供自己的原始 provider API key，且不需要加上 `Bearer` 前綴。
 
-預設 endpoint：
+內建 provider 會使用預設 endpoint：
 
 ```text
 OpenAI: https://api.openai.com/v1/chat/completions
@@ -65,7 +65,7 @@ Anthropic Claude: https://api.anthropic.com/v1/messages
 Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-Endpoint 欄位可以自行編輯，因此也能搭配 compatible gateway 或自架 routing 使用。
+Endpoint 欄位只會在 OpenAI Compatible / Local LLM 設定中顯示，因為這些情境才需要使用者選擇或輸入本機 endpoint。
 
 Fetch models 會從目前選擇的 provider 讀取可用模型：
 
@@ -73,7 +73,7 @@ Fetch models 會從目前選擇的 provider 讀取可用模型：
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
 
-取得的模型會出現在模型選單中。自訂模型輸入仍可用於尚未列出的模型、compatible gateway 或自架 route。
+取得的模型會出現在模型選單中。如果目前設定的 provider 預設模型或已儲存模型沒有出現在 provider 回傳的列表中，Toast 會保留它作為可選項目。
 
 ## 隱私
 
@@ -105,10 +105,18 @@ llama.cpp server: http://localhost:8080/v1/chat/completions
 
 1. 啟動本機模型 server。
 2. 開啟 Toast options。
-3. 選擇 endpoint preset，或手動選擇 OpenAI Compatible。
-4. 除非你的本機 gateway 需要 API key，否則 API key 可以留空。
-5. 取得模型列表，或手動輸入 server 提供的模型名稱。
-6. 如果 runtime 支援，建議保持 Request JSON mode 啟用。若本機 runtime 拒絕 `response_format` request 欄位，請停用此選項。
+3. 選擇 OpenAI Compatible 作為 provider。
+4. 選擇 endpoint preset，或輸入你的 runtime 顯示的 endpoint URL。
+5. 除非你的本機 gateway 需要 API key，否則 API key 可以留空。
+6. 點擊 Fetch models，並從模型選單中選擇 server 提供的模型。
+7. 如果 runtime 支援，建議保持 Request JSON mode 啟用。若本機 runtime 拒絕 `response_format` request 欄位，請停用此選項。
+
+Runtime 注意事項：
+
+- LM Studio 通常在 `http://localhost:1234/v1/chat/completions` 提供 OpenAI-compatible request。
+- Ollama 需要 OpenAI-compatible API 可在 `http://localhost:11434/v1/chat/completions` 使用。
+- llama.cpp server 必須啟動 OpenAI-compatible HTTP server，常見位址為 `http://localhost:8080/v1/chat/completions`。
+- 如果 Fetch models 失敗，請確認本機 server 已啟動、endpoint URL 以 `/v1/chat/completions` 結尾，且 runtime 有提供 compatible `/v1/models` endpoint。
 
 本機模型的品質、速度、context length 與 JSON 穩定性，取決於模型與 runtime。建議使用具備強多語能力的 instruct model 進行翻譯。
 
@@ -194,4 +202,4 @@ docs/               Product、roadmap、principles 與 threat model
 
 ## License
 
-尚未選定 license。
+MIT
