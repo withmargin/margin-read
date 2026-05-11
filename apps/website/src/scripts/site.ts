@@ -83,36 +83,17 @@ if (demoStage && "IntersectionObserver" in window) {
 }
 
 // =========================================
-// Email signup form (toggle from CTA)
+// Follow panel (no email — toggle GitHub/RSS card pair from CTA)
 // =========================================
-const signupForm = document.getElementById("signup-form") as HTMLFormElement | null;
+const followPanel = document.getElementById("follow-panel");
 const openWaitlistBtn = document.getElementById("openWaitlistBtn");
 
 openWaitlistBtn?.addEventListener("click", () => {
-  if (!signupForm) return;
-  signupForm.classList.toggle("hidden");
-  if (!signupForm.classList.contains("hidden")) {
-    signupForm.querySelector<HTMLInputElement>("input")?.focus();
+  if (!followPanel) return;
+  followPanel.classList.toggle("hidden");
+  if (!followPanel.classList.contains("hidden")) {
+    followPanel.querySelector<HTMLAnchorElement>("a")?.focus();
   }
-});
-
-signupForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const input = signupForm.querySelector<HTMLInputElement>("input");
-  const button = signupForm.querySelector<HTMLButtonElement>("button");
-  if (!input || !button || !input.value) return;
-
-  // Localized confirmation copy is read off the body's data-locale so we
-  // don't ship the strings dictionary on the client.
-  const locale = document.body.dataset.locale ?? "en";
-  const isZh = locale === "zh-Hant";
-
-  // No backend wired up yet. When CF Workers form handler lands, POST here.
-  button.textContent = isZh ? "已加入名單 ✓" : "On the list ✓";
-  button.disabled = true;
-  input.disabled = true;
-  input.value = "";
-  input.placeholder = isZh ? "上架時通知你" : "Will notify you when ready";
 });
 
 // =========================================

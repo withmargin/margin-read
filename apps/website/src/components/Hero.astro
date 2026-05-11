@@ -35,14 +35,33 @@ const t = useTranslations(locale);
           <span class="cta-meta mono">{t("hero.cta2m")}</span>
         </button>
       </div>
-      <form class="signup hidden" id="signup-form" data-locale={locale}>
-        <input
-          type="email"
-          placeholder={t("hero.email_ph")}
-          required
-        />
-        <button type="submit">{t("hero.cta")}</button>
-      </form>
+      <div class="follow hidden" id="follow-panel">
+        <p class="follow-lede">{t("hero.follow_lede")}</p>
+        <div class="follow-grid">
+          <a
+            class="follow-card"
+            href="https://github.com/withmargin/margin-read"
+            target="_blank"
+            rel="noopener">
+            <span class="follow-card-tag mono">GH</span>
+            <span class="follow-card-body">
+              <strong>{t("hero.follow_gh_t")}</strong>
+              <span>{t("hero.follow_gh_d")}</span>
+            </span>
+          </a>
+          <a
+            class="follow-card"
+            href="https://github.com/withmargin/margin-read/releases.atom"
+            target="_blank"
+            rel="noopener">
+            <span class="follow-card-tag mono">RSS</span>
+            <span class="follow-card-body">
+              <strong>{t("hero.follow_rss_t")}</strong>
+              <span>{t("hero.follow_rss_d")}</span>
+            </span>
+          </a>
+        </div>
+      </div>
       <p class="signup-note">
         <span class="dot">●</span>
         <span>{t("hero.note")}</span>

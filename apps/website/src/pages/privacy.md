@@ -50,7 +50,9 @@ The exact selector list and length thresholds used to identify translatable bloc
 
 There is no Margin Works backend for the extension to contact. The extension does not report installs, crashes, feature usage, language pairs, version numbers, error stacks, or any other event. There is no Margin Read account, no login flow, no anonymous identifier, no installation UUID, no fingerprinting code.
 
-The marketing site (marginread.com) likewise does not collect personal data. The site is served by a Cloudflare Worker; Cloudflare provides standard aggregate visitor analytics (country-level traffic, request counts, edge cache hit rates) that we may use to gauge interest in the project, but no per-visitor data is collected, stored, or processed by us. The "Notify me on launch" form on the homepage is currently a placeholder — submissions are not transmitted anywhere — and when a real backend ships, this policy will be updated before that change goes live.
+The marketing site (marginread.com) likewise does not collect personal data. The site is served by a Cloudflare Worker; Cloudflare provides standard aggregate visitor analytics (country-level traffic, request counts, edge cache hit rates) that we may use to gauge interest in the project, but no per-visitor data is collected, stored, or processed by us.
+
+We deliberately operate **no email list**. The "Notify me on launch" affordance on the homepage links out to GitHub (where you can `Watch` the repository for releases) and to the GitHub releases RSS/Atom feed. Both are subscription channels operated by **GitHub**, not by us — GitHub handles the delivery, and Margin Works never sees the list of who is subscribed. There is no opt-in email form anywhere on the site.
 
 > **If telemetry or analytics are ever added in the future**, the change will satisfy all of the following before any data is ever collected:
 >

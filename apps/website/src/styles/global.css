@@ -175,44 +175,82 @@ nav.links a:hover { color: var(--jam); }
 }
 .hero .pitch strong { color: var(--ink); font-weight: 500; }
 
-.signup {
-  display: flex;
+/* Follow panel — replaces the old email signup form. Two cards, no list. */
+.follow {
   background: var(--paper);
   border: 1px solid var(--line-strong);
   border-radius: 4px;
-  padding: 6px;
-  max-width: 460px;
+  padding: 14px;
+  max-width: 540px;
 }
-.signup input {
-  flex: 1;
-  border: none;
-  background: transparent;
+.follow.hidden { display: none; }
+.follow-lede {
+  margin: 0 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.follow-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.follow-card {
+  flex: 1 1 220px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px 14px;
-  font: inherit;
-  font-size: 15px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
   color: var(--ink);
-  outline: none;
+  transition: background .15s, border-color .15s, transform .15s;
 }
-.signup input::placeholder { color: var(--mute); }
-.signup button {
+.follow-card:hover {
+  background: var(--cream);
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+.follow-card-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 4px 8px;
   background: var(--ink);
   color: var(--cream);
-  border: none;
   border-radius: 3px;
-  padding: 12px 18px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
+  font-size: 10.5px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  cursor: pointer;
+  flex: none;
 }
-.signup button:hover { background: var(--jam); }
+.follow-card:hover .follow-card-tag { background: var(--jam); }
+.follow-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.follow-card-body strong {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+.follow-card-body > span {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
 .signup-note {
-  margin: 12px 4px 0;
+  margin: 14px 4px 0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   letter-spacing: .06em;
   color: var(--mute);
+  max-width: 540px;
 }
 .signup-note .dot { color: var(--jam); }
 .alt-link {
@@ -263,7 +301,6 @@ nav.links a:hover { color: var(--jam); }
   text-transform: uppercase;
   opacity: .7;
 }
-.signup.hidden { display: none; }
 
 /* Hero parallel reading column */
 .hero-page {
