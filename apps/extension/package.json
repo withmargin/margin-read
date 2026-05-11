@@ -1,7 +1,7 @@
 {
   "name": "@margin/extension",
   "version": "0.1.0",
-  "description": "A privacy-first, open-source bilingual webpage translation browser extension.",
+  "description": "Privacy-first translation and notes, placed where reading happens.",
   "private": true,
   "type": "module",
   "scripts": {

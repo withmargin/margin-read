@@ -4,11 +4,11 @@ Translations: [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md)
 
 Margin Read is a privacy-first browser extension for bilingual webpage translation.
 
-Translation and notes, placed where reading happens.
+Privacy-first translation and notes, placed where reading happens.
 
 Margin keeps the original webpage text in place and inserts translated text below the matching source blocks, so readers can compare both versions without losing page context.
 
-Repository: https://github.com/linyiru/margin
+Repository: https://github.com/linyiru/margin-read
 
 ## Status
 

@@ -6,7 +6,7 @@ Margin Read 是一个以隐私为优先的双语网页翻译浏览器扩展。
 
 Margin 不会替换网页原文，而是把译文插入在对应的原文区块下方，让读者可以保留页面上下文，并同时对照原文与译文。
 
-Repository: https://github.com/linyiru/margin
+Repository: https://github.com/linyiru/margin-read
 
 ## 当前状态
 

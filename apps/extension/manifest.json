@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Margin Read",
-  "description": "Translation and notes, placed where reading happens.",
+  "description": "Privacy-first translation and notes, placed where reading happens.",
   "version": "0.1.0",
   "action": {
     "default_popup": "popup.html",

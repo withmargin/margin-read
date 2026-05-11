@@ -6,7 +6,7 @@ Margin Read est une extension de navigateur de traduction bilingue de pages web,
 
 Margin conserve le texte original dans la page et insere la traduction sous les blocs sources correspondants, afin de comparer les deux versions sans perdre le contexte.
 
-Repository: https://github.com/linyiru/margin
+Repository: https://github.com/linyiru/margin-read
 
 ## Statut
 

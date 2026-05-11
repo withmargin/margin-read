@@ -6,7 +6,7 @@ Margin Read は、プライバシーを優先したバイリンガル Web ペー
 
 Margin は元のページ本文を置き換えず、対応する原文ブロックの下に翻訳を挿入します。読者はページの文脈を保ったまま、原文と翻訳を比較できます。
 
-Repository: https://github.com/linyiru/margin
+Repository: https://github.com/linyiru/margin-read
 
 ## 現在の状態
 
