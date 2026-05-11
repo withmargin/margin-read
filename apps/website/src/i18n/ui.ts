@@ -207,7 +207,7 @@ export const ui = {
       "Margin is an open-source MVP. Issues, PRs, forks, and self-hosting are welcome. We believe privacy you can verify is the only privacy worth claiming — so the source is public.",
     "tech.s2b":
       "Want to contribute? The docs are there: Product Requirements, Principles, Threat Model, Roadmap. Start in docs/.",
-    "tech.repo": "github.com/linyiru/margin-read",
+    "tech.repo": "github.com/withmargin/margin-read",
     "tech.stat_lang": "TypeScript",
     "tech.stat_mv3": "Manifest V3",
     "tech.stat_license": "License",
@@ -484,7 +484,7 @@ export const ui = {
       "Margin 是開源 MVP。歡迎 issue、PR、fork、自架。我們相信能驗證的隱私才是隱私——所以原始碼是公開的。",
     "tech.s2b":
       "想要貢獻？文件齊全：產品需求、原則、威脅模型、路線圖。從 docs/ 進去就對了。",
-    "tech.repo": "github.com/linyiru/margin-read",
+    "tech.repo": "github.com/withmargin/margin-read",
     "tech.stat_lang": "TypeScript",
     "tech.stat_mv3": "Manifest V3",
     "tech.stat_license": "License",

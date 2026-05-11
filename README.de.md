@@ -6,7 +6,7 @@ Margin Read ist eine datenschutzorientierte Browser-Erweiterung fuer zweisprachi
 
 Margin ersetzt den Originaltext nicht. Es fuegt die Uebersetzung unter den passenden Quelltextbloecken ein, damit Leser beide Versionen vergleichen koennen, ohne den Seitenkontext zu verlieren.
 
-Repository: https://github.com/linyiru/margin-read
+Repository: https://github.com/withmargin/margin-read
 
 ## Status
 

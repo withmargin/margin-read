@@ -8,7 +8,7 @@ Privacy-first translation and notes, placed where reading happens.
 
 Margin keeps the original webpage text in place and inserts translated text below the matching source blocks, so readers can compare both versions without losing page context.
 
-Repository: https://github.com/linyiru/margin-read
+Repository: https://github.com/withmargin/margin-read
 
 ## Status
 
