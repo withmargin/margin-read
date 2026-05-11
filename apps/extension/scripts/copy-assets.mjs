@@ -13,12 +13,13 @@ for (const file of [
   "public/popup.html",
   "public/popup.css",
   "public/options.html",
-  "public/options.css"
+  "public/options.css",
+  "public/icons"
 ]) {
   const target = file.startsWith("public/")
     ? join(dist, file.replace("public/", ""))
     : join(dist, file);
-  await cp(join(root, file), target);
+  await cp(join(root, file), target, { recursive: true });
 }
 
 const manifestPath = join(dist, "manifest.json");
