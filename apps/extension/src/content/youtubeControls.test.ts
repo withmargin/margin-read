@@ -20,6 +20,7 @@ beforeEach(() => {
   });
   addStorageListener.mockReset();
   openOptionsPage.mockReset();
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("No fetch mock configured.")));
   vi.stubGlobal("chrome", {
     runtime: {
       sendMessage,
@@ -179,6 +180,38 @@ describe("initializeYouTubeControls", () => {
       type: "TRANSLATE_BATCH",
       segments: [{ id: "youtube-caption", text: "Hello world" }]
     });
+    expect(overlay?.textContent).toBe("翻譯字幕");
+    expect(overlay?.hidden).toBe(false);
+  });
+
+  it("keeps the caption overlay hidden while a DOM caption translation is pending", async () => {
+    let resolveTranslation: (value: unknown) => void = () => undefined;
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return new Promise((resolve) => {
+          resolveTranslation = resolve;
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const overlay = document
+      .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+      ?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+    expect(overlay?.textContent).toBe("");
+    expect(overlay?.hidden).toBe(true);
+
+    resolveTranslation({ ok: true, results: [{ id: "youtube-caption", text: "翻譯字幕" }] });
+    await Promise.resolve();
     expect(overlay?.textContent).toBe("翻譯字幕");
     expect(overlay?.hidden).toBe(false);
   });
@@ -1015,9 +1048,9 @@ async function mountYouTubeControlWithTrack({ withVideo = true }: { withVideo?: 
 }
 
 async function flushPromises(): Promise<void> {
-  await Promise.resolve();
-  await Promise.resolve();
-  await Promise.resolve();
+  for (let index = 0; index < 8; index += 1) {
+    await Promise.resolve();
+  }
 }
 
 function setVideoTime(currentTime: number): void {

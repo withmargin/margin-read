@@ -35,6 +35,29 @@ interface Json3TimedText {
 
 export function extractYouTubeCaptionTracks(documentRoot: Document = document): YouTubeCaptionTrack[] {
   const response = extractPlayerResponse(documentRoot);
+  return getCaptionTracksFromPlayerResponse(response);
+}
+
+export async function discoverYouTubeCaptionTracks(
+  documentRoot: Document = document,
+  pageUrl: string = location.href
+): Promise<YouTubeCaptionTrack[]> {
+  const embeddedTracks = extractYouTubeCaptionTracks(documentRoot);
+  if (embeddedTracks.length > 0) {
+    return embeddedTracks;
+  }
+
+  const response = await fetch(pageUrl);
+  if (!response.ok) {
+    return [];
+  }
+
+  const html = await response.text();
+  const fetchedDocument = new DOMParser().parseFromString(html, "text/html");
+  return extractYouTubeCaptionTracks(fetchedDocument);
+}
+
+function getCaptionTracksFromPlayerResponse(response: PlayerResponse | undefined): YouTubeCaptionTrack[] {
   const tracks = response?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
 
   return tracks

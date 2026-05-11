@@ -2,7 +2,7 @@ import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings } from "../shared/types";
 import {
   choosePreferredCaptionTrack,
-  extractYouTubeCaptionTracks,
+  discoverYouTubeCaptionTracks,
   fetchYouTubeCaptionCues,
   type YouTubeCaptionCue
 } from "./youtubeCaptionTracks";
@@ -203,12 +203,12 @@ function stopCaptionTranslation(): void {
 async function startCaptionTrackPipeline(): Promise<void> {
   const requestId = activeTrackRequest + 1;
   activeTrackRequest = requestId;
-  const track = choosePreferredCaptionTrack(extractYouTubeCaptionTracks(document));
-  if (!track) {
-    return;
-  }
 
   try {
+    const track = choosePreferredCaptionTrack(await discoverYouTubeCaptionTracks(document));
+    if (!track) {
+      return;
+    }
     const cues = await fetchYouTubeCaptionCues(track);
     if (captionMode === "idle" || requestId !== activeTrackRequest || cues.length === 0) {
       return;
@@ -488,7 +488,7 @@ function isCaptionTranslationIdle(): boolean {
 async function translateCaption(text: string): Promise<void> {
   const requestId = activeCaptionRequest + 1;
   activeCaptionRequest = requestId;
-  renderCaptionOverlay("Translating...");
+  renderCaptionOverlay("");
 
   try {
     const response: { ok?: boolean; results?: Array<{ id: string; text: string }>; error?: string } =
