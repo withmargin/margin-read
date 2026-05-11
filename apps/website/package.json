@@ -9,13 +9,17 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "clean": "rm -rf dist .astro"
+    "clean": "rm -rf dist .astro",
+    "deploy": "astro build && wrangler deploy",
+    "deploy:dry-run": "astro build && wrangler deploy --dry-run",
+    "cf:dev": "astro build && wrangler dev"
   },
   "dependencies": {
     "astro": "^5.18.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "wrangler": "^4.55.0"
   }
 }

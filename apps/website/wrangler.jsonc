@@ -1,0 +1,16 @@
+// Cloudflare Workers Static Assets configuration.
+// Run `pnpm --filter @margin/website deploy` after `pnpm build` to publish.
+// Custom domain (marginread.com) is attached via the Cloudflare dashboard
+// or `wrangler.toml`'s `routes`/`workers_dev` settings later.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "margin-website",
+  "compatibility_date": "2026-05-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
