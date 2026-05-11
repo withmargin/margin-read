@@ -1,12 +1,21 @@
 {
   "name": "@margin/website",
   "version": "0.1.0",
-  "description": "Marketing website for Margin Read.",
+  "description": "Marketing website for Margin.",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "clean": "node scripts/clean.mjs",
-    "dev": "node scripts/dev.mjs"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "clean": "rm -rf dist .astro"
+  },
+  "dependencies": {
+    "astro": "^5.18.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.5.4"
   }
 }
