@@ -13,6 +13,7 @@
     "check:extension": "pnpm --filter @margin/extension check:extension",
     "clean": "pnpm -r clean",
     "lint": "pnpm --filter @margin/extension lint",
+    "package:extension": "pnpm --filter @margin/extension run package",
     "test": "pnpm --filter @margin/extension test",
     "test:watch": "pnpm --filter @margin/extension test:watch"
   },

@@ -3,5 +3,6 @@ dist/
 coverage/
 apps/*/dist/
 apps/*/coverage/
+artifacts/
 .DS_Store
 npm-debug.log*

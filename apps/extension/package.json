@@ -10,6 +10,7 @@
     "check:extension": "node scripts/check-extension.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint src vitest.config.ts rolldown.config.ts",
+    "package": "pnpm build && node scripts/package-extension.mjs",
     "test": "vitest run --coverage",
     "test:watch": "vitest"
   }
