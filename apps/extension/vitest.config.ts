@@ -11,7 +11,8 @@ export default defineConfig({
         "src/shared/**/*.ts",
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
-        "src/content/textBlocks.ts"
+        "src/content/textBlocks.ts",
+        "src/content/youtubeControls.ts"
       ],
       exclude: ["src/**/*.test.ts", "src/shared/types.ts"],
       thresholds: {

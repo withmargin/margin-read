@@ -3,6 +3,7 @@ import type { ExtensionSettings, PageDebugState, RuntimeMessage, TranslationProv
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
 import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
+import { initializeYouTubeControls } from "./youtubeControls";
 
 const TRANSLATION_CLASS = "margin-translation";
 const TRANSLATED_ATTR = "data-margin-translated";
@@ -58,6 +59,7 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
 });
 
 void initializeFloatingButton();
+initializeYouTubeControls();
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "local") {
