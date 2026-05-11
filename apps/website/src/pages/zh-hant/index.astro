@@ -13,11 +13,9 @@ import Honest from "../../components/Honest.astro";
 import Pricing from "../../components/Pricing.astro";
 import Faq from "../../components/Faq.astro";
 import SiteFooter from "../../components/SiteFooter.astro";
-import { resolveLocale } from "../../i18n/utils";
+import type { Locale } from "../../i18n/utils";
 
-// Astro.currentLocale resolves to "zh-Hant" because this file lives at
-// src/pages/zh-Hant/. resolveLocale guards against unexpected values.
-const locale = resolveLocale(Astro.currentLocale);
+const locale: Locale = "zh-hant";
 ---
 
 <Layout locale={locale}>
