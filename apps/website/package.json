@@ -6,19 +6,27 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "build:og": "node scripts/build-og.mjs",
+    "prebuild": "pnpm build:og",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "clean": "rm -rf dist .astro",
-    "deploy": "astro build && wrangler deploy",
-    "deploy:dry-run": "astro build && wrangler deploy --dry-run",
-    "cf:dev": "astro build && wrangler dev"
+    "clean": "rm -rf dist .astro public/og.png",
+    "deploy": "pnpm build && wrangler deploy",
+    "deploy:dry-run": "pnpm build && wrangler deploy --dry-run",
+    "cf:dev": "pnpm build && wrangler dev"
   },
   "dependencies": {
     "astro": "^5.18.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/noto-serif-tc": "^5.2.10",
+    "@fontsource/playfair-display": "^5.2.8",
+    "@resvg/resvg-js": "^2.6.2",
+    "satori": "^0.26.0",
+    "satori-html": "^0.3.2",
     "typescript": "^5.5.4",
     "wrangler": "^4.55.0"
   }
