@@ -1,5 +1,11 @@
 import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings } from "../shared/types";
+import {
+  choosePreferredCaptionTrack,
+  extractYouTubeCaptionTracks,
+  fetchYouTubeCaptionCues,
+  type YouTubeCaptionCue
+} from "./youtubeCaptionTracks";
 
 const YOUTUBE_CONTROL_HOST_ID = "margin-youtube-subtitle-control";
 const YOUTUBE_CAPTION_HOST_ID = "margin-youtube-caption-overlay";
@@ -10,6 +16,8 @@ const YOUTUBE_NAVIGATION_EVENT = "yt-navigate-finish";
 const CAPTION_SEGMENT_SELECTOR = ".ytp-caption-window-container .ytp-caption-segment";
 const CAPTION_REFRESH_DELAY_MS = 20;
 const CAPTION_CACHE_LIMIT = 120;
+const CAPTION_TRACK_BATCH_SIZE = 32;
+const CAPTION_PLAYBACK_POLL_MS = 100;
 
 let observer: MutationObserver | undefined;
 let captionObserver: MutationObserver | undefined;
@@ -22,6 +30,10 @@ let captionMode: "idle" | "bilingual" | "translated" = "idle";
 let lastCaptionText = "";
 let activeCaptionRequest = 0;
 let captionRefreshTimer: number | undefined;
+let captionPlaybackTimer: number | undefined;
+let activeTrackRequest = 0;
+let captionTrackCues: YouTubeCaptionCue[] = [];
+const translatedTrackCues = new Map<string, string>();
 const captionTranslationCache = new Map<string, string>();
 
 interface SettingsResponse {
@@ -93,6 +105,10 @@ export function resetYouTubeControlsForTests(): void {
     window.clearTimeout(captionRefreshTimer);
     captionRefreshTimer = undefined;
   }
+  if (captionPlaybackTimer !== undefined) {
+    window.clearInterval(captionPlaybackTimer);
+    captionPlaybackTimer = undefined;
+  }
   stopCaptionTranslation();
   removeYouTubeControl();
   if (installed) {
@@ -103,6 +119,9 @@ export function resetYouTubeControlsForTests(): void {
   targetLanguage = "English";
   captionMode = "idle";
   activeCaptionRequest = 0;
+  activeTrackRequest = 0;
+  captionTrackCues = [];
+  translatedTrackCues.clear();
   captionTranslationCache.clear();
 }
 
@@ -154,6 +173,7 @@ function startCaptionTranslation(nextMode: "bilingual" | "translated"): void {
   }
 
   ensureCaptionOverlay();
+  void startCaptionTrackPipeline();
   observeCaptions();
   refreshCaptionTranslation();
   updateControlState();
@@ -167,10 +187,88 @@ function stopCaptionTranslation(): void {
     window.clearTimeout(captionRefreshTimer);
     captionRefreshTimer = undefined;
   }
+  if (captionPlaybackTimer !== undefined) {
+    window.clearInterval(captionPlaybackTimer);
+    captionPlaybackTimer = undefined;
+  }
+  activeTrackRequest += 1;
+  captionTrackCues = [];
+  translatedTrackCues.clear();
   captionObserver?.disconnect();
   captionObserver = undefined;
   captionHost?.remove();
   captionHost = undefined;
+}
+
+async function startCaptionTrackPipeline(): Promise<void> {
+  const requestId = activeTrackRequest + 1;
+  activeTrackRequest = requestId;
+  const track = choosePreferredCaptionTrack(extractYouTubeCaptionTracks(document));
+  if (!track) {
+    return;
+  }
+
+  try {
+    const cues = await fetchYouTubeCaptionCues(track);
+    if (captionMode === "idle" || requestId !== activeTrackRequest || cues.length === 0) {
+      return;
+    }
+    captionTrackCues = cues;
+    startCaptionPlayback();
+    void translateCaptionTrack(cues, requestId);
+  } catch {
+    if (requestId === activeTrackRequest) {
+      captionTrackCues = [];
+      translatedTrackCues.clear();
+    }
+  }
+}
+
+async function translateCaptionTrack(cues: YouTubeCaptionCue[], requestId: number): Promise<void> {
+  const orderedCues = orderCuesFromCurrentTime(cues);
+  for (let index = 0; index < orderedCues.length; index += CAPTION_TRACK_BATCH_SIZE) {
+    if (isCaptionTranslationIdle() || requestId !== activeTrackRequest) {
+      return;
+    }
+
+    const batch = orderedCues.slice(index, index + CAPTION_TRACK_BATCH_SIZE).filter((cue) => !translatedTrackCues.has(cue.id));
+    if (batch.length === 0) {
+      continue;
+    }
+
+    try {
+      const response: { ok?: boolean; results?: Array<{ id: string; text: string }> } = await chrome.runtime.sendMessage({
+        type: "TRANSLATE_BATCH",
+        segments: batch.map((cue) => ({ id: cue.id, text: cue.text }))
+      });
+      if (isCaptionTranslationIdle() || requestId !== activeTrackRequest || !response.ok) {
+        return;
+      }
+      for (const result of response.results ?? []) {
+        translatedTrackCues.set(result.id, result.text);
+      }
+      renderTrackCaptionAtCurrentTime();
+    } catch {
+      return;
+    }
+  }
+}
+
+function orderCuesFromCurrentTime(cues: YouTubeCaptionCue[]): YouTubeCaptionCue[] {
+  const currentTimeMs = getCurrentVideoTimeMs();
+  const firstUpcomingIndex = cues.findIndex((cue) => cue.startMs + cue.durationMs >= currentTimeMs);
+  if (firstUpcomingIndex <= 0) {
+    return cues;
+  }
+  return [...cues.slice(firstUpcomingIndex), ...cues.slice(0, firstUpcomingIndex)];
+}
+
+function startCaptionPlayback(): void {
+  if (captionPlaybackTimer !== undefined) {
+    window.clearInterval(captionPlaybackTimer);
+  }
+  renderTrackCaptionAtCurrentTime();
+  captionPlaybackTimer = window.setInterval(renderTrackCaptionAtCurrentTime, CAPTION_PLAYBACK_POLL_MS);
 }
 
 function ensureCaptionOverlay(): void {
@@ -334,6 +432,9 @@ function refreshCaptionTranslation(): void {
   if (captionMode === "idle") {
     return;
   }
+  if (captionTrackCues.length > 0) {
+    return;
+  }
 
   ensureCaptionOverlay();
   const captionText = readVisibleCaptionText();
@@ -354,6 +455,34 @@ function refreshCaptionTranslation(): void {
     return;
   }
   void translateCaption(captionText);
+}
+
+function renderTrackCaptionAtCurrentTime(): void {
+  if (captionMode === "idle" || captionTrackCues.length === 0) {
+    return;
+  }
+
+  const cue = findActiveCue(captionTrackCues, getCurrentVideoTimeMs());
+  if (!cue) {
+    renderCaptionOverlay("");
+    return;
+  }
+
+  const translatedText = translatedTrackCues.get(cue.id);
+  renderCaptionOverlay(translatedText ?? "");
+}
+
+function findActiveCue(cues: YouTubeCaptionCue[], currentTimeMs: number): YouTubeCaptionCue | undefined {
+  return cues.find((cue) => currentTimeMs >= cue.startMs && currentTimeMs < cue.startMs + cue.durationMs);
+}
+
+function getCurrentVideoTimeMs(): number {
+  const video = document.querySelector("video");
+  return video instanceof HTMLVideoElement ? Math.round(video.currentTime * 1000) : 0;
+}
+
+function isCaptionTranslationIdle(): boolean {
+  return captionMode === "idle";
 }
 
 async function translateCaption(text: string): Promise<void> {

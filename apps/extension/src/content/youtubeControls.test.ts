@@ -183,6 +183,340 @@ describe("initializeYouTubeControls", () => {
     expect(overlay?.hidden).toBe(false);
   });
 
+  it("translates caption tracks in batches and renders by video time", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: `zh: ${segment.text}` }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: [
+                { tStartMs: 1000, dDurationMs: 2000, segs: [{ utf8: "Track one" }] },
+                { tStartMs: 4000, dDurationMs: 2000, segs: [{ utf8: "Track two" }] }
+              ]
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+    setVideoTime(1.2);
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    const overlay = document
+      .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+      ?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+    expect(sendMessage).toHaveBeenLastCalledWith({
+      type: "TRANSLATE_BATCH",
+      segments: [
+        { id: "cue-0", text: "Track one" },
+        { id: "cue-1", text: "Track two" }
+      ]
+    });
+    expect(overlay?.textContent).toBe("zh: Track one");
+
+    setVideoTime(4.2);
+    vi.advanceTimersByTime(100);
+    expect(overlay?.textContent).toBe("zh: Track two");
+  });
+
+  it("prioritizes caption track translation from the current playback time", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: segment.text }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: [
+                { tStartMs: 1000, dDurationMs: 2000, segs: [{ utf8: "Early" }] },
+                { tStartMs: 4000, dDurationMs: 2000, segs: [{ utf8: "Current" }] },
+                { tStartMs: 7000, dDurationMs: 2000, segs: [{ utf8: "Later" }] }
+              ]
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+    setVideoTime(4.2);
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(sendMessage).toHaveBeenLastCalledWith({
+      type: "TRANSLATE_BATCH",
+      segments: [
+        { id: "cue-1", text: "Current" },
+        { id: "cue-2", text: "Later" },
+        { id: "cue-0", text: "Early" }
+      ]
+    });
+  });
+
+  it("hides the track overlay when playback is outside active cues", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: segment.text }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: [{ tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "Only cue" }] }]
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+    setVideoTime(1.2);
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+    setVideoTime(3);
+    vi.advanceTimersByTime(100);
+
+    const overlay = document
+      .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+      ?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+    expect(overlay?.hidden).toBe(true);
+  });
+
+  it("does not fall back to DOM caption requests after a caption track is active", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: segment.text }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: [{ tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "Track cue" }] }]
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+    setVideoTime(1.2);
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+    const callsAfterTrack = getTranslationCallCount();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">DOM caption</span></div>`
+    );
+    await Promise.resolve();
+    vi.advanceTimersByTime(20);
+
+    expect(getTranslationCallCount()).toBe(callsAfterTrack);
+  });
+
+  it("renders the first caption track cue when no video element is mounted", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: `zh: ${segment.text}` }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: [{ tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: "Opening cue" }] }]
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack({ withVideo: false });
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("zh: Opening cue");
+  });
+
+  it("ignores delayed caption track fetches after the mode is turned off", async () => {
+    const callsBeforeToggle = getTranslationCallCount();
+    let resolveTrack: (value: Response) => void = () => undefined;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise((resolve) => {
+            resolveTrack = resolve;
+          })
+      )
+    );
+    const host = await mountYouTubeControlWithTrack();
+    const bilingualItem = host.shadowRoot?.querySelector<HTMLButtonElement>(
+      '.margin-youtube__menu-item[data-action="bilingual"]'
+    );
+
+    bilingualItem?.click();
+    bilingualItem?.click();
+    resolveTrack(
+      new Response(
+        JSON.stringify({
+          events: [{ tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: "Late cue" }] }]
+        }),
+        { headers: { "content-type": "application/json" } }
+      )
+    );
+    await flushPromises();
+
+    expect(getTranslationCallCount()).toBe(callsBeforeToggle);
+    expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
+  });
+
+  it("falls back to DOM captions when caption track fetch fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+        headers: new Headers(),
+        text: () => Promise.resolve("")
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">DOM caption</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(sendMessage).toHaveBeenLastCalledWith({
+      type: "TRANSLATE_BATCH",
+      segments: [{ id: "youtube-caption", text: "DOM caption" }]
+    });
+  });
+
+  it("stops caption track batching when the provider rejects a batch", async () => {
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({ ok: false });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: [{ tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "Only cue" }] }]
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("");
+  });
+
+  it("translates long caption tracks in multiple batches", async () => {
+    const callsBeforeTrack = getTranslationCallCount();
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: segment.text }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        text: () =>
+          Promise.resolve(
+            JSON.stringify({
+              events: Array.from({ length: 33 }, (_, index) => ({
+                tStartMs: index * 1000,
+                dDurationMs: 1000,
+                segs: [{ utf8: `Cue ${index}` }]
+              }))
+            })
+          )
+      })
+    );
+    const host = await mountYouTubeControlWithTrack();
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    const captionCalls = sendMessage.mock.calls.filter(
+      ([message]) => (message as { type?: string } | undefined)?.type === "TRANSLATE_BATCH"
+    ).slice(callsBeforeTrack);
+    expect(captionCalls).toHaveLength(2);
+    expect((captionCalls[0]?.[0] as { segments: unknown[] }).segments).toHaveLength(32);
+    expect((captionCalls[1]?.[0] as { segments: unknown[] }).segments).toHaveLength(1);
+  });
+
   it("hides the caption overlay when captions disappear", async () => {
     const host = await mountYouTubeControl();
     document.querySelector(".html5-video-player")?.insertAdjacentHTML(
@@ -650,6 +984,48 @@ async function mountYouTubeControl(): Promise<HTMLElement> {
   await Promise.resolve();
   vi.advanceTimersByTime(250);
   return document.querySelector<HTMLElement>("#margin-youtube-subtitle-control")!;
+}
+
+async function mountYouTubeControlWithTrack({ withVideo = true }: { withVideo?: boolean } = {}): Promise<HTMLElement> {
+  setPageUrl("https://www.youtube.com/watch?v=abc");
+  document.body.innerHTML = `
+    <script>
+      var ytInitialPlayerResponse = {
+        "captions": {
+          "playerCaptionsTracklistRenderer": {
+            "captionTracks": [
+              { "baseUrl": "https://www.youtube.com/api/timedtext?v=abc&lang=en", "languageCode": "en" }
+            ]
+          }
+        }
+      };
+    </script>
+    <div class="html5-video-player">
+      ${withVideo ? "<video></video>" : ""}
+      <div class="ytp-right-controls">
+        <button class="ytp-subtitles-button"></button>
+        <div class="ytp-right-controls-left"></div>
+      </div>
+    </div>
+  `;
+  initializeYouTubeControls();
+  await Promise.resolve();
+  vi.advanceTimersByTime(250);
+  return document.querySelector<HTMLElement>("#margin-youtube-subtitle-control")!;
+}
+
+async function flushPromises(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
+function setVideoTime(currentTime: number): void {
+  const video = document.querySelector("video")!;
+  Object.defineProperty(video, "currentTime", {
+    value: currentTime,
+    configurable: true
+  });
 }
 
 function getTranslationCallCount(): number {
