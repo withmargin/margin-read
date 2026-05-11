@@ -73,7 +73,7 @@ h2.serif em { font-style: italic; color: var(--jam); }
 .brand small { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; color: var(--mute); text-transform: uppercase; align-self: flex-end; padding-bottom: 5px; }
 
 /* Margin mark — M.12 Paragraph Pair: black ¶ over indented red ¶ */
-.toast-mark {
+.margin-mark {
   --mk-size: 28px;
   --mk-pad: 3.5px 4px;
   --mk-bar: 1.5px;
@@ -97,20 +97,20 @@ h2.serif em { font-style: italic; color: var(--jam); }
   position: relative;
   justify-content: center;
 }
-.toast-mark .para { display: flex; flex-direction: column; gap: var(--mk-line-gap); position: relative; }
-.toast-mark .para.p { padding-left: var(--mk-indent); }
-.toast-mark .para.p::before {
+.margin-mark .para { display: flex; flex-direction: column; gap: var(--mk-line-gap); position: relative; }
+.margin-mark .para.p { padding-left: var(--mk-indent); }
+.margin-mark .para.p::before {
   content: "";
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: var(--mk-rule);
   background: var(--mk-p);
 }
-.toast-mark .ln { height: var(--mk-bar); border-radius: .8px; }
-.toast-mark .para.k .ln { background: var(--mk-k); }
-.toast-mark .para.p .ln { background: var(--mk-p); }
-.toast-mark .ln.s { width: 72%; }
-.toast-mark .ln.ss { width: 54%; }
+.margin-mark .ln { height: var(--mk-bar); border-radius: .8px; }
+.margin-mark .para.k .ln { background: var(--mk-k); }
+.margin-mark .para.p .ln { background: var(--mk-p); }
+.margin-mark .ln.s { width: 72%; }
+.margin-mark .ln.ss { width: 54%; }
 
 nav.links {
   display: flex; gap: 28px;
@@ -822,7 +822,7 @@ details.faq .answer {
   font-size: 12px;
 }
 .flow-row.you .blob { background: var(--butter); }
-.flow-row.toast .blob { background: var(--jam); color: var(--paper); border-color: var(--jam); }
+.flow-row.margin .blob { background: var(--jam); color: var(--paper); border-color: var(--jam); }
 .flow-row.prov .blob { background: var(--paper-2); }
 .flow-arrow {
   height: 18px;
@@ -1052,7 +1052,7 @@ footer.site .wrap { max-width: 1240px; }
 .footer-grid li { padding: 4px 0; font-size: 14px; }
 .footer-grid a:hover { color: var(--butter); }
 .footer-brand { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; color: var(--cream); margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
-.footer-brand .toast-mark {
+.footer-brand .margin-mark {
   --mk-size: 34px; --mk-pad: 4.5px 5px; --mk-bar: 2.2px;
   --mk-line-gap: 2px; --mk-para-gap: 4.5px; --mk-indent: 5px;
   --mk-rule: 1.3px; --mk-radius: 4px; --mk-stroke: 1.25px;
