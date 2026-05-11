@@ -9,7 +9,9 @@ export default defineConfig({
     inlineStylesheets: "auto",
   },
   i18n: {
-    locales: ["en", "zh-Hant"],
+    // URL paths stay lowercase (`/zh-hant/`) but the BCP 47 codes used for
+    // hreflang + Accept-Language matching keep their canonical casing.
+    locales: ["en", { path: "zh-hant", codes: ["zh-Hant", "zh-TW"] }],
     defaultLocale: "en",
     routing: {
       prefixDefaultLocale: false,

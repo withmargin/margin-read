@@ -2,8 +2,11 @@
 // Keys are flat dotted paths — components import the typed `t()` helper
 // from ./utils and look them up directly. Keep the two locales in lockstep.
 
+// `Locale` is the URL-segment / path form used by Astro.currentLocale.
+// The BCP 47 form (e.g. "zh-Hant") lives in the htmlLang map below and
+// in the codes[] array inside astro.config.mjs for hreflang matching.
 export const defaultLocale = "en" as const;
-export const locales = ["en", "zh-Hant"] as const;
+export const locales = ["en", "zh-hant"] as const;
 export type Locale = (typeof locales)[number];
 
 export const ui = {
@@ -285,7 +288,7 @@ export const ui = {
     "ft.styles": "Display styles",
     "ft.priv": "Privacy-first · Open source · MIT",
   },
-  "zh-Hant": {
+  "zh-hant": {
     "html.title": "Margin — 雙語對照閱讀網頁",
     "html.description":
       "隱私優先的雙語對照翻譯瀏覽器外掛。原文留下，譯文長在下方。自帶 API Key。",
@@ -565,11 +568,13 @@ export type TranslationKey = keyof (typeof ui)["en"];
 
 export const localeLabel: Record<Locale, string> = {
   en: "EN",
-  "zh-Hant": "中",
+  "zh-hant": "中",
 };
 
-// BCP 47 lang attribute per locale.
+// BCP 47 lang attribute per locale — used by <html lang>, hreflang, and as
+// the argument to Astro's getRelativeLocaleUrl / getAbsoluteLocaleUrl
+// helpers (which match against the `codes` declared in astro.config.mjs).
 export const htmlLang: Record<Locale, string> = {
   en: "en",
-  "zh-Hant": "zh-Hant",
+  "zh-hant": "zh-Hant",
 };

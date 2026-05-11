@@ -25,11 +25,11 @@ const stripped = Astro.url.pathname.replace(
 const path = stripped === "" ? "/" : stripped;
 
 const alternates = locales.map((l) => ({
-  hreflang: l,
-  href: getAbsoluteLocaleUrl(l, path),
+  hreflang: htmlLang[l],
+  href: getAbsoluteLocaleUrl(htmlLang[l], path),
 }));
-const xDefault = getAbsoluteLocaleUrl("en", path);
-const canonical = getAbsoluteLocaleUrl(locale, path);
+const xDefault = getAbsoluteLocaleUrl(htmlLang.en, path);
+const canonical = getAbsoluteLocaleUrl(htmlLang[locale], path);
 ---
 
 <!doctype html>

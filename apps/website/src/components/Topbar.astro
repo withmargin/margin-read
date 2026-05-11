@@ -2,7 +2,7 @@
 import { getRelativeLocaleUrl } from "astro:i18n";
 import MarginMark from "./MarginMark.astro";
 import { useTranslations, type Locale } from "../i18n/utils";
-import { locales, localeLabel } from "../i18n/ui";
+import { locales, localeLabel, htmlLang } from "../i18n/ui";
 
 interface Props {
   locale: Locale;
@@ -14,7 +14,7 @@ const t = useTranslations(locale);
 
 <div class="topbar">
   <div class="topbar-inner">
-    <a href={getRelativeLocaleUrl(locale, "/")} class="brand">
+    <a href={getRelativeLocaleUrl(htmlLang[locale], "/")} class="brand">
       <MarginMark />
       <span>Margin</span>
       <small>{t("topbar.kicker")}</small>
@@ -34,9 +34,9 @@ const t = useTranslations(locale);
         {
           locales.map((l) => (
             <a
-              href={getRelativeLocaleUrl(l, "/")}
+              href={getRelativeLocaleUrl(htmlLang[l], "/")}
               class:list={["lang-link", { on: l === locale }]}
-              hreflang={l}
+              hreflang={htmlLang[l]}
               aria-current={l === locale ? "true" : "false"}
             >
               {localeLabel[l]}
