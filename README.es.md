@@ -49,7 +49,7 @@ Luego:
 1. Abre `chrome://extensions`.
 2. Activa Developer mode.
 3. Selecciona Load unpacked.
-4. Elige el directorio generado `dist/`.
+4. Elige el directorio generado `apps/extension/dist/`.
 5. Abre Toast options.
 6. Configura provider, API key, model, idioma de destino y comportamiento de cache.
 7. Abre una pagina web y haz clic en Translate this page desde el popup de Toast.
@@ -124,20 +124,20 @@ pnpm test
 pnpm build
 ```
 
-El build usa Rolldown y escribe la extension unpacked en `dist/`.
+El build usa Rolldown y escribe la extension unpacked en `apps/extension/dist/`.
 
 ## Estructura del proyecto
 
 ```text
-src/background/     Service worker, provider requests, settings y cache flow
-src/content/        Deteccion de texto, cola e insercion de traducciones
-src/options/        Pagina de opciones de la extension
-src/popup/          Popup UI y diagnosticos
-src/providers/      Provider adapters
-src/shared/         Types, defaults, storage y messages compartidos
-public/             UI estatica de extension y content CSS
-scripts/            Build y extension validation scripts
-docs/               Product, roadmap, principles y threat model
+apps/extension/src/background/     Service worker, provider requests, settings y cache flow
+apps/extension/src/content/        Deteccion de texto, cola e insercion de traducciones
+apps/extension/src/options/        Pagina de opciones de la extension
+apps/extension/src/popup/          Popup UI y diagnosticos
+apps/extension/src/providers/      Provider adapters
+apps/extension/src/shared/         Types, defaults, storage y messages compartidos
+apps/extension/public/             UI estatica de extension y content CSS
+apps/extension/scripts/            Build y extension validation scripts
+docs/                              Product, roadmap, principles y threat model
 ```
 
 ## Solucion de problemas

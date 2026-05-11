@@ -1,0 +1,16 @@
+{
+  "name": "@toast/extension",
+  "version": "0.1.0",
+  "description": "A privacy-first, open-source bilingual webpage translation browser extension.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm clean && rolldown -c && node scripts/copy-assets.mjs",
+    "check": "tsc --noEmit",
+    "check:extension": "node scripts/check-extension.mjs",
+    "clean": "node scripts/clean.mjs",
+    "lint": "eslint src vitest.config.ts rolldown.config.ts",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest"
+  }
+}

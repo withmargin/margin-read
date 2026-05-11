@@ -49,7 +49,7 @@ pnpm build
 1. `chrome://extensions` を開きます。
 2. Developer mode を有効にします。
 3. Load unpacked を選択します。
-4. 生成された `dist/` ディレクトリを選択します。
+4. 生成された `apps/extension/dist/` ディレクトリを選択します。
 5. Toast options を開きます。
 6. provider、API key、model、翻訳先言語、キャッシュ設定を構成します。
 7. Web ページを開き、Toast popup から Translate this page をクリックします。
@@ -124,20 +124,20 @@ pnpm test
 pnpm build
 ```
 
-Build は Rolldown を使用し、unpacked extension を `dist/` に出力します。
+Build は Rolldown を使用し、unpacked extension を `apps/extension/dist/` に出力します。
 
 ## プロジェクト構成
 
 ```text
-src/background/     Service worker、provider request、settings、cache flow
-src/content/        ページのテキスト検出、キュー、翻訳挿入
-src/options/        Extension options ページ
-src/popup/          Popup UI と診断情報
-src/providers/      Provider adapters
-src/shared/         共通 types、defaults、storage、messages
-public/             静的 extension UI と content CSS
-scripts/            Build と extension validation scripts
-docs/               Product、roadmap、principles、threat model
+apps/extension/src/background/     Service worker、provider request、settings、cache flow
+apps/extension/src/content/        ページのテキスト検出、キュー、翻訳挿入
+apps/extension/src/options/        Extension options ページ
+apps/extension/src/popup/          Popup UI と診断情報
+apps/extension/src/providers/      Provider adapters
+apps/extension/src/shared/         共通 types、defaults、storage、messages
+apps/extension/public/             静的 extension UI と content CSS
+apps/extension/scripts/            Build と extension validation scripts
+docs/                              Product、roadmap、principles、threat model
 ```
 
 ## トラブルシューティング

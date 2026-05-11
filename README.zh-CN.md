@@ -49,7 +49,7 @@ pnpm build
 1. 打开 `chrome://extensions`。
 2. 启用 Developer mode。
 3. 选择 Load unpacked。
-4. 选择生成的 `dist/` 目录。
+4. 选择生成的 `apps/extension/dist/` 目录。
 5. 打开 Toast options。
 6. 设置 provider、API key、model、目标语言与缓存行为。
 7. 打开一个网页，并从 Toast popup 点击 Translate this page。
@@ -124,20 +124,20 @@ pnpm test
 pnpm build
 ```
 
-Build 使用 Rolldown，并会将 unpacked extension 输出到 `dist/`。
+Build 使用 Rolldown，并会将 unpacked extension 输出到 `apps/extension/dist/`。
 
 ## 项目结构
 
 ```text
-src/background/     Service worker、provider request、settings 与 cache flow
-src/content/        页面文字检测、队列与译文插入
-src/options/        Extension options 页面
-src/popup/          Popup UI 与诊断信息
-src/providers/      Provider adapters
-src/shared/         共用 types、defaults、storage 与 messages
-public/             静态 extension UI 与 content CSS
-scripts/            Build 与 extension validation scripts
-docs/               Product、roadmap、principles 与 threat model
+apps/extension/src/background/     Service worker、provider request、settings 与 cache flow
+apps/extension/src/content/        页面文字检测、队列与译文插入
+apps/extension/src/options/        Extension options 页面
+apps/extension/src/popup/          Popup UI 与诊断信息
+apps/extension/src/providers/      Provider adapters
+apps/extension/src/shared/         共用 types、defaults、storage 与 messages
+apps/extension/public/             静态 extension UI 与 content CSS
+apps/extension/scripts/            Build 与 extension validation scripts
+docs/                              Product、roadmap、principles 与 threat model
 ```
 
 ## 疑难排解

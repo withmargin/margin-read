@@ -49,7 +49,7 @@ Puis :
 1. Ouvrez `chrome://extensions`.
 2. Activez Developer mode.
 3. Selectionnez Load unpacked.
-4. Choisissez le repertoire `dist/` genere.
+4. Choisissez le repertoire `apps/extension/dist/` genere.
 5. Ouvrez Toast options.
 6. Configurez provider, API key, model, langue cible et comportement du cache.
 7. Ouvrez une page web et cliquez sur Translate this page dans le popup Toast.
@@ -124,20 +124,20 @@ pnpm test
 pnpm build
 ```
 
-Le build utilise Rolldown et ecrit l'extension non empaquetee dans `dist/`.
+Le build utilise Rolldown et ecrit l'extension non empaquetee dans `apps/extension/dist/`.
 
 ## Structure du projet
 
 ```text
-src/background/     Service worker, requetes provider, settings et cache flow
-src/content/        Detection de texte, file et insertion de traductions
-src/options/        Page d'options de l'extension
-src/popup/          Popup UI et diagnostics
-src/providers/      Provider adapters
-src/shared/         Types, defaults, storage et messages partages
-public/             UI statique de l'extension et content CSS
-scripts/            Build et extension validation scripts
-docs/               Product, roadmap, principles et threat model
+apps/extension/src/background/     Service worker, requetes provider, settings et cache flow
+apps/extension/src/content/        Detection de texte, file et insertion de traductions
+apps/extension/src/options/        Page d'options de l'extension
+apps/extension/src/popup/          Popup UI et diagnostics
+apps/extension/src/providers/      Provider adapters
+apps/extension/src/shared/         Types, defaults, storage et messages partages
+apps/extension/public/             UI statique de l'extension et content CSS
+apps/extension/scripts/            Build et extension validation scripts
+docs/                              Product, roadmap, principles et threat model
 ```
 
 ## Depannage

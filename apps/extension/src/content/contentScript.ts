@@ -600,7 +600,7 @@ function createFloatingStyles(): HTMLStyleElement {
       position: fixed;
       z-index: 2147483647;
       top: 50%;
-      right: 18px;
+      right: 0;
       transform: translateY(-50%);
       color-scheme: light;
       pointer-events: none;
@@ -616,8 +616,8 @@ function createFloatingStyles(): HTMLStyleElement {
     .toast-floating__button {
       box-sizing: border-box;
       display: grid;
-      width: 52px;
-      height: 52px;
+      width: 46px;
+      height: 46px;
       place-items: center;
       border: 0;
       border-radius: 999px;
@@ -652,27 +652,27 @@ function createFloatingStyles(): HTMLStyleElement {
 
     .toast-floating__button--secondary {
       position: absolute;
-      top: -8px;
-      right: -6px;
-      width: 28px;
-      height: 28px;
+      top: 50%;
+      left: -30px;
+      width: 24px;
+      height: 24px;
       color: #ffffff;
       background: rgb(17 24 39 / 32%);
-      font-size: 24px;
+      font-size: 21px;
       font-weight: 500;
       opacity: 0;
-      transform: translateY(2px) scale(0.96);
+      transform: translate(-3px, -50%) scale(0.96);
     }
 
     .toast-floating:hover .toast-floating__button--secondary,
     .toast-floating:focus-within .toast-floating__button--secondary {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translate(0, -50%) scale(1);
     }
 
     .toast-floating__icon {
-      width: 28px;
-      height: 28px;
+      width: 25px;
+      height: 25px;
       display: block;
     }
 
@@ -731,7 +731,7 @@ function createFloatingStyles(): HTMLStyleElement {
 
     .toast-floating__overlay {
       position: absolute;
-      right: 62px;
+      right: 54px;
       top: 0;
       min-width: 220px;
       border-radius: 12px;
@@ -741,12 +741,17 @@ function createFloatingStyles(): HTMLStyleElement {
 
     @media (max-width: 720px) {
       :host {
-        right: 12px;
+        right: 0;
       }
 
       .toast-floating__button {
-        width: 46px;
-        height: 46px;
+        width: 42px;
+        height: 42px;
+      }
+
+      .toast-floating__icon {
+        width: 23px;
+        height: 23px;
       }
     }
   `;

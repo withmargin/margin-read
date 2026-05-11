@@ -254,7 +254,7 @@ MVP settings:
 
 ## 23. Success Metrics
 
-- A developer can install dependencies, build the extension, load `dist/` in Chrome, configure a provider, and translate a normal article webpage.
+- A developer can install dependencies, build the extension, load `apps/extension/dist/` in Chrome, configure a provider, and translate a normal article webpage.
 - Original text remains visible after translation.
 - Translations appear below matching source text blocks.
 - No account, cloud sync, telemetry, or proprietary backend is required.

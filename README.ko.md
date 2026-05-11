@@ -49,7 +49,7 @@ pnpm build
 1. `chrome://extensions` 를 엽니다.
 2. Developer mode 를 켭니다.
 3. Load unpacked 를 선택합니다.
-4. 생성된 `dist/` 디렉터리를 선택합니다.
+4. 생성된 `apps/extension/dist/` 디렉터리를 선택합니다.
 5. Toast options 를 엽니다.
 6. provider, API key, model, 대상 언어, 캐시 동작을 설정합니다.
 7. 웹페이지를 열고 Toast popup 에서 Translate this page 를 클릭합니다.
@@ -124,20 +124,20 @@ pnpm test
 pnpm build
 ```
 
-Build 는 Rolldown 을 사용하며 unpacked extension 을 `dist/` 에 출력합니다.
+Build 는 Rolldown 을 사용하며 unpacked extension 을 `apps/extension/dist/` 에 출력합니다.
 
 ## 프로젝트 구조
 
 ```text
-src/background/     Service worker, provider request, settings, cache flow
-src/content/        페이지 텍스트 감지, 큐, 번역 삽입
-src/options/        Extension options 페이지
-src/popup/          Popup UI 와 진단
-src/providers/      Provider adapters
-src/shared/         공통 types, defaults, storage, messages
-public/             정적 extension UI 와 content CSS
-scripts/            Build 와 extension validation scripts
-docs/               Product, roadmap, principles, threat model
+apps/extension/src/background/     Service worker, provider request, settings, cache flow
+apps/extension/src/content/        페이지 텍스트 감지, 큐, 번역 삽입
+apps/extension/src/options/        Extension options 페이지
+apps/extension/src/popup/          Popup UI 와 진단
+apps/extension/src/providers/      Provider adapters
+apps/extension/src/shared/         공통 types, defaults, storage, messages
+apps/extension/public/             정적 extension UI 와 content CSS
+apps/extension/scripts/            Build 와 extension validation scripts
+docs/                              Product, roadmap, principles, threat model
 ```
 
 ## 문제 해결
