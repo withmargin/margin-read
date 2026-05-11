@@ -8,6 +8,8 @@ const YOUTUBE_CAPTION_ATTR = "data-margin-youtube-caption-overlay";
 const YOUTUBE_WATCH_PATH = "/watch";
 const YOUTUBE_NAVIGATION_EVENT = "yt-navigate-finish";
 const CAPTION_SEGMENT_SELECTOR = ".ytp-caption-window-container .ytp-caption-segment";
+const CAPTION_REFRESH_DELAY_MS = 20;
+const CAPTION_CACHE_LIMIT = 120;
 
 let observer: MutationObserver | undefined;
 let captionObserver: MutationObserver | undefined;
@@ -19,6 +21,8 @@ let installed = false;
 let captionMode: "idle" | "bilingual" | "translated" = "idle";
 let lastCaptionText = "";
 let activeCaptionRequest = 0;
+let captionRefreshTimer: number | undefined;
+const captionTranslationCache = new Map<string, string>();
 
 interface SettingsResponse {
   ok: boolean;
@@ -85,6 +89,10 @@ export function resetYouTubeControlsForTests(): void {
     window.clearTimeout(rescanTimer);
     rescanTimer = undefined;
   }
+  if (captionRefreshTimer !== undefined) {
+    window.clearTimeout(captionRefreshTimer);
+    captionRefreshTimer = undefined;
+  }
   stopCaptionTranslation();
   removeYouTubeControl();
   if (installed) {
@@ -95,6 +103,7 @@ export function resetYouTubeControlsForTests(): void {
   targetLanguage = "English";
   captionMode = "idle";
   activeCaptionRequest = 0;
+  captionTranslationCache.clear();
 }
 
 function scheduleYouTubeControlScan(): void {
@@ -154,6 +163,10 @@ function stopCaptionTranslation(): void {
   captionMode = "idle";
   activeCaptionRequest += 1;
   lastCaptionText = "";
+  if (captionRefreshTimer !== undefined) {
+    window.clearTimeout(captionRefreshTimer);
+    captionRefreshTimer = undefined;
+  }
   captionObserver?.disconnect();
   captionObserver = undefined;
   captionHost?.remove();
@@ -189,9 +202,19 @@ function observeCaptions(): void {
   }
 
   captionObserver = new MutationObserver(() => {
-    window.setTimeout(refreshCaptionTranslation, 80);
+    scheduleCaptionRefresh();
   });
   captionObserver.observe(observerTarget, { childList: true, subtree: true, characterData: true });
+}
+
+function scheduleCaptionRefresh(): void {
+  if (captionRefreshTimer !== undefined) {
+    window.clearTimeout(captionRefreshTimer);
+  }
+  captionRefreshTimer = window.setTimeout(() => {
+    captionRefreshTimer = undefined;
+    refreshCaptionTranslation();
+  }, CAPTION_REFRESH_DELAY_MS);
 }
 
 function findRightControls(): HTMLElement | undefined {
@@ -315,6 +338,7 @@ function refreshCaptionTranslation(): void {
   ensureCaptionOverlay();
   const captionText = readVisibleCaptionText();
   if (!captionText) {
+    activeCaptionRequest += 1;
     renderCaptionOverlay("");
     lastCaptionText = "";
     return;
@@ -324,6 +348,11 @@ function refreshCaptionTranslation(): void {
   }
 
   lastCaptionText = captionText;
+  const cachedTranslation = captionTranslationCache.get(getCaptionCacheKey(captionText));
+  if (cachedTranslation) {
+    renderCaptionOverlay(cachedTranslation);
+    return;
+  }
   void translateCaption(captionText);
 }
 
@@ -344,12 +373,33 @@ async function translateCaption(text: string): Promise<void> {
     }
 
     const translatedText = response.results?.find((result) => result.id === "youtube-caption")?.text;
-    renderCaptionOverlay(response.ok && translatedText ? translatedText : response.error || "Caption translation failed.");
+    if (response.ok && translatedText) {
+      setCachedCaptionTranslation(text, translatedText);
+      renderCaptionOverlay(translatedText);
+      return;
+    }
+    renderCaptionOverlay(response.error || "Caption translation failed.");
   } catch (error) {
     if (captionMode !== "idle" && requestId === activeCaptionRequest) {
       renderCaptionOverlay(error instanceof Error ? error.message : "Caption translation failed.");
     }
   }
+}
+
+function setCachedCaptionTranslation(text: string, translatedText: string): void {
+  const key = getCaptionCacheKey(text);
+  captionTranslationCache.delete(key);
+  captionTranslationCache.set(key, translatedText);
+  if (captionTranslationCache.size > CAPTION_CACHE_LIMIT) {
+    const oldestKey = captionTranslationCache.keys().next().value;
+    if (oldestKey) {
+      captionTranslationCache.delete(oldestKey);
+    }
+  }
+}
+
+function getCaptionCacheKey(text: string): string {
+  return `${targetLanguage}\n${text}`;
 }
 
 function readVisibleCaptionText(): string {

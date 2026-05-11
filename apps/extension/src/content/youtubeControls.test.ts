@@ -200,7 +200,7 @@ describe("initializeYouTubeControls", () => {
 
     document.querySelector(".ytp-caption-window-container")?.remove();
     await Promise.resolve();
-    vi.advanceTimersByTime(80);
+    vi.advanceTimersByTime(20);
 
     const overlayHost = document.querySelector<HTMLElement>("#margin-youtube-caption-overlay");
     const overlay = overlayHost?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
@@ -259,9 +259,32 @@ describe("initializeYouTubeControls", () => {
 
     document.querySelector(".ytp-caption-window-container")?.append(document.createElement("span"));
     await Promise.resolve();
-    vi.advanceTimersByTime(80);
+    vi.advanceTimersByTime(20);
     await Promise.resolve();
 
+    expect(sendMessage).toHaveBeenCalledTimes(callsAfterFirstCaption);
+  });
+
+  it("debounces rapid caption mutations before refreshing", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    const callsAfterFirstCaption = sendMessage.mock.calls.length;
+
+    document.querySelector(".ytp-caption-window-container")?.append(document.createElement("span"));
+    await Promise.resolve();
+    document.querySelector(".ytp-caption-window-container")?.append(document.createElement("span"));
+    await Promise.resolve();
+    vi.advanceTimersByTime(19);
+    expect(sendMessage).toHaveBeenCalledTimes(callsAfterFirstCaption);
+
+    vi.advanceTimersByTime(1);
     expect(sendMessage).toHaveBeenCalledTimes(callsAfterFirstCaption);
   });
 
@@ -337,6 +360,34 @@ describe("initializeYouTubeControls", () => {
     ).toBe("Caption translation failed.");
   });
 
+  it("does not fail when the caption overlay node has been removed", async () => {
+    const host = await mountYouTubeControl();
+    const player = document.querySelector(".html5-video-player");
+    player?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    document
+      .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+      ?.shadowRoot?.querySelector(".margin-youtube-caption")
+      ?.remove();
+
+    document.querySelector(".ytp-caption-window-container")?.remove();
+    player?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Next caption</span></div>`
+    );
+    await Promise.resolve();
+    vi.advanceTimersByTime(20);
+    await Promise.resolve();
+
+    expect(document.querySelector<HTMLElement>("#margin-youtube-caption-overlay")?.shadowRoot?.children.length).toBe(1);
+  });
+
   it("ignores caption responses after the mode is turned off", async () => {
     let resolveTranslation: (value: unknown) => void = () => undefined;
     sendMessage.mockImplementation((message: { type?: string }) => {
@@ -362,6 +413,102 @@ describe("initializeYouTubeControls", () => {
     await Promise.resolve();
 
     expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
+  });
+
+  it("ignores caption responses after captions disappear", async () => {
+    let resolveTranslation: (value: unknown) => void = () => undefined;
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return new Promise((resolve) => {
+          resolveTranslation = resolve;
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    document.querySelector(".ytp-caption-window-container")?.remove();
+    await Promise.resolve();
+    vi.advanceTimersByTime(20);
+    resolveTranslation({ ok: true, results: [{ id: "youtube-caption", text: "late result" }] });
+    await Promise.resolve();
+
+    const overlay = document
+      .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+      ?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+    expect(overlay?.hidden).toBe(true);
+  });
+
+  it("uses cached caption translations immediately when the text repeats", async () => {
+    const host = await mountYouTubeControl();
+    const player = document.querySelector(".html5-video-player");
+    player?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    const callsAfterFirstCaption = sendMessage.mock.calls.length;
+
+    document.querySelector(".ytp-caption-window-container")?.remove();
+    await Promise.resolve();
+    vi.advanceTimersByTime(20);
+    player?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+    await Promise.resolve();
+    vi.advanceTimersByTime(20);
+
+    const overlay = document
+      .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+      ?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+    expect(sendMessage).toHaveBeenCalledTimes(callsAfterFirstCaption);
+    expect(overlay?.textContent).toBe("翻譯字幕");
+  });
+
+  it("evicts old caption translations from the in-memory cache", async () => {
+    const host = await mountYouTubeControl();
+    const player = document.querySelector(".html5-video-player");
+    player?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">caption 0</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    for (let index = 1; index <= 121; index += 1) {
+      document.querySelector(".ytp-caption-window-container")?.remove();
+      player?.insertAdjacentHTML(
+        "beforeend",
+        `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">caption ${index}</span></div>`
+      );
+      await Promise.resolve();
+      vi.advanceTimersByTime(20);
+      await Promise.resolve();
+    }
+
+    const translationCallsBeforeRepeat = getTranslationCallCount();
+    document.querySelector(".ytp-caption-window-container")?.remove();
+    player?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">caption 0</span></div>`
+    );
+    await Promise.resolve();
+    vi.advanceTimersByTime(20);
+    await Promise.resolve();
+
+    expect(getTranslationCallCount()).toBe(translationCallsBeforeRepeat + 1);
   });
 
   it("does not create an overlay when YouTube controls exist without the video player", async () => {
@@ -503,6 +650,11 @@ async function mountYouTubeControl(): Promise<HTMLElement> {
   await Promise.resolve();
   vi.advanceTimersByTime(250);
   return document.querySelector<HTMLElement>("#margin-youtube-subtitle-control")!;
+}
+
+function getTranslationCallCount(): number {
+  return sendMessage.mock.calls.filter(([message]) => (message as { type?: string } | undefined)?.type === "TRANSLATE_BATCH")
+    .length;
 }
 
 function setPageUrl(url: string): void {
