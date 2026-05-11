@@ -4,6 +4,7 @@ import {
   choosePreferredCaptionTrack,
   discoverYouTubeCaptionTracks,
   fetchYouTubeCaptionCues,
+  fetchYouTubeCaptionCuesFromUrl,
   type YouTubeCaptionCue
 } from "./youtubeCaptionTracks";
 
@@ -11,6 +12,7 @@ const YOUTUBE_CONTROL_HOST_ID = "margin-youtube-subtitle-control";
 const YOUTUBE_CAPTION_HOST_ID = "margin-youtube-caption-overlay";
 const YOUTUBE_CONTROL_ATTR = "data-margin-youtube-control";
 const YOUTUBE_CAPTION_ATTR = "data-margin-youtube-caption-overlay";
+const YOUTUBE_NATIVE_CAPTION_STYLE_ID = "margin-youtube-native-caption-style";
 const YOUTUBE_WATCH_PATH = "/watch";
 const YOUTUBE_NAVIGATION_EVENT = "yt-navigate-finish";
 const CAPTION_SEGMENT_SELECTOR = ".ytp-caption-window-container .ytp-caption-segment";
@@ -196,8 +198,83 @@ function stopCaptionTranslation(): void {
   translatedTrackCues.clear();
   captionObserver?.disconnect();
   captionObserver = undefined;
+  removeNativeCaptionHiding();
   captionHost?.remove();
   captionHost = undefined;
+}
+
+async function fetchCaptionCuesWithYouTubeFallback(track: Parameters<typeof fetchYouTubeCaptionCues>[0]): Promise<YouTubeCaptionCue[]> {
+  const directCues = await fetchYouTubeCaptionCues(track);
+  if (directCues.length > 0) {
+    return directCues;
+  }
+
+  const primedTimedTextUrl = await primeYouTubeTimedTextUrl();
+  if (!primedTimedTextUrl) {
+    return [];
+  }
+  return fetchYouTubeCaptionCuesFromUrl(primedTimedTextUrl);
+}
+
+async function primeYouTubeTimedTextUrl(): Promise<string | undefined> {
+  const existingUrl = getLatestLoadedTimedTextUrl();
+  if (existingUrl) {
+    return existingUrl;
+  }
+
+  const subtitlesButton = document.querySelector<HTMLButtonElement>(".ytp-subtitles-button");
+  if (!subtitlesButton || subtitlesButton.hasAttribute("disabled") || subtitlesButton.getAttribute("aria-disabled") === "true") {
+    return undefined;
+  }
+
+  const wasPressed = subtitlesButton.getAttribute("aria-pressed") === "true";
+  hideNativeCaptions();
+  if (!wasPressed) {
+    subtitlesButton.click();
+  }
+
+  const loadedUrl = await waitForTimedTextUrl();
+  if (!wasPressed) {
+    subtitlesButton.click();
+  }
+  return loadedUrl;
+}
+
+function getLatestLoadedTimedTextUrl(): string | undefined {
+  return performance
+    .getEntriesByType("resource")
+    .filter((entry) => entry.name.includes("/api/timedtext") && "decodedBodySize" in entry && Number(entry.decodedBodySize) > 0)
+    .at(-1)?.name;
+}
+
+async function waitForTimedTextUrl(): Promise<string | undefined> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const url = getLatestLoadedTimedTextUrl();
+    if (url) {
+      return url;
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+  }
+  return undefined;
+}
+
+function hideNativeCaptions(): void {
+  if (document.getElementById(YOUTUBE_NATIVE_CAPTION_STYLE_ID)) {
+    return;
+  }
+  const style = document.createElement("style");
+  style.id = YOUTUBE_NATIVE_CAPTION_STYLE_ID;
+  style.textContent = `
+    .ytp-caption-window-container {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
+  document.documentElement.append(style);
+}
+
+function removeNativeCaptionHiding(): void {
+  document.getElementById(YOUTUBE_NATIVE_CAPTION_STYLE_ID)?.remove();
 }
 
 async function startCaptionTrackPipeline(): Promise<void> {
@@ -209,7 +286,7 @@ async function startCaptionTrackPipeline(): Promise<void> {
     if (!track) {
       return;
     }
-    const cues = await fetchYouTubeCaptionCues(track);
+    const cues = await fetchCaptionCuesWithYouTubeFallback(track);
     if (captionMode === "idle" || requestId !== activeTrackRequest || cues.length === 0) {
       return;
     }

@@ -477,6 +477,186 @@ describe("initializeYouTubeControls", () => {
     });
   });
 
+  it("uses a loaded YouTube timedtext resource when the direct caption track is empty", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: `zh: ${segment.text}` }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ "content-type": "text/html" }),
+          text: () => Promise.resolve("")
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ "content-type": "application/json" }),
+          text: () =>
+            Promise.resolve(
+              JSON.stringify({
+                events: [{ tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "Primed cue" }] }]
+              })
+            )
+        })
+    );
+    const performanceSpy = vi.spyOn(performance, "getEntriesByType").mockReturnValue([
+      {
+        name: "https://www.youtube.com/api/timedtext?v=abc&fmt=json3&pot=token",
+        decodedBodySize: 1200
+      } as PerformanceResourceTiming
+    ]);
+    const host = await mountYouTubeControlWithTrack();
+    setVideoTime(1.2);
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(fetch).toHaveBeenLastCalledWith("https://www.youtube.com/api/timedtext?v=abc&fmt=json3&pot=token");
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("zh: Primed cue");
+    performanceSpy.mockRestore();
+  });
+
+  it("primes YouTube timedtext while keeping native captions hidden", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: `zh: ${segment.text}` }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ "content-type": "text/html" }),
+          text: () => Promise.resolve("")
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ "content-type": "application/json" }),
+          text: () =>
+            Promise.resolve(
+              JSON.stringify({
+                events: [{ tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "Hidden native cue" }] }]
+              })
+            )
+        })
+    );
+    let timedTextEntries: PerformanceEntry[] = [];
+    const performanceSpy = vi.spyOn(performance, "getEntriesByType").mockImplementation(() => timedTextEntries);
+    const host = await mountYouTubeControlWithTrack();
+    const subtitlesButton = document.querySelector<HTMLButtonElement>(".ytp-subtitles-button")!;
+    let subtitlesButtonClicks = 0;
+    subtitlesButton.setAttribute("aria-pressed", "false");
+    subtitlesButton.addEventListener("click", () => {
+      subtitlesButtonClicks += 1;
+      subtitlesButton.setAttribute("aria-pressed", subtitlesButtonClicks % 2 === 1 ? "true" : "false");
+      if (subtitlesButtonClicks === 1) {
+        timedTextEntries = [
+          {
+            name: "https://www.youtube.com/api/timedtext?v=abc&fmt=json3&pot=token",
+            decodedBodySize: 1200
+          } as PerformanceResourceTiming
+        ];
+      }
+    });
+    setVideoTime(1.2);
+    const bilingualItem = host.shadowRoot?.querySelector<HTMLButtonElement>(
+      '.margin-youtube__menu-item[data-action="bilingual"]'
+    );
+
+    bilingualItem?.click();
+    await flushPromises();
+
+    expect(subtitlesButtonClicks).toBe(2);
+    expect(document.getElementById("margin-youtube-native-caption-style")).toBeInstanceOf(HTMLStyleElement);
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("zh: Hidden native cue");
+
+    bilingualItem?.click();
+    expect(document.getElementById("margin-youtube-native-caption-style")).toBeNull();
+    performanceSpy.mockRestore();
+  });
+
+  it("does not toggle YouTube captions when they are already enabled for priming", async () => {
+    sendMessage.mockImplementation((message: { type?: string; segments?: Array<{ id: string; text: string }> }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({
+          ok: true,
+          results: (message.segments ?? []).map((segment) => ({ id: segment.id, text: segment.text }))
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ "content-type": "text/html" }),
+          text: () => Promise.resolve("")
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ "content-type": "application/json" }),
+          text: () =>
+            Promise.resolve(
+              JSON.stringify({
+                events: [{ tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "Already enabled cue" }] }]
+              })
+            )
+        })
+    );
+    let performanceCalls = 0;
+    const performanceSpy = vi.spyOn(performance, "getEntriesByType").mockImplementation(() => {
+      performanceCalls += 1;
+      return performanceCalls === 1
+        ? []
+        : [
+            {
+              name: "https://www.youtube.com/api/timedtext?v=abc&fmt=json3&pot=token",
+              decodedBodySize: 1200
+            } as PerformanceResourceTiming
+          ];
+    });
+    const host = await mountYouTubeControlWithTrack();
+    const subtitlesButton = document.querySelector<HTMLButtonElement>(".ytp-subtitles-button")!;
+    const clickSpy = vi.spyOn(subtitlesButton, "click");
+    subtitlesButton.setAttribute("aria-pressed", "true");
+    setVideoTime(1.2);
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(clickSpy).not.toHaveBeenCalled();
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("Already enabled cue");
+    performanceSpy.mockRestore();
+  });
+
   it("stops caption track batching when the provider rejects a batch", async () => {
     sendMessage.mockImplementation((message: { type?: string }) => {
       if (message.type === "TRANSLATE_BATCH") {
@@ -1048,7 +1228,7 @@ async function mountYouTubeControlWithTrack({ withVideo = true }: { withVideo?: 
 }
 
 async function flushPromises(): Promise<void> {
-  for (let index = 0; index < 8; index += 1) {
+  for (let index = 0; index < 16; index += 1) {
     await Promise.resolve();
   }
 }

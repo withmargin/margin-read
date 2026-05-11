@@ -75,7 +75,11 @@ export function choosePreferredCaptionTrack(tracks: YouTubeCaptionTrack[]): YouT
 }
 
 export async function fetchYouTubeCaptionCues(track: YouTubeCaptionTrack): Promise<YouTubeCaptionCue[]> {
-  const response = await fetch(getJson3TimedTextUrl(track.baseUrl));
+  return fetchYouTubeCaptionCuesFromUrl(getJson3TimedTextUrl(track.baseUrl));
+}
+
+export async function fetchYouTubeCaptionCuesFromUrl(url: string): Promise<YouTubeCaptionCue[]> {
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Caption track request failed with ${response.status}.`);
   }
