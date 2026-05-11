@@ -23,14 +23,14 @@ export const ui = {
 
     "topbar.kicker": "BILINGUAL NOTES",
 
-    "hero.eyebrow": "Privacy-first · Bilingual · Open source · MIT",
+    "hero.eyebrow": "No server · No account · No subscription · MIT",
     "hero.t1": "Read the web in two languages",
     "hero.t1b": ",",
     "hero.t2": "without losing",
     "hero.t3": " the original.",
-    "hero.p1": "Margin",
+    "hero.p1": "No server. No account. No subscription.",
     "hero.p2":
-      " inserts the translation beneath each paragraph. The original stays exactly where it was. Bring your own API key — OpenAI, Anthropic, or Google. No Margin server, no account, no telemetry.",
+      " Translation goes from your browser directly to OpenAI, Anthropic, or Google — no Margin in between. Fully MIT open source. Not a privacy promise — a privacy architecture.",
     "hero.cta1": "Install from source",
     "hero.cta1m": "unpacked · MV3",
     "hero.cta2": "Notify me on launch",
@@ -304,13 +304,13 @@ export const ui = {
 
     "topbar.kicker": "雙語注譯",
 
-    "hero.eyebrow": "隱私優先 · 雙語對照 · 開源 MIT",
-    "hero.t1": "用兩種語言讀網頁",
+    "hero.eyebrow": "無伺服器 · 無帳號 · 無訂閱 · MIT 開源",
+    "hero.t1": "旁譯入頁",
     "hero.t1b": "，",
-    "hero.t2": "不用",
-    "hero.t3": "失去原文。",
-    "hero.p1": "Margin",
-    "hero.p2": " 把譯文一段一段插入到原文下方，原文留在原地。自帶 API Key — 你的金鑰、你的資料、你的選擇。",
+    "hero.t2": "原文如故",
+    "hero.t3": "。",
+    "hero.p1": "沒有伺服器、沒有帳號、沒有訂閱。",
+    "hero.p2": "翻譯從你的瀏覽器直送 OpenAI、Anthropic、Google — 中間沒有我們。全程 MIT 開源。不是承諾不看，是架構上看不見。",
     "hero.cta1": "從 source 載入",
     "hero.cta1m": "unpacked · MV3",
     "hero.cta2": "上架時通知我",
