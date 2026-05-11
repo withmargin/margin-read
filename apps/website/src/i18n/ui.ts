@@ -30,7 +30,7 @@ export const ui = {
     "hero.t3": " the original.",
     "hero.p1": "No account. Ready to use.",
     "hero.p2":
-      " Translation goes from your browser directly to OpenAI, Anthropic, or Google — no Margin in between. Fully MIT open source. Not a privacy promise — a privacy architecture.",
+      " Translation goes from your browser directly to OpenAI, Anthropic, or Google — no Margin in between. Fully MIT open source. Your browsing and reading stay truly private.",
     "hero.cta1": "Install from source",
     "hero.cta1m": "unpacked · MV3",
     "hero.cta2": "Notify me on launch",
@@ -163,15 +163,15 @@ export const ui = {
     "dis.t2": "stand right out",
     "dis.t3": ". You pick.",
     "dis.lede":
-      "The same translation can quietly merge into the layout — or be highlighted like a stripe of jam. Whichever fits your reading mode.",
+      "Two render modes for two reading modes. The default inherits the page's own typography so a carefully-designed article stays that way. The highlighter mode marks every translation in butter yellow — for language learning, side-by-side comparison, or finding translations fast in dense layouts.",
     "dis.a_label": "— STYLE A · INTEGRATED",
     "dis.a_t": "Blends into the flow",
     "dis.a_b":
-      "Translation appears in a soft tonal shift with a thin accent rule. Best for long, immersive reading — like the back of the same page.",
+      "Translation inherits the page's own typography, weight, and rhythm — only its opacity is dialed back, like a pencil note in the same hand as the original. Best for articles you'd read for the writing itself.",
     "dis.b_label": "— STYLE B · HIGHLIGHTED",
-    "dis.b_t": "Buttered highlight",
+    "dis.b_t": "Highlighter strip",
     "dis.b_b":
-      "Translation sits on a buttered margin block. Best for language learning, side-by-side comparison, or finding translations fast in dense layouts.",
+      "Translation rides a strip of butter-yellow highlight, the way you'd mark a key sentence in a print book. Best for language learning, side-by-side comparison, or finding translations fast in dense layouts.",
     "dis.src":
       "Most translation extensions replace the page. Margin does the opposite.",
     "dis.tr": "大多數翻譯外掛會把整頁取代。Margin 反其道而行。",
@@ -198,8 +198,8 @@ export const ui = {
     "x.l6": "Picks up newly-loaded cards as you scroll",
 
     "tech.eye": "Tech · Open source",
-    "tech.t1": "Every slice",
-    "tech.t2": "shows its grain",
+    "tech.t1": "Every line",
+    "tech.t2": "in plain ink",
     "tech.t3": ".",
     "tech.lede":
       "Margin is built in TypeScript on Manifest V3 and bundled with Rolldown. MIT-licensed; the source is public.",
@@ -310,7 +310,7 @@ export const ui = {
     "hero.t2": "原文如故",
     "hero.t3": "。",
     "hero.p1": "無需帳號、立即可用。",
-    "hero.p2": "翻譯從你的瀏覽器直送 OpenAI、Anthropic、Google — 中間沒有我們。全程 MIT 開源。不是承諾不看，是架構上看不見。",
+    "hero.p2": "翻譯從你的瀏覽器直送 OpenAI、Anthropic、Google — 中間沒有我們。全程 MIT 開源。真正保有你的瀏覽與閱讀隱私。",
     "hero.cta1": "從 source 載入",
     "hero.cta1m": "unpacked · MV3",
     "hero.cta2": "上架時通知我",
@@ -443,15 +443,15 @@ export const ui = {
     "dis.t2": "明顯標示",
     "dis.t3": "。你決定。",
     "dis.lede":
-      "同樣的譯文，可以靜靜地融入排版，也可以被果醬般高亮起來——取決於你想沉浸閱讀，還是要逐句對照。",
+      "兩種呈現，對應兩種閱讀情境。預設沿用網頁原本的字型與留白，讓本來設計用心的文章保持原本的樣子。螢光模式為每段譯文加一條螢光黃，適合語言學習、雙語對照、或在密集排版中快速辨認譯文。",
     "dis.a_label": "— STYLE A · INTEGRATED",
     "dis.a_t": "融入閱讀流",
     "dis.a_b":
-      "譯文採低對比的微差色與細邊線。適合長時間沉浸閱讀，原文與譯文像同一張紙的正反兩面。",
+      "譯文沿用網頁本身的字型、字重、行距，只把色度調淡一點，像作者親筆寫在同一頁上的鉛筆註。適合排版用心、想原汁原味閱讀的長文章。",
     "dis.b_label": "— STYLE B · HIGHLIGHTED",
-    "dis.b_t": "奶油色高亮",
+    "dis.b_t": "螢光劃記",
     "dis.b_b":
-      "譯文鋪上吐司奶油色塊，像被烤過的麵包邊。適合語言學習、逐句對照、在密集排版中快速找回譯文。",
+      "譯文鋪在一條螢光黃色塊上，像你在紙本書上用螢光筆劃過的那一行。適合語言學習、雙語對照、或在密集排版中快速辨認譯文。",
     "dis.src":
       "Most translation extensions replace the page. Margin does the opposite.",
     "dis.tr": "大多數翻譯外掛會把整頁取代。Margin 反其道而行。",
@@ -478,8 +478,8 @@ export const ui = {
     "x.l6": "時間軸滾動時動態翻譯新出現的卡片",
 
     "tech.eye": "技術 · 開源",
-    "tech.t1": "每一片麵包，",
-    "tech.t2": "都是看得見原料的",
+    "tech.t1": "每一行，",
+    "tech.t2": "都白紙黑字",
     "tech.t3": "。",
     "tech.lede":
       "Margin 是 TypeScript + Manifest V3，使用 Rolldown 打包。採 MIT 授權，所有原始碼公開。",

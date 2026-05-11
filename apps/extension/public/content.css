@@ -31,9 +31,9 @@
 
 .margin-translation--highlighted {
   margin: 0.45em 0 0.85em;
-  padding: 0.65em 0.75em;
-  border-left: 3px solid #2f6fed;
-  background: color-mix(in srgb, Canvas 92%, #2f6fed 8%);
+  padding: 0.5em 0.7em;
+  background: rgba(245, 215, 110, 0.55);
+  border-radius: 3px;
   color: inherit;
 }
 
