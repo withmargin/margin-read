@@ -276,7 +276,7 @@ export const ui = {
       "A privacy-claiming extension should be auditable. TypeScript on Manifest V3 with Rolldown gives a small, readable surface area. The repository contains the PRD, principles, threat model, and roadmap so the design choices are checkable, not just the binaries.",
     "faq.q7": "When will it be on the Chrome Web Store?",
     "faq.a7":
-      "Soon. The MVP is functional today as an unpacked install. Submit your email above to get notified the day it lands. There will be no second mail.",
+      "Soon. The MVP is fully usable today as an unpacked install — clone the repo, load it in chrome://extensions. We don't keep an email list. To get notified when the Web Store version ships, either Watch the GitHub repo (releases only) or subscribe to the releases RSS feed — both are linked from the hero above. GitHub does the delivery; we never see who subscribed.",
 
     "ft.tag":
       "A privacy-first browser extension for bilingual webpage translation. The original stays, the translation grows beneath. Bring your own API key.",
@@ -553,7 +553,7 @@ export const ui = {
       "宣稱隱私的擴充應該可審計。TypeScript + MV3 + Rolldown 給出小而易讀的 surface area。Repo 內含 PRD、principles、threat model、roadmap，設計選擇都可被檢驗，不只是 binary。",
     "faq.q7": "什麼時候上 Chrome Web Store？",
     "faq.a7":
-      "快了。MVP 今天就能以 unpacked 載入使用。上方填 email，上架當天會通知你。不會有第二封信。",
+      "快了。MVP 今天就能以 unpacked 載入使用 — clone repo, 進 chrome://extensions 載入即可。我們不留 email 名單。想在 Web Store 上架當天收到通知，請從 hero 區的兩個管道擇一：在 GitHub 上 Watch 這個 repo (releases only)，或訂閱 releases RSS feed。GitHub 負責寄送，我們從頭到尾不知道誰訂了。",
 
     "ft.tag":
       "隱私優先的雙語對照翻譯瀏覽器外掛。原文留下，譯文長在下方。自帶 API Key。",
