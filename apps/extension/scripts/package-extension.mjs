@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
+import { appendFile, mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -56,6 +56,24 @@ if (zip.status !== 0) {
 
 console.log(`Packaged ${relative(repoRoot, outputPath)}`);
 
+const packageInfo = await stat(outputPath);
+const sizeKiB = packageInfo.size / 1024;
+console.log(`Package size: ${formatBytes(packageInfo.size)} (${sizeKiB.toFixed(1)} KiB)`);
+
+if (process.env.GITHUB_STEP_SUMMARY) {
+  await appendFile(
+    process.env.GITHUB_STEP_SUMMARY,
+    [
+      "## Extension Package",
+      "",
+      `- File: \`${relative(repoRoot, outputPath)}\``,
+      `- Size: ${formatBytes(packageInfo.size)} (${sizeKiB.toFixed(1)} KiB)`,
+      `- Version: \`${version}\``,
+      ""
+    ].join("\n")
+  );
+}
+
 function assert(condition, message) {
   if (!condition) {
     failures.push(message);
@@ -67,6 +85,16 @@ function containsProviderApiKey(content) {
   const anthropicPrefix = "sk-" + "ant-";
   const openAiProjectPrefix = "sk-" + "proj-";
   return content.includes(anthropicPrefix) || content.includes(openAiProjectPrefix) || content.includes(googlePrefix);
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KiB`;
+  }
+  return `${(bytes / 1024 / 1024).toFixed(2)} MiB`;
 }
 
 async function listFiles(directory) {
