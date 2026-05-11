@@ -156,9 +156,9 @@ nav.links a:hover { color: var(--jam); }
 .hero h1 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 400;
-  font-size: clamp(54px, 8vw, 104px);
-  line-height: .98;
-  letter-spacing: -.022em;
+  font-size: clamp(44px, 6vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -.018em;
   margin: 0 0 28px;
 }
 .hero h1 em { font-style: italic; color: var(--jam); }
@@ -1125,3 +1125,22 @@ footer.site .wrap { max-width: 1240px; }
 .demo-translation:not(.hidden) { animation: slideIn .4s ease both; }
 
 ::selection { background: var(--jam); color: var(--cream); }
+
+/* =============================================================
+ * CJK emphasis override
+ * =============================================================
+ * Italic is a Latin-script convention. CJK fonts have no real italic
+ * glyph set; browsers fake it by mechanically slanting the upright
+ * forms, which looks broken next to genuine Playfair Italic in the
+ * EN track. The semantic <em> stays the same — we just re-render it
+ * with the CJK-native emphasis cue (weight + brand-accent color).
+ *
+ * Specificity ties with `.hero h1 em` / `h2.serif em` (both 0,0,1,2);
+ * placed after them so source order wins.
+ */
+html[lang^="zh"] em,
+html[lang="ja"] em,
+html[lang="ko"] em {
+  font-style: normal;
+  font-weight: 600;
+}
