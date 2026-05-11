@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <style>
+      .serif { font-family: 'Playfair Display', Georgia, serif; font-style: italic; }
+      .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 1.6px; }
+    </style>
+  </defs>
+
+  <!-- Aged paper backdrop -->
+  <rect x="0" y="0" width="1280" height="800" fill="#f7f5ef"/>
+
+  <!-- Logo mark (top-left, M.12 paragraph pair, large) -->
+  <g transform="translate(96 72) scale(2.4)">
+    <rect x="0.5" y="0.5" width="27" height="27" rx="3" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+    <rect x="5"  y="7.65"  width="18"    height="1.5" rx="0.4" fill="#1a1a1a"/>
+    <rect x="5"  y="10.75" width="12.96" height="1.5" rx="0.4" fill="#1a1a1a"/>
+    <rect x="5"  y="15.75" width="1"     height="4.6"          fill="#b8331f"/>
+    <rect x="9"  y="15.75" width="14"    height="1.5" rx="0.4" fill="#b8331f"/>
+    <rect x="9"  y="18.85" width="10.08" height="1.5" rx="0.4" fill="#b8331f"/>
+  </g>
+  <text x="174" y="118" font-size="28" fill="#1a1a1a" font-weight="500">Margin</text>
+  <text x="174" y="143" class="mono" font-size="11" fill="#8e8a82">BILINGUAL NOTES</text>
+
+  <!-- Headline -->
+  <text x="96" y="290" class="serif" font-size="76" font-style="normal" fill="#1a1a1a" font-weight="400">Read the web</text>
+  <text x="96" y="370" class="serif" font-size="76" fill="#b8331f">without losing</text>
+  <text x="96" y="450" class="serif" font-size="76" font-style="normal" fill="#1a1a1a" font-weight="400">the original.</text>
+
+  <!-- Sub-pitch -->
+  <text x="96" y="510" font-size="20" fill="#3a3a3a">Translations appear beneath each paragraph. The original stays exactly where it was.</text>
+  <text x="96" y="540" font-size="20" fill="#3a3a3a">Bring your own API key — OpenAI, Anthropic, or Google. No telemetry.</text>
+
+  <!-- Bilingual reading specimen (right side, paper card) -->
+  <g transform="translate(740 88)">
+    <rect x="0" y="0" width="440" height="624" rx="8" fill="#ffffff" stroke="rgba(26,26,26,0.10)" stroke-width="1"/>
+    <text x="32" y="48" class="mono" font-size="11" fill="#8e8a82">FIG. 01</text>
+    <text x="408" y="48" class="mono" font-size="11" fill="#8e8a82" text-anchor="end">READING / PARALLEL</text>
+    <line x1="32" y1="68" x2="408" y2="68" stroke="rgba(26,26,26,0.10)"/>
+
+    <text x="32" y="108" class="mono" font-size="11" fill="#8e8a82">ARXIV · CS.CL · 2024</text>
+    <text x="32" y="146" class="serif" font-style="normal" font-size="22" fill="#1a1a1a">Mixture of Experts:</text>
+    <text x="32" y="172" class="serif" font-style="normal" font-size="22" fill="#1a1a1a">A Survey for Long-Context</text>
+    <text x="32" y="198" class="serif" font-style="normal" font-size="22" fill="#1a1a1a">Models</text>
+    <text x="32" y="228" class="mono" font-size="11" fill="#8e8a82">— J. SMOLINSKI · Y. TANAKA · M. REYES</text>
+    <line x1="32" y1="248" x2="408" y2="248" stroke="rgba(26,26,26,0.10)"/>
+
+    <!-- English source paragraph -->
+    <text x="32" y="290" font-size="14" fill="#1a1a1a">Most translation extensions replace the</text>
+    <text x="32" y="310" font-size="14" fill="#1a1a1a">page. Margin does the opposite — the</text>
+    <text x="32" y="330" font-size="14" fill="#1a1a1a">original stays, and the translation grows</text>
+    <text x="32" y="350" font-size="14" fill="#1a1a1a">beneath, paragraph by paragraph.</text>
+
+    <!-- Translation block: indented + left rule (jam red) -->
+    <line x1="44" y1="368" x2="44" y2="448" stroke="#b8331f" stroke-width="1"/>
+    <text x="58" y="386" font-size="13" fill="#3a3a3a">大多數翻譯外掛把整頁取代。Margin 反其</text>
+    <text x="58" y="406" font-size="13" fill="#3a3a3a">道而行——原文留下，譯文一段一段在下</text>
+    <text x="58" y="426" font-size="13" fill="#3a3a3a">方長出來。</text>
+
+    <!-- Second pair -->
+    <text x="32" y="476" font-size="14" fill="#1a1a1a">When the original is one glance away,</text>
+    <text x="32" y="496" font-size="14" fill="#1a1a1a">you verify a phrase the moment it feels off.</text>
+
+    <line x1="44" y1="514" x2="44" y2="574" stroke="#b8331f" stroke-width="1"/>
+    <text x="58" y="532" font-size="13" fill="#3a3a3a">當原文只在一瞥之間，你能在感覺翻譯不</text>
+    <text x="58" y="552" font-size="13" fill="#3a3a3a">對勁的瞬間立刻驗證。</text>
+
+    <!-- Footer caption (jam red, all-caps mono) -->
+    <line x1="32" y1="592" x2="408" y2="592" stroke="rgba(26,26,26,0.10)"/>
+    <text x="32" y="612" class="mono" font-size="10" fill="#b8331f">● TRANSLATED IN-PLACE</text>
+    <text x="408" y="612" class="mono" font-size="10" fill="#b8331f" text-anchor="end">PARAGRAPH × PARAGRAPH</text>
+  </g>
+
+  <!-- Footer bar -->
+  <line x1="96" y1="700" x2="1184" y2="700" stroke="rgba(26,26,26,0.10)"/>
+  <text x="96"   y="744" class="mono" font-size="13" fill="#8e8a82">PRIVACY-FIRST · BILINGUAL · OPEN SOURCE · MIT</text>
+  <text x="1184" y="744" class="mono" font-size="13" fill="#b8331f" text-anchor="end">MARGINREAD.COM</text>
+</svg>
