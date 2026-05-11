@@ -40,6 +40,7 @@ const canonical = getAbsoluteLocaleUrl(htmlLang[locale], path);
     <meta name="description" content={pageDescription} />
     <title>{pageTitle}</title>
     <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {
       alternates.map((alt) => (
         <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
