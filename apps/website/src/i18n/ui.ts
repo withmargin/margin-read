@@ -28,7 +28,7 @@ export const ui = {
     "hero.t1b": ",",
     "hero.t2": "without losing",
     "hero.t3": " the original.",
-    "hero.p1": "No server. No account. No subscription.",
+    "hero.p1": "No account. Ready to use.",
     "hero.p2":
       " Translation goes from your browser directly to OpenAI, Anthropic, or Google — no Margin in between. Fully MIT open source. Not a privacy promise — a privacy architecture.",
     "hero.cta1": "Install from source",
@@ -309,7 +309,7 @@ export const ui = {
     "hero.t1b": "，",
     "hero.t2": "原文如故",
     "hero.t3": "。",
-    "hero.p1": "沒有伺服器、沒有帳號、沒有訂閱。",
+    "hero.p1": "無需帳號、立即可用。",
     "hero.p2": "翻譯從你的瀏覽器直送 OpenAI、Anthropic、Google — 中間沒有我們。全程 MIT 開源。不是承諾不看，是架構上看不見。",
     "hero.cta1": "從 source 載入",
     "hero.cta1m": "unpacked · MV3",

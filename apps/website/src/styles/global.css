@@ -1127,13 +1127,23 @@ footer.site .wrap { max-width: 1240px; }
 ::selection { background: var(--jam); color: var(--cream); }
 
 /* =============================================================
- * CJK emphasis override
+ * CJK emphasis override + inter-tag whitespace fix
  * =============================================================
- * Italic is a Latin-script convention. CJK fonts have no real italic
- * glyph set; browsers fake it by mechanically slanting the upright
- * forms, which looks broken next to genuine Playfair Italic in the
- * EN track. The semantic <em> stays the same — we just re-render it
- * with the CJK-native emphasis cue (weight + brand-accent color).
+ * Two CJK typography concerns handled together:
+ *
+ * 1) Italic is a Latin-script convention. CJK fonts have no real
+ *    italic glyph set; browsers fake it by mechanically slanting
+ *    the upright forms, which looks broken next to genuine
+ *    Playfair Italic in the EN track. The semantic <em> stays the
+ *    same — re-render it with the CJK-native cue (weight + accent).
+ *
+ * 2) HTML renders the source whitespace between inline tags
+ *    (newline + indent in our .astro files) as a single ASCII
+ *    space. That's correct for Latin word spacing, but in CJK,
+ *    fullwidth punctuation like 「，」「。」 already has trailing
+ *    whitespace baked into the glyph box — adding another space
+ *    on top creates a visible gap before every <em>. Pull the
+ *    <em> back by ~one space width to consume that gap.
  *
  * Specificity ties with `.hero h1 em` / `h2.serif em` (both 0,0,1,2);
  * placed after them so source order wins.
@@ -1143,4 +1153,5 @@ html[lang="ja"] em,
 html[lang="ko"] em {
   font-style: normal;
   font-weight: 600;
+  margin-inline-start: -.3em;
 }
