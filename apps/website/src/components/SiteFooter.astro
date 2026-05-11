@@ -1,0 +1,98 @@
+---
+import MarginMark from "./MarginMark.astro";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <MarginMark />
+          <span>Margin</span>
+        </div>
+        <p class="footer-tag" data-i18n="ft.tag">
+          A privacy-first browser extension for bilingual webpage translation.
+          The original stays, the translation grows beneath. Bring your own API
+          key.
+        </p>
+      </div>
+      <div>
+        <h5 data-i18n="ft.h1">PRODUCT</h5>
+        <ul>
+          <li><a href="#demo" data-i18n="ft.demo">How it works</a></li>
+          <li><a href="#features" data-i18n="ft.features">Features</a></li>
+          <li><a href="#privacy" data-i18n="ft.privacy">Privacy</a></li>
+          <li><a href="#styles" data-i18n="ft.styles">Display styles</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 data-i18n="ft.h2">DOCS</h5>
+        <ul>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/blob/main/docs/PRD.md"
+              target="_blank"
+              rel="noopener">PRD</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/blob/main/docs/PRINCIPLES.md"
+              target="_blank"
+              rel="noopener">Principles</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/blob/main/docs/THREAT_MODEL.md"
+              target="_blank"
+              rel="noopener">Threat Model</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/blob/main/docs/ROADMAP.md"
+              target="_blank"
+              rel="noopener">Roadmap</a>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h5 data-i18n="ft.h3">CONNECT</h5>
+        <ul>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/"
+              target="_blank"
+              rel="noopener">GitHub</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/issues"
+              target="_blank"
+              rel="noopener">Issues</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/linyiru/toast/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener">License (MIT)</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span
+        >© {year} Margin · <span data-i18n="ft.priv"
+          >Privacy-first · Open source · MIT</span
+        ></span
+      >
+      <span
+        ><a
+          href="https://github.com/linyiru/toast/"
+          target="_blank"
+          rel="noopener">github.com/linyiru/toast →</a
+        ></span
+      >
+    </div>
+  </div>
+</footer>

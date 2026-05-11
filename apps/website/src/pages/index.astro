@@ -1,13 +1,34 @@
 ---
-// Placeholder — replaced in subsequent commit with full design implementation
+import Layout from "../layouts/Layout.astro";
+import Topbar from "../components/Topbar.astro";
+import Hero from "../components/Hero.astro";
+import Demo from "../components/Demo.astro";
+import Features from "../components/Features.astro";
+import Providers from "../components/Providers.astro";
+import Privacy from "../components/Privacy.astro";
+import DisplayStyles from "../components/DisplayStyles.astro";
+import XOptimization from "../components/XOptimization.astro";
+import Tech from "../components/Tech.astro";
+import Honest from "../components/Honest.astro";
+import Pricing from "../components/Pricing.astro";
+import Faq from "../components/Faq.astro";
+import SiteFooter from "../components/SiteFooter.astro";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Margin — Read in two languages</title>
-  </head>
-  <body>
-    <p>scaffold</p>
-  </body>
-</html>
+<Layout>
+  <Topbar />
+  <main class="wrap">
+    <Hero />
+    <Demo />
+    <Features />
+    <Providers />
+    <Privacy />
+    <DisplayStyles />
+    <XOptimization />
+    <Tech />
+    <Honest />
+    <Pricing />
+    <Faq />
+  </main>
+  <SiteFooter />
+</Layout>

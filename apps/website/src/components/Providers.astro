@@ -1,0 +1,92 @@
+---
+// Three supported AI providers + their default endpoints.
+---
+
+<section id="providers">
+  <p class="eyebrow">
+    <span class="num">03</span><span data-i18n="prov.eye"
+      >Supported AI providers</span
+    >
+  </p>
+  <h2 class="serif">
+    <span data-i18n="prov.t1">Three frontier models,</span>
+    <em data-i18n="prov.t2">one</em><span data-i18n="prov.t3"> is yours.</span>
+  </h2>
+  <p class="section-lede" data-i18n="prov.lede">
+    Margin is not bound to a single provider. The endpoint field is editable
+    for compatible gateways and self-hosted routing. "Fetch models" reads
+    available models directly from the provider.
+  </p>
+
+  <div class="providers">
+    <div class="prov">
+      <div class="prov-head">
+        <div class="prov-mark">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="8"></circle>
+            <circle cx="12" cy="12" r="3" class="pen"></circle>
+          </svg>
+        </div>
+        <div>
+          <h4>OpenAI</h4>
+          <div class="prov-meta">GPT-4o · GPT-4 · GPT-3.5</div>
+        </div>
+      </div>
+      <p data-i18n="prov.openai">
+        Stable, broad model selection, mature ecosystem. Margin streams via
+        chat completions and can fetch your account's available models from
+        the options page.
+      </p>
+      <div class="prov-endpoint">
+        <span class="arrow">→</span>https://api.openai.com/v1/chat/completions
+      </div>
+    </div>
+
+    <div class="prov">
+      <div class="prov-head">
+        <div class="prov-mark">
+          <svg viewBox="0 0 24 24">
+            <line x1="12" y1="4" x2="12" y2="20"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="6.3" y1="6.3" x2="17.7" y2="17.7" class="pen"></line>
+            <line x1="17.7" y1="6.3" x2="6.3" y2="17.7" class="pen"></line>
+          </svg>
+        </div>
+        <div>
+          <h4>Anthropic Claude</h4>
+          <div class="prov-meta">Claude Opus · Sonnet · Haiku</div>
+        </div>
+      </div>
+      <p data-i18n="prov.claude">
+        Strong on long passages and tone preservation. Often shines on
+        research articles and reportage where nuance matters.
+      </p>
+      <div class="prov-endpoint">
+        <span class="arrow">→</span>https://api.anthropic.com/v1/messages
+      </div>
+    </div>
+
+    <div class="prov">
+      <div class="prov-head">
+        <div class="prov-mark">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 4 L20 12 L12 20 L4 12 Z"></path>
+            <path d="M12 8 L16 12 L12 16 L8 12 Z" class="pen"></path>
+          </svg>
+        </div>
+        <div>
+          <h4>Google Gemini</h4>
+          <div class="prov-meta">Gemini 1.5 · 2.0 Flash · Pro</div>
+        </div>
+      </div>
+      <p data-i18n="prov.gemini">
+        Generous free tier, strong East Asian languages, low-latency Flash
+        variants — ideal when translating large amounts of text continuously.
+      </p>
+      <div class="prov-endpoint">
+        <span class="arrow">→</span
+        >https://generativelanguage.googleapis.com/v1beta/models
+      </div>
+    </div>
+  </div>
+</section>

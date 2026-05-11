@@ -1,0 +1,100 @@
+---
+// Live demo — translates an embedded "article" on click or scroll-into-view.
+// Toggle between integrated and highlighted display modes.
+---
+
+<section id="demo">
+  <p class="eyebrow">
+    <span class="num">01</span><span data-i18n="demo.eye">See for yourself</span>
+  </p>
+  <h2 class="serif">
+    <span data-i18n="demo.t1">The original stays.</span>
+    <em data-i18n="demo.t2">The translation grows beneath.</em>
+  </h2>
+  <p class="section-lede" data-i18n="demo.lede">
+    Most translation extensions replace the page. You scroll, you read, and
+    somewhere along the way you forget which language you started in. Margin
+    does the opposite — the translation slides in beneath, paragraph by
+    paragraph.
+  </p>
+
+  <div class="demo-stage" id="demoStage">
+    <div class="demo-bar">
+      <div class="demo-window">
+        <span class="dot" style="background:#e88670"></span>
+        <span class="dot" style="background:#e8c170"></span>
+        <span class="dot" style="background:#a8c98a"></span>
+        <span class="url">arxiv.org/abs/2401.04088</span>
+      </div>
+      <div class="demo-controls">
+        <button id="modeBtn" data-mode="integrated" type="button">
+          <span data-i18n="demo.mode_int">Integrated</span>
+        </button>
+        <button class="primary" id="translateBtn" type="button">
+          <span data-i18n="demo.translate">Translate this page</span>
+        </button>
+      </div>
+    </div>
+    <div class="demo-body">
+      <div class="demo-article-meta" data-i18n="demo.meta">
+        arXiv · cs.CL · 2024
+      </div>
+      <h3 class="demo-article-title" data-i18n="demo.title">
+        Mixture of Experts: A Practical Survey for Long-Context Language Models
+      </h3>
+      <div class="demo-byline" data-i18n="demo.byline">
+        — Jan Smolinski, Yuki Tanaka, Marina Reyes · saved 12 min ago
+      </div>
+
+      <p class="demo-para first" data-orig data-i18n="demo.p1">
+        Most translation extensions replace the page. You scroll, you read, and
+        somewhere along the way you forget which language you started in.
+        Margin does the opposite: the original text stays exactly where it was,
+        and the translation slides in beneath, paragraph by paragraph.
+      </p>
+      <div class="demo-translation hidden" data-tr>
+        <span class="label">譯</span><span data-i18n="demo.p1_zh"
+          >大多數翻譯外掛會把整頁取代。你滾動、閱讀，最後忘了自己原本是用哪種語言開始讀的。Margin
+          反其道而行：原文留在原地不動，譯文一段一段插入下方。</span
+        >
+      </div>
+
+      <p class="demo-para" data-orig data-i18n="demo.p2">
+        This matters more than it sounds. When the original is one glance away,
+        you can verify a translated phrase the moment it feels off. The
+        bilingual layout turns reading into a quiet collaboration between two
+        languages instead of a one-way conversion.
+      </p>
+      <div class="demo-translation hidden" data-tr>
+        <span class="label">譯</span><span data-i18n="demo.p2_zh"
+          >這比聽起來重要。當原文只在一瞥之間，你能在感覺翻譯不對勁的瞬間立刻驗證。雙語排版把閱讀變成兩種語言之間安靜的協作，而不是單向的轉換。</span
+        >
+      </div>
+
+      <p class="demo-para" data-orig data-i18n="demo.p3">
+        There is no Margin server. The extension talks directly to OpenAI,
+        Anthropic, or Google with the API key you provide. Your reading is
+        yours. Your bill is yours. Your choice of model is yours.
+      </p>
+      <div class="demo-translation hidden" data-tr>
+        <span class="label">譯</span><span data-i18n="demo.p3_zh"
+          >這裡沒有 Margin 的伺服器。外掛使用你提供的 API Key 直接和 OpenAI、Anthropic
+          或 Google 對話。你讀什麼是你的事，帳單是你的，模型選擇也是你的。</span
+        >
+      </div>
+
+      <p class="demo-para" data-orig data-i18n="demo.p4">
+        Margin detects readable blocks—paragraphs, headings, list items,
+        blockquotes—and skips the chrome: navigation, forms, code, hidden text.
+        On X and longform articles, a dedicated detector targets the post body
+        and ignores profile names and metric counts.
+      </p>
+      <div class="demo-translation hidden" data-tr>
+        <span class="label">譯</span><span data-i18n="demo.p4_zh"
+          >Margin 會偵測可讀的區塊——段落、標題、列表項、引言——並跳過頁面的零件：導覽列、表單、程式碼、隱藏文字。在
+          X 和長文文章上，專用偵測器只鎖定貼文本體，忽略使用者名稱和互動數字。</span
+        >
+      </div>
+    </div>
+  </div>
+</section>

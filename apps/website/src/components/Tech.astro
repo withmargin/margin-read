@@ -1,0 +1,91 @@
+---
+// Tech / OSS section — code snippet, stats grid, and OSS callout.
+// The code-block uses set:html so curly braces / arrow functions in the
+// snippet aren't interpreted as Astro template expressions.
+const codeSnippet = `<span class="c">// src/content/detect.ts</span><br />
+<span class="k">export const</span> <span class="p">detectReadableBlocks</span> = (<span class="p">root</span>: <span class="k">Document</span>) =&gt; &#123;<br />
+&nbsp;&nbsp;<span class="k">return</span> <span class="p">walker</span>(<span class="p">root</span>)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<span class="p">filter</span>(<span class="p">isReadableTag</span>)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<span class="p">filter</span>(<span class="p">notInsideChrome</span>)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.<span class="p">filter</span>(<span class="p">hasMeaningfulText</span>);<br />
+&#125;;<br /><br />
+<span class="c">// skip nav / form / button / code / hidden</span><br />
+<span class="c">// keep p / h1-6 / li / blockquote / article</span><br />
+<span class="c">// handle legacy: table, font, br-separated</span>`;
+---
+
+<section id="tech">
+  <p class="eyebrow">
+    <span class="num">07</span><span data-i18n="tech.eye"
+      >Tech · Open source</span
+    >
+  </p>
+  <h2 class="serif">
+    <span data-i18n="tech.t1">Every slice</span>
+    <em data-i18n="tech.t2">shows its grain</em><span data-i18n="tech.t3"
+      >.</span
+    >
+  </h2>
+  <p class="section-lede" data-i18n="tech.lede">
+    Margin is built in TypeScript on Manifest V3 and bundled with Rolldown.
+    MIT-licensed; the source is public.
+  </p>
+
+  <div class="tech-grid">
+    <div>
+      <div class="code-block" set:html={codeSnippet}></div>
+      <div class="tech-stats">
+        <div class="stat">
+          <div class="v">
+            86.6<span style="font-size:.5em;color:var(--mute)">%</span>
+          </div>
+          <div class="l">TypeScript</div>
+        </div>
+        <div class="stat">
+          <div class="v">MV3</div>
+          <div class="l">Manifest V3</div>
+        </div>
+        <div class="stat">
+          <div class="v">MIT</div>
+          <div class="l">License</div>
+        </div>
+        <div class="stat">
+          <div class="v">0</div>
+          <div class="l">Telemetry calls</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h4
+        class="serif"
+        style="font-size:30px;line-height:1.1;margin:0 0 14px;"
+        data-i18n="tech.s1">
+        "No license has been selected yet." Actually, it's MIT.
+      </h4>
+      <p
+        style="color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0 0 18px;"
+        data-i18n="tech.s1b">
+        Margin is an open-source MVP. Issues, PRs, forks, and self-hosting are
+        welcome. We believe privacy you can verify is the only privacy worth
+        claiming — so the source is public.
+      </p>
+      <p
+        style="color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0 0 18px;"
+        data-i18n="tech.s2b">
+        Want to contribute? The docs are there: Product Requirements,
+        Principles, Threat Model, Roadmap. Start in docs/.
+      </p>
+      <a
+        class="repo-link"
+        href="https://github.com/linyiru/toast/"
+        target="_blank"
+        rel="noopener">
+        <span
+          style="font-family:'Playfair Display',serif;font-size:18px;letter-spacing:0;text-transform:none;"
+          >★</span
+        >
+        github.com/linyiru/toast
+      </a>
+    </div>
+  </div>
+</section>

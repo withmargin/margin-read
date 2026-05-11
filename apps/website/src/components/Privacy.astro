@@ -1,0 +1,105 @@
+---
+// Privacy section — five points + a sticky data-flow diagram.
+---
+
+<section id="privacy">
+  <p class="eyebrow">
+    <span class="num">04</span><span data-i18n="priv.eye">Why BYO key</span>
+  </p>
+  <h2 class="serif">
+    <span data-i18n="priv.t1">What you read,</span>
+    <em data-i18n="priv.t2">no one needs to know</em><span
+      data-i18n="priv.t3">.</span
+    >
+  </h2>
+  <p class="section-lede" data-i18n="priv.lede">
+    Most cloud translation tools quietly send every paragraph you read to a
+    third-party server, where it may be stored, analyzed, or used for training.
+    Margin sidesteps that whole class of risk by not having a server at all.
+  </p>
+
+  <div class="privacy-grid">
+    <ul class="privacy-points">
+      <li>
+        <div class="num">P.01</div>
+        <div>
+          <h4 data-i18n="priv.p1t">No Margin server</h4>
+          <p data-i18n="priv.p1b">
+            All provider requests come directly from the extension's service
+            worker. There's no us in the middle, and no proxy layer.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="num">P.02</div>
+        <div>
+          <h4 data-i18n="priv.p2t">No login, no account</h4>
+          <p data-i18n="priv.p2b">
+            No signup flow, no OAuth, no cloud sync. Your browser profile is
+            your "account."
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="num">P.03</div>
+        <div>
+          <h4 data-i18n="priv.p3t">No telemetry by default</h4>
+          <p data-i18n="priv.p3b">
+            No analytics, no error reporting, no usage events. Debug info
+            shows up only in the popup's debug mode, locally.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="num">P.04</div>
+        <div>
+          <h4 data-i18n="priv.p4t">Only selected text segments</h4>
+          <p data-i18n="priv.p4b">
+            Margin never sends full page HTML to the provider — only detected
+            readable blocks, batched to keep latency low.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="num">P.05</div>
+        <div>
+          <h4 data-i18n="priv.p5t">API key stays in your browser</h4>
+          <p data-i18n="priv.p5b">
+            Stored in chrome.storage and never leaves your profile. Treat
+            your browser profile as your trust boundary.
+          </p>
+        </div>
+      </li>
+    </ul>
+
+    <aside class="privacy-flow">
+      <div class="flow-title" data-i18n="flow.title">DATA FLOW</div>
+      <div class="flow-row you">
+        <div class="blob">U</div>
+        <div>
+          <div data-i18n="flow.you">Your browser</div>
+          <em data-i18n="flow.you_sub">Source page + API key</em>
+        </div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-row toast">
+        <div class="blob">M</div>
+        <div>
+          <div data-i18n="flow.margin">Margin extension</div>
+          <em data-i18n="flow.toast_sub">Detect → queue → batch</em>
+        </div>
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-row prov">
+        <div class="blob">AI</div>
+        <div>
+          <div data-i18n="flow.prov">Your chosen provider</div>
+          <em data-i18n="flow.prov_sub">OpenAI / Claude / Gemini</em>
+        </div>
+      </div>
+      <div class="flow-foot">
+        ✦ <span data-i18n="flow.foot">No fourth party in the middle.</span>
+      </div>
+    </aside>
+  </div>
+</section>
