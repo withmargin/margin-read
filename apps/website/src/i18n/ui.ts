@@ -129,7 +129,7 @@ export const ui = {
 
     "priv.eye": "Why BYO key",
     "priv.t1": "What you read,",
-    "priv.t2": "no one needs to know",
+    "priv.t2": "is yours",
     "priv.t3": ".",
     "priv.lede":
       "Most cloud translation tools quietly send every paragraph you read to a third-party server, where it may be stored, analyzed, or used for training. Margin sidesteps that whole class of risk by not having a server at all.",
@@ -408,8 +408,8 @@ export const ui = {
       "免費額度友善、東亞語言處理出色、Flash 系列延遲低，適合大量翻譯時持續運行的場景。",
 
     "priv.eye": "為什麼 BYO Key",
-    "priv.t1": "你讀什麼，",
-    "priv.t2": "沒人需要知道",
+    "priv.t1": "你的閱讀，",
+    "priv.t2": "只屬於你",
     "priv.t3": "。",
     "priv.lede":
       "大多數雲端翻譯工具的代價是把你正在讀的每一段文字送到第三方伺服器，並可能被儲存、分析、用於訓練。Margin 從根本繞開這個問題：沒有自己的伺服器。",
