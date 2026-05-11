@@ -25,10 +25,10 @@ const year = new Date().getFullYear();
       <div>
         <h5>{t("ft.h1")}</h5>
         <ul>
-          <li><a href="#demo">{t("ft.demo")}</a></li>
-          <li><a href="#features">{t("ft.features")}</a></li>
-          <li><a href="#privacy">{t("ft.privacy")}</a></li>
-          <li><a href="#styles">{t("ft.styles")}</a></li>
+          <li><a href="/#demo">{t("ft.demo")}</a></li>
+          <li><a href="/#features">{t("ft.features")}</a></li>
+          <li><a href="/#privacy">{t("ft.privacy")}</a></li>
+          <li><a href="/#styles">{t("ft.styles")}</a></li>
         </ul>
       </div>
       <div>
@@ -86,6 +86,11 @@ const year = new Date().getFullYear();
     </div>
     <div class="footer-bottom">
       <span>© {year} Margin · <span>{t("ft.priv")}</span></span>
+      <span class="footer-legal">
+        <a href="/privacy">{t("ft.priv_policy")}</a>
+        <span class="sep" aria-hidden="true">·</span>
+        <a href="/terms">{t("ft.tos")}</a>
+      </span>
       <span
         ><a
           href="https://github.com/withmargin/margin-read/"

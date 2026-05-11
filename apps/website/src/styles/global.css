@@ -1077,6 +1077,8 @@ footer.site .wrap { max-width: 1240px; }
   color: #b8a47c;
 }
 .footer-bottom a { color: var(--butter); }
+.footer-legal { display: inline-flex; align-items: center; gap: 10px; }
+.footer-legal .sep { color: #6b5a3e; }
 
 /* Margin appearing animation */
 @keyframes slideIn {

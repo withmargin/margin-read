@@ -287,6 +287,8 @@ export const ui = {
     "ft.privacy": "Privacy",
     "ft.styles": "Display styles",
     "ft.priv": "Privacy-first · Open source · MIT",
+    "ft.priv_policy": "Privacy Policy",
+    "ft.tos": "Terms of Service",
   },
   "zh-hant": {
     "html.title": "Margin — 雙語對照閱讀網頁",
@@ -561,6 +563,8 @@ export const ui = {
     "ft.privacy": "隱私",
     "ft.styles": "顯示樣式",
     "ft.priv": "隱私優先 · 開源 MIT",
+    "ft.priv_policy": "隱私政策",
+    "ft.tos": "服務條款",
   },
 } as const satisfies Record<string, Record<string, string>>;
 
