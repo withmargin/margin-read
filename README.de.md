@@ -1,16 +1,16 @@
-# Toast Translate
+# Margin Read
 
 Sprachen: [English](README.md) · [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md)
 
-Toast Translate ist eine datenschutzorientierte Browser-Erweiterung fuer zweisprachige Webseitenuebersetzung.
+Margin Read ist eine datenschutzorientierte Browser-Erweiterung fuer zweisprachige Webseitenuebersetzung.
 
-Toast ersetzt den Originaltext nicht. Es fuegt die Uebersetzung unter den passenden Quelltextbloecken ein, damit Leser beide Versionen vergleichen koennen, ohne den Seitenkontext zu verlieren.
+Margin ersetzt den Originaltext nicht. Es fuegt die Uebersetzung unter den passenden Quelltextbloecken ein, damit Leser beide Versionen vergleichen koennen, ohne den Seitenkontext zu verlieren.
 
-Repository: https://github.com/linyiru/toast
+Repository: https://github.com/linyiru/margin
 
 ## Status
 
-Toast ist ein fruehes MVP fuer Chrome und Chromium-Browser mit Manifest V3.
+Margin ist ein fruehes MVP fuer Chrome und Chromium-Browser mit Manifest V3.
 
 Die Erweiterung ist fuer normale Artikelseiten, alte textlastige Seiten und einige dynamische Seiten nutzbar, befindet sich aber noch in aktiver Entwicklung. Auf sehr interaktiven Web apps, ungewoehnlichen Layoutsystemen oder Websites, die das DOM stark umschreiben, kann es noch raue Kanten geben.
 
@@ -32,11 +32,11 @@ Die Erweiterung ist fuer normale Artikelseiten, alte textlastige Seiten und eini
 - Beobachtet dynamisch eingefuegte Inhalte.
 - Optimiert X timeline cards und longform article pages, indem lesbarer Inhalt gezielt uebersetzt und Profilnamen, Zaehler, Medien und Controls vermieden werden.
 
-Toast enthaelt keine PDF-Uebersetzung, EPUB-Uebersetzung, Untertitel-Uebersetzung, OCR, Eingabefeld-Uebersetzung, Cloud-Sync, Accounts, Social Features, Standard-telemetry oder ein offizielles bezahltes Uebersetzungskontingent.
+Margin enthaelt keine PDF-Uebersetzung, EPUB-Uebersetzung, Untertitel-Uebersetzung, OCR, Eingabefeld-Uebersetzung, Cloud-Sync, Accounts, Social Features, Standard-telemetry oder ein offizielles bezahltes Uebersetzungskontingent.
 
 ## Aus dem Quellcode installieren
 
-Toast ist noch nicht in einem Browser Extension Store paketiert. Lade es als unpacked extension:
+Margin ist noch nicht in einem Browser Extension Store paketiert. Lade es als unpacked extension:
 
 ```sh
 corepack enable
@@ -50,13 +50,13 @@ Dann:
 2. Aktiviere Developer mode.
 3. Waehle Load unpacked.
 4. Waehle das erzeugte `apps/extension/dist/` Verzeichnis.
-5. Oeffne Toast options.
+5. Oeffne Margin options.
 6. Konfiguriere provider, API key, model, Zielsprache und Cache-Verhalten.
-7. Oeffne eine Webseite und klicke im Toast popup auf Translate this page.
+7. Oeffne eine Webseite und klicke im Margin popup auf Translate this page.
 
 ## Provider Setup
 
-Toast enthaelt keinen API key. Nutzer geben ihren eigenen rohen provider API key ohne `Bearer` Prefix an.
+Margin enthaelt keinen API key. Nutzer geben ihren eigenen rohen provider API key ohne `Bearer` Prefix an.
 
 Eingebaute provider verwenden Standard-endpoints:
 
@@ -74,11 +74,11 @@ Fetch models liest verfuegbare Modelle vom gewaehlten provider:
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
 
-Abgerufene Modelle erscheinen im model selector. Toast behaelt das aktuell konfigurierte Modell als Option, wenn ein provider default oder zuvor gespeichertes Modell nicht in der provider-Liste vorkommt.
+Abgerufene Modelle erscheinen im model selector. Margin behaelt das aktuell konfigurierte Modell als Option, wenn ein provider default oder zuvor gespeichertes Modell nicht in der provider-Liste vorkommt.
 
 ## Datenschutz
 
-Toast sendet nur ausgewaehlte Textsegmente an den konfigurierten provider. Standardmaessig wird kein vollstaendiges Seiten-HTML gesendet, kein Login benoetigt, kein Cloud-Sync genutzt und keine telemetry eingebaut.
+Margin sendet nur ausgewaehlte Textsegmente an den konfigurierten provider. Standardmaessig wird kein vollstaendiges Seiten-HTML gesendet, kein Login benoetigt, kein Cloud-Sync genutzt und keine telemetry eingebaut.
 
 Provider requests werden vom Extension service worker mit dem vom Nutzer konfigurierten endpoint und API key ausgefuehrt. Der Datenschutz beim provider haengt vom gewaehlten endpoint und Modell-provider ab.
 
@@ -86,13 +86,13 @@ API keys werden im browser extension storage gespeichert. Behandle das Browserpr
 
 ## X Optimierung
 
-Toast enthaelt einen optionalen X-specific detector fuer timeline cards und longform article pages. Wenn aktiviert, zielt er auf `tweetText` in tweet articles und lesbare Bloecke in X article views, statt alle sichtbaren Textnodes zu scannen.
+Margin enthaelt einen optionalen X-specific detector fuer timeline cards und longform article pages. Wenn aktiviert, zielt er auf `tweetText` in tweet articles und lesbare Bloecke in X article views, statt alle sichtbaren Textnodes zu scannen.
 
 Quoted posts sind standardmaessig deaktiviert und koennen in options aktiviert werden. Posts, die X bereits als uebersetzt markiert, werden standardmaessig uebersprungen, um doppelte Uebersetzung zu vermeiden.
 
 ## Lokale LLMs
 
-Toast unterstuetzt lokale LLM runtimes ueber den OpenAI Compatible provider. Dieser provider verwendet die OpenAI-artige `/v1/chat/completions` API, erlaubt einen leeren API key und nutzt eine niedrigere Standard-concurrency fuer lokale Inferenz.
+Margin unterstuetzt lokale LLM runtimes ueber den OpenAI Compatible provider. Dieser provider verwendet die OpenAI-artige `/v1/chat/completions` API, erlaubt einen leeren API key und nutzt eine niedrigere Standard-concurrency fuer lokale Inferenz.
 
 Haeufige endpoint presets:
 
@@ -105,7 +105,7 @@ llama.cpp server: http://localhost:8080/v1/chat/completions
 Lokalen runtime verwenden:
 
 1. Starte den lokalen model server.
-2. Oeffne Toast options.
+2. Oeffne Margin options.
 3. Waehle OpenAI Compatible als provider.
 4. Waehle ein endpoint preset oder gib die URL ein, die dein runtime anzeigt.
 5. Lasse API key leer, sofern dein lokales gateway keinen benoetigt.
@@ -142,7 +142,7 @@ docs/                              Product, roadmap, principles und threat model
 
 ## Fehlerbehebung
 
-Aktiviere Debug mode in Toast options, wenn eine Seite aktiv wirkt, aber keine Uebersetzungen eingefuegt werden. Das Popup zeigt Erkennungsanzahl, Queue, laufende requests, pending translations, completed translations, Fehleranzahl, letzten Fehler und ein Beispiel des erkannten Texts.
+Aktiviere Debug mode in Margin options, wenn eine Seite aktiv wirkt, aber keine Uebersetzungen eingefuegt werden. Das Popup zeigt Erkennungsanzahl, Queue, laufende requests, pending translations, completed translations, Fehleranzahl, letzten Fehler und ein Beispiel des erkannten Texts.
 
 ## Bekannte Einschraenkungen
 

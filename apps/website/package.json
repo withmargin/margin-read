@@ -1,7 +1,7 @@
 {
-  "name": "@toast/website",
+  "name": "@margin/website",
   "version": "0.1.0",
-  "description": "Marketing website for Toast Translate.",
+  "description": "Marketing website for Margin Read.",
   "private": true,
   "type": "module",
   "scripts": {

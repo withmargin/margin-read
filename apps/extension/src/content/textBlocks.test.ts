@@ -3,8 +3,8 @@ import { collectTextBlocks } from "./textBlocks";
 
 const options = {
   minTextLength: 24,
-  translatedAttr: "data-toast-translated",
-  translationClass: "toast-translation"
+  translatedAttr: "data-margin-translated",
+  translationClass: "margin-translation"
 };
 
 let computedStyle = {
@@ -55,7 +55,7 @@ describe("collectTextBlocks", () => {
 
     expect(blocks).toHaveLength(1);
     expect(blocks[0]?.getAttribute("data-testid")).toBe("tweetText");
-    expect(blocks[0]?.dataset.toastXBlock).toBe("tweet-text");
+    expect(blocks[0]?.dataset.marginXBlock).toBe("tweet-text");
     expect(normalize(blocks[0]?.textContent ?? "")).toBe("Anthropic just leaked their agent roadmap in 22 minutes.");
   });
 
@@ -171,7 +171,7 @@ describe("collectTextBlocks", () => {
       "The 3 rules of an AI team that survives Monday",
       "Each human role costs $2,000-$4,500/mo."
     ]);
-    expect(blocks.every((block) => block.dataset.toastXBlock === "article")).toBe(true);
+    expect(blocks.every((block) => block.dataset.marginXBlock === "article")).toBe(true);
   });
 
   it("skips X article media blocks and reply composers", () => {
@@ -211,10 +211,10 @@ describe("collectTextBlocks", () => {
         <div data-testid="twitterArticleReadView">
           <div data-testid="twitterArticleRichTextView">
             <div data-testid="longformRichTextComponent">
-              <h2 class="longform-header-two" data-block="true" data-toast-translated="done">
+              <h2 class="longform-header-two" data-block="true" data-margin-translated="done">
                 <div><span data-text="true">The already translated article heading</span></div>
               </h2>
-              <div class="toast-translation toast-translation--integrated">已翻譯過的標題</div>
+              <div class="margin-translation margin-translation--integrated">已翻譯過的標題</div>
               <div class="longform-unstyled" data-block="true">
                 <div><span data-text="true">A fresh readable article paragraph should still be translated.</span></div>
               </div>
@@ -259,7 +259,7 @@ describe("collectTextBlocks", () => {
       "There are great startup ideas lying around unexploited right under our noses.",
       "No one likes schleps, but hackers especially dislike them and often avoid them."
     ]);
-    expect(blocks.every((block) => block.dataset.toastLegacyBlock === "true")).toBe(true);
+    expect(blocks.every((block) => block.dataset.marginLegacyBlock === "true")).toBe(true);
     expect(blocks[0]?.parentElement?.tagName).toBe("FONT");
   });
 
@@ -298,7 +298,7 @@ describe("collectTextBlocks", () => {
     const blocks = collectTextBlocks(document, options);
 
     expect(blocks).toHaveLength(2);
-    expect(blocks.every((block) => block.dataset.toastLegacyBlock === "true")).toBe(true);
+    expect(blocks.every((block) => block.dataset.marginLegacyBlock === "true")).toBe(true);
   });
 
   it("splits a br-separated article paragraph into translation blocks", () => {
@@ -322,7 +322,7 @@ describe("collectTextBlocks", () => {
       "No one likes schleps, but hackers especially dislike them and often avoid them.",
       "One of the many things we do at Y Combinator is teach hackers about the inevitability of schleps."
     ]);
-    expect(blocks.every((block) => block.dataset.toastBrSeparatedBlock === "true")).toBe(true);
+    expect(blocks.every((block) => block.dataset.marginBrSeparatedBlock === "true")).toBe(true);
     const paragraph = document.querySelector("p");
     expect(paragraph).not.toBeNull();
     const childNodes = Array.from(paragraph?.childNodes ?? []);
@@ -386,7 +386,7 @@ describe("collectTextBlocks", () => {
     const secondScanBlocks = collectTextBlocks(document, options);
 
     expect(secondScanBlocks).toEqual(firstScanBlocks);
-    expect(document.querySelectorAll("[data-toast-br-separated-block='true']")).toHaveLength(3);
+    expect(document.querySelectorAll("[data-margin-br-separated-block='true']")).toHaveLength(3);
   });
 
   it("does not split containers with only single line breaks", () => {
@@ -403,13 +403,13 @@ describe("collectTextBlocks", () => {
     const blocks = collectTextBlocks(document, options);
 
     expect(blocks).toHaveLength(1);
-    expect(blocks[0]?.dataset.toastBrSeparatedBlock).toBeUndefined();
+    expect(blocks[0]?.dataset.marginBrSeparatedBlock).toBeUndefined();
   });
 
   it("excludes translated and interactive content", () => {
     const document = createDocument(`
       <main>
-        <p data-toast-translated="done">Already translated paragraph with enough text.</p>
+        <p data-margin-translated="done">Already translated paragraph with enough text.</p>
         <p><button>Click</button> Interactive paragraph with enough text.</p>
       </main>
     `);
@@ -420,7 +420,7 @@ describe("collectTextBlocks", () => {
   it("excludes content inside inserted translation nodes", () => {
     const document = createDocument(`
       <main>
-        <div class="toast-translation">
+        <div class="margin-translation">
           <p>This translated paragraph should never be translated again.</p>
         </div>
       </main>

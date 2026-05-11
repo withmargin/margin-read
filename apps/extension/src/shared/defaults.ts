@@ -40,5 +40,5 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   showFloatingButton: false
 };
 
-export const SETTINGS_KEY = "toast.settings";
-export const CACHE_KEY_PREFIX = "toast.cache.";
+export const SETTINGS_KEY = "margin.settings";
+export const CACHE_KEY_PREFIX = "margin.cache.";

@@ -44,7 +44,7 @@ export const zhCN = {
   statusSettingsSaved: "设置已保存。",
   targetLanguage: "目标语言",
   targetLanguageHint: "可用英文名称、原生名称、语言代码或别名搜索。",
-  title: "Toast 设置",
+  title: "Margin 设置",
   translateQuotedPosts: "翻译 quoted posts",
   translateQuotedPostsHint: "同时翻译 X card 里嵌套引用帖文的文字。",
   translateXArticles: "翻译 X articles",

@@ -1,16 +1,18 @@
-# Toast Translate
+# Margin Read
 
 Translations: [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Toast Translate is a privacy-first browser extension for bilingual webpage translation.
+Margin Read is a privacy-first browser extension for bilingual webpage translation.
 
-Toast keeps the original webpage text in place and inserts translated text below the matching source blocks, so readers can compare both versions without losing page context.
+Translation and notes, placed where reading happens.
 
-Repository: https://github.com/linyiru/toast
+Margin keeps the original webpage text in place and inserts translated text below the matching source blocks, so readers can compare both versions without losing page context.
+
+Repository: https://github.com/linyiru/margin
 
 ## Status
 
-Toast is an early MVP for Chrome and Chromium browsers using Manifest V3.
+Margin is an early MVP for Chrome and Chromium browsers using Manifest V3.
 
 The extension is usable for normal article pages, legacy text-heavy pages, and selected dynamic pages, but it is still under active development. Expect rough edges on highly interactive web apps, pages with unusual layout systems, and sites that aggressively rewrite their DOM.
 
@@ -32,11 +34,11 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Observe dynamically inserted content.
 - Optimize X timeline cards and longform article pages by targeting readable content and avoiding profile names, action counts, media, and controls.
 
-Toast does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or an official paid translation quota system.
+Margin does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or an official paid translation quota system.
 
 ## Install From Source
 
-Toast is not packaged in a browser extension store yet. Load it as an unpacked extension:
+Margin is not packaged in a browser extension store yet. Load it as an unpacked extension:
 
 ```sh
 corepack enable
@@ -50,13 +52,13 @@ Then:
 2. Enable Developer mode.
 3. Select Load unpacked.
 4. Choose the generated `apps/extension/dist/` directory.
-5. Open Toast options.
+5. Open Margin options.
 6. Configure a provider, API key, model, target language, and cache behavior.
-7. Open a webpage and click Translate this page from the Toast popup.
+7. Open a webpage and click Translate this page from the Margin popup.
 
 ## Provider Setup
 
-No API key is bundled with Toast. Users provide their own raw provider API key without a `Bearer` prefix.
+No API key is bundled with Margin. Users provide their own raw provider API key without a `Bearer` prefix.
 
 Built-in providers use default endpoints:
 
@@ -74,11 +76,11 @@ The Fetch models action reads available models from the selected provider:
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
 
-Fetched models appear in the model selector. Toast keeps the currently configured model as an option when a provider default or previously saved model is not returned by the provider list.
+Fetched models appear in the model selector. Margin keeps the currently configured model as an option when a provider default or previously saved model is not returned by the provider list.
 
 ## Privacy
 
-Toast sends only selected text segments to the configured provider. It does not send full page HTML by default, does not require login, does not use cloud sync, and does not include telemetry by default.
+Margin sends only selected text segments to the configured provider. It does not send full page HTML by default, does not require login, does not use cloud sync, and does not include telemetry by default.
 
 Provider requests are made by the extension service worker using the endpoint and API key configured by the user. Provider privacy depends on the endpoint and model provider you choose.
 
@@ -86,13 +88,13 @@ API keys are stored in browser extension storage. Treat the browser profile as p
 
 ## X Optimization
 
-Toast includes an optional X-specific detector for timeline cards and longform article pages. When enabled, it targets `tweetText` content inside tweet articles and readable blocks inside X article views instead of scanning every visible text node.
+Margin includes an optional X-specific detector for timeline cards and longform article pages. When enabled, it targets `tweetText` content inside tweet articles and readable blocks inside X article views instead of scanning every visible text node.
 
 Quoted posts are disabled by default and can be enabled from options. Posts that X already marks as translated are skipped by default to avoid duplicate translation.
 
 ## Local LLMs
 
-Toast supports local LLM runtimes through the OpenAI Compatible provider. This provider uses the OpenAI-style `/v1/chat/completions` API, allows an empty API key, and uses a lower default translation concurrency for local inference.
+Margin supports local LLM runtimes through the OpenAI Compatible provider. This provider uses the OpenAI-style `/v1/chat/completions` API, allows an empty API key, and uses a lower default translation concurrency for local inference.
 
 Common endpoint presets:
 
@@ -105,7 +107,7 @@ llama.cpp server: http://localhost:8080/v1/chat/completions
 To use a local runtime:
 
 1. Start the local model server.
-2. Open Toast options.
+2. Open Margin options.
 3. Select OpenAI Compatible as the provider.
 4. Select an endpoint preset, or enter the endpoint URL shown by your runtime.
 5. Leave API key empty unless your local gateway requires one.
@@ -178,7 +180,7 @@ docs/                              Product, roadmap, principles, and threat mode
 
 ## Troubleshooting
 
-Enable Debug mode in Toast options when a page appears enabled but no translations are inserted. The popup will show the current page detection count, queued blocks, running requests, pending translations, completed translations, error count, the latest error, and a sample detected text block.
+Enable Debug mode in Margin options when a page appears enabled but no translations are inserted. The popup will show the current page detection count, queued blocks, running requests, pending translations, completed translations, error count, the latest error, and a sample detected text block.
 
 Use those values to separate the main failure modes:
 

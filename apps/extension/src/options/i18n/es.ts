@@ -44,7 +44,7 @@ export const es = {
   statusSettingsSaved: "Ajustes guardados.",
   targetLanguage: "Idioma de destino",
   targetLanguageHint: "Busca por nombre en inglés, nombre nativo, código de idioma o alias.",
-  title: "Opciones de Toast",
+  title: "Opciones de Margin",
   translateQuotedPosts: "Traducir quoted posts",
   translateQuotedPostsHint: "También traduce el texto de posts citados anidados dentro de tarjetas de X.",
   translateXArticles: "Traducir X articles",

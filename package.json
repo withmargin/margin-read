@@ -1,5 +1,5 @@
 {
-  "name": "toast",
+  "name": "margin",
   "version": "0.1.0",
   "description": "A privacy-first, open-source bilingual webpage translation project.",
   "private": true,
@@ -7,14 +7,14 @@
   "packageManager": "pnpm@10.15.0",
   "scripts": {
     "build": "pnpm -r build",
-    "build:extension": "pnpm --filter @toast/extension build",
-    "build:website": "pnpm --filter @toast/website build",
-    "check": "pnpm --filter @toast/extension check",
-    "check:extension": "pnpm --filter @toast/extension check:extension",
+    "build:extension": "pnpm --filter @margin/extension build",
+    "build:website": "pnpm --filter @margin/website build",
+    "check": "pnpm --filter @margin/extension check",
+    "check:extension": "pnpm --filter @margin/extension check:extension",
     "clean": "pnpm -r clean",
-    "lint": "pnpm --filter @toast/extension lint",
-    "test": "pnpm --filter @toast/extension test",
-    "test:watch": "pnpm --filter @toast/extension test:watch"
+    "lint": "pnpm --filter @margin/extension lint",
+    "test": "pnpm --filter @margin/extension test",
+    "test:watch": "pnpm --filter @margin/extension test:watch"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -51,7 +51,7 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
   const apiKey = normalizeApiKey(settings.apiKey);
 
   if (!apiKey && settings.provider !== "openai-compatible") {
-    return { ok: false, error: "Configure an API key in Toast options before translating." };
+    return { ok: false, error: "Configure an API key in Margin options before translating." };
   }
 
   const results: TranslationResult[] = [];

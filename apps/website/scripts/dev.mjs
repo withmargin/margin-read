@@ -41,5 +41,5 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`Toast website running at http://127.0.0.1:${port}`);
+  console.log(`Margin website running at http://127.0.0.1:${port}`);
 });

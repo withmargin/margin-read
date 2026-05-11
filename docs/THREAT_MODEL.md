@@ -1,4 +1,4 @@
-# Toast Threat Model
+# Margin Threat Model
 
 ## Scope
 
@@ -113,7 +113,7 @@ Mitigations:
 
 - Insert simple `div` translation nodes after source blocks.
 - Use a namespaced CSS class.
-- Remove Toast nodes and attributes when disabled.
+- Remove Margin nodes and attributes when disabled.
 - Avoid translating interactive controls and code blocks.
 
 ### Cache Privacy

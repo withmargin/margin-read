@@ -33,7 +33,7 @@ async function initialize(): Promise<void> {
     debugState = response.debug;
     render();
   } else {
-    setStatus(response?.error ?? "Open a webpage to use Toast.");
+    setStatus(response?.error ?? "Open a webpage to use Margin.");
     renderDebug(undefined);
   }
 }

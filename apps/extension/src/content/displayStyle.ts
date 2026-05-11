@@ -14,7 +14,7 @@ export interface IntegratedStyleTokens {
 }
 
 export function getTranslationClassName(style: TranslationDisplayStyle): string {
-  return `toast-translation toast-translation--${style}`;
+  return `margin-translation margin-translation--${style}`;
 }
 
 export function applyIntegratedStyle(source: HTMLElement, translation: HTMLElement): void {

@@ -44,7 +44,7 @@ export const zhTW = {
   statusSettingsSaved: "設定已儲存。",
   targetLanguage: "目標語言",
   targetLanguageHint: "可用英文名稱、原生名稱、語言代碼或別名搜尋。",
-  title: "Toast 設定",
+  title: "Margin 設定",
   translateQuotedPosts: "翻譯 quoted posts",
   translateQuotedPostsHint: "同時翻譯 X card 裡巢狀引用貼文的文字。",
   translateXArticles: "翻譯 X articles",

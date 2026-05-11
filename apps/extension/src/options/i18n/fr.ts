@@ -44,7 +44,7 @@ export const fr = {
   statusSettingsSaved: "Parametres enregistres.",
   targetLanguage: "Langue cible",
   targetLanguageHint: "Recherchez par nom anglais, nom natif, code de langue ou alias.",
-  title: "Options de Toast",
+  title: "Options de Margin",
   translateQuotedPosts: "Traduire les quoted posts",
   translateQuotedPostsHint: "Traduit aussi le texte des posts cites imbriques dans les cartes X.",
   translateXArticles: "Traduire les X articles",

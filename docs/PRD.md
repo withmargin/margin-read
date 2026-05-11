@@ -1,14 +1,14 @@
-# PRD: Toast Translate Bilingual Webpage Translation Extension
+# PRD: Margin Read Bilingual Webpage Translation Extension
 
 ## 1. Summary
 
-Toast is a truly open-source browser extension for bilingual webpage translation. It preserves the original webpage text and inserts translated text near the corresponding source text block, with the MVP placing translations below the original paragraph or readable block.
+Margin is a truly open-source browser extension for bilingual webpage translation. It preserves the original webpage text and inserts translated text near the corresponding source text block, with the MVP placing translations below the original paragraph or readable block.
 
 The MVP is scoped to Chrome and Chromium browser extension support. It does not attempt to cover every possible translation workflow. It focuses on one core reading experience: translating normal webpages in place while keeping the source text visible and auditable.
 
 ## 2. Product Positioning
 
-Toast is an open-source, privacy-first alternative for users who want bilingual webpage reading without forced login, cloud sync, proprietary backend lock-in, bundled translation quota, or default telemetry.
+Margin is an open-source, privacy-first alternative for users who want bilingual webpage reading without forced login, cloud sync, proprietary backend lock-in, bundled translation quota, or default telemetry.
 
 The product should be understandable and buildable from source. Core functionality must work with user-configured translation providers, beginning with OpenAI, Anthropic Claude, and Google Gemini adapters.
 
@@ -42,9 +42,9 @@ The product should be understandable and buildable from source. Core functionali
 
 ## 6. Core Reading Experience
 
-The user opens a regular webpage, clicks the Toast extension popup, and selects Translate this page. Toast detects readable text blocks, sends those text segments to the configured provider, and inserts translated text below the corresponding original blocks.
+The user opens a regular webpage, clicks the Margin extension popup, and selects Translate this page. Margin detects readable text blocks, sends those text segments to the configured provider, and inserts translated text below the corresponding original blocks.
 
-The original page remains readable. Translations use a low-disruption visual style and should not require the user to leave the page. Translation can be disabled for the page, which removes Toast-inserted translation blocks and leaves the original webpage intact.
+The original page remains readable. Translations use a low-disruption visual style and should not require the user to leave the page. Translation can be disabled for the page, which removes Margin-inserted translation blocks and leaves the original webpage intact.
 
 The MVP display style is below-source translation. Side-by-side layout is a later feature because it has higher compatibility and responsive design risk.
 
@@ -140,7 +140,7 @@ Text blocks should be normalized by trimming and collapsing whitespace. Very sho
 - The translation is inserted immediately after the source block.
 - The translation block has a distinct class name and low-disruption visual style.
 - Pending, done, and error states are visually distinguishable.
-- Disabling translation removes inserted translation blocks and Toast attributes.
+- Disabling translation removes inserted translation blocks and Margin attributes.
 - The MVP supports only below-source display style.
 
 ## 13. Translation Provider Requirements

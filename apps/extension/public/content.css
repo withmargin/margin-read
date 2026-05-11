@@ -1,35 +1,35 @@
-.toast-translation {
+.margin-translation {
   box-sizing: border-box;
   font: inherit;
   line-height: 1.55;
 }
 
-.toast-translation--integrated {
+.margin-translation--integrated {
   padding: 0;
   border-left: 0;
   background: transparent;
   opacity: 0.72;
 }
 
-.toast-translation--integrated:hover,
-.toast-translation--integrated:focus-within {
+.margin-translation--integrated:hover,
+.margin-translation--integrated:focus-within {
   opacity: 0.92;
 }
 
-.toast-translation[data-toast-source="x"] {
+.margin-translation[data-margin-source="x"] {
   margin-top: 4px;
   margin-bottom: 8px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-.toast-translation[data-toast-source="legacy"] {
+.margin-translation[data-margin-source="legacy"] {
   display: block;
   white-space: normal;
   overflow-wrap: anywhere;
 }
 
-.toast-translation--highlighted {
+.margin-translation--highlighted {
   margin: 0.45em 0 0.85em;
   padding: 0.65em 0.75em;
   border-left: 3px solid #2f6fed;
@@ -37,17 +37,17 @@
   color: inherit;
 }
 
-.toast-translation[data-state="pending"] {
+.margin-translation[data-state="pending"] {
   border-left-color: #7a7f87;
   opacity: 0.72;
 }
 
-.toast-translation[data-state="error"] {
+.margin-translation[data-state="error"] {
   border-left-color: #c5332e;
   background: color-mix(in srgb, Canvas 90%, #c5332e 10%);
 }
 
-.toast-retry {
+.margin-retry {
   margin-left: 0.75em;
   border: 1px solid currentColor;
   border-radius: 4px;

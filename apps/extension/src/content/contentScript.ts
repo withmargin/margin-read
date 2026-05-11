@@ -4,17 +4,17 @@ import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayS
 import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
-const TRANSLATION_CLASS = "toast-translation";
-const TRANSLATED_ATTR = "data-toast-translated";
-const BLOCK_ID_ATTR = "data-toast-block-id";
+const TRANSLATION_CLASS = "margin-translation";
+const TRANSLATED_ATTR = "data-margin-translated";
+const BLOCK_ID_ATTR = "data-margin-block-id";
 const MIN_TEXT_LENGTH = 24;
 const BATCH_SIZE = 6;
 const CONCURRENCY = 2;
 const LOCAL_BATCH_SIZE = 3;
 const LOCAL_CONCURRENCY = 1;
 const NEAR_VIEWPORT_MULTIPLIER = 1.5;
-const FLOATING_HOST_ID = "toast-floating-controls";
-const FLOATING_HOST_ATTR = "data-toast-floating-controls";
+const FLOATING_HOST_ID = "margin-floating-controls";
+const FLOATING_HOST_ATTR = "data-margin-floating-controls";
 
 let enabled = false;
 let observer: MutationObserver | undefined;
@@ -113,7 +113,7 @@ async function startTranslation(): Promise<void> {
     if (!enabled || pending) {
       return;
     }
-    if (mutations.every(isToastMutation)) {
+    if (mutations.every(isMarginMutation)) {
       return;
     }
     pending = true;
@@ -343,7 +343,7 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   }
 
   translation.className = getTranslationClassName(displayStyle);
-  translation.dataset.toastSource = getTranslationSource(source);
+  translation.dataset.marginSource = getTranslationSource(source);
   translation.dataset.state = state;
   translation.removeAttribute("style");
   if (displayStyle === "integrated") {
@@ -357,7 +357,7 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
 
     const retry = document.createElement("button");
     retry.type = "button";
-    retry.className = "toast-retry";
+    retry.className = "margin-retry";
     retry.textContent = "Retry";
     retry.addEventListener("click", () => {
       source.removeAttribute(TRANSLATED_ATTR);
@@ -376,7 +376,7 @@ function createTranslationElement(source: HTMLElement): HTMLElement {
 }
 
 function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
-  if (source.dataset.toastXBlock) {
+  if (source.dataset.marginXBlock) {
     return "x";
   }
   if (isLegacySplitBlock(source)) {
@@ -386,19 +386,19 @@ function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
 }
 
 function isLegacySplitBlock(element: HTMLElement): boolean {
-  return element.dataset.toastLegacyBlock === "true" || element.dataset.toastBrSeparatedBlock === "true";
+  return element.dataset.marginLegacyBlock === "true" || element.dataset.marginBrSeparatedBlock === "true";
 }
 
-function isToastMutation(mutation: MutationRecord): boolean {
-  if (mutation.target instanceof HTMLElement && isToastManagedNode(mutation.target)) {
+function isMarginMutation(mutation: MutationRecord): boolean {
+  if (mutation.target instanceof HTMLElement && isMarginManagedNode(mutation.target)) {
     return true;
   }
 
   const nodes = [...Array.from(mutation.addedNodes), ...Array.from(mutation.removedNodes)];
-  return nodes.length > 0 && nodes.every(isToastManagedNode);
+  return nodes.length > 0 && nodes.every(isMarginManagedNode);
 }
 
-function isToastManagedNode(node: Node): boolean {
+function isMarginManagedNode(node: Node): boolean {
   if (!(node instanceof HTMLElement)) {
     return false;
   }
@@ -408,8 +408,8 @@ function isToastManagedNode(node: Node): boolean {
     node.hasAttribute(FLOATING_HOST_ATTR) ||
     node.hasAttribute(TRANSLATED_ATTR) ||
     node.hasAttribute(BLOCK_ID_ATTR) ||
-    node.dataset.toastLegacyBlock === "true" ||
-    node.dataset.toastBrSeparatedBlock === "true"
+    node.dataset.marginLegacyBlock === "true" ||
+    node.dataset.marginBrSeparatedBlock === "true"
   );
 }
 
@@ -504,12 +504,12 @@ function ensureFloatingButton(): void {
   floatingHost = document.createElement("div");
   floatingHost.id = FLOATING_HOST_ID;
   floatingHost.setAttribute(FLOATING_HOST_ATTR, "true");
-  floatingHost.setAttribute("data-toast-root", "floating-controls");
+  floatingHost.setAttribute("data-margin-root", "floating-controls");
   floatingHost.setAttribute("data-position", "right");
   floatingHost.setAttribute("data-theme", "light");
   floatingHost.setAttribute("data-state", enabled ? "enabled" : "idle");
   floatingHost.setAttribute("translate", "no");
-  floatingHost.className = "toast-notranslate";
+  floatingHost.className = "margin-notranslate";
   const shadow = floatingHost.attachShadow({ mode: "open" });
   shadow.append(createFloatingStyles(), createFloatingControls());
   document.documentElement.append(floatingHost);
@@ -523,12 +523,12 @@ function removeFloatingButton(): void {
 
 function createFloatingControls(): HTMLElement {
   const container = document.createElement("div");
-  container.className = "toast-floating";
+  container.className = "margin-floating";
   container.setAttribute("part", "container");
 
   floatingButton = document.createElement("button");
   floatingButton.type = "button";
-  floatingButton.className = "toast-floating__button toast-floating__button--primary";
+  floatingButton.className = "margin-floating__button margin-floating__button--primary";
   floatingButton.setAttribute("part", "primary-button");
   floatingButton.append(createTranslateIcon());
   floatingButton.addEventListener("click", () => {
@@ -537,18 +537,18 @@ function createFloatingControls(): HTMLElement {
 
   const closeButton = document.createElement("button");
   closeButton.type = "button";
-  closeButton.className = "toast-floating__button toast-floating__button--secondary";
+  closeButton.className = "margin-floating__button margin-floating__button--secondary";
   closeButton.setAttribute("part", "close-button");
   closeButton.textContent = "×";
-  closeButton.title = "Hide Toast on this page";
-  closeButton.setAttribute("aria-label", "Hide Toast floating button on this page");
+  closeButton.title = "Hide Margin on this page";
+  closeButton.setAttribute("aria-label", "Hide Margin floating button on this page");
   closeButton.addEventListener("click", () => {
     floatingHiddenForPage = true;
     removeFloatingButton();
   });
 
   const overlay = document.createElement("div");
-  overlay.className = "toast-floating__overlay";
+  overlay.className = "margin-floating__overlay";
   overlay.setAttribute("part", "overlay");
   overlay.hidden = true;
 
@@ -564,8 +564,8 @@ function updateFloatingButtonLabel(): void {
   floatingHost?.setAttribute("data-state", enabled ? "enabled" : "idle");
   floatingButton.dataset.state = enabled ? "enabled" : "idle";
   if (enabled) {
-    floatingButton.title = "Hide Toast translations";
-    floatingButton.setAttribute("aria-label", "Hide Toast translations");
+    floatingButton.title = "Hide Margin translations";
+    floatingButton.setAttribute("aria-label", "Hide Margin translations");
     return;
   }
 
@@ -579,12 +579,12 @@ function createTranslateIcon(): SVGSVGElement {
   icon.setAttribute("viewBox", "0 0 28 28");
   icon.setAttribute("aria-hidden", "true");
   icon.setAttribute("focusable", "false");
-  icon.classList.add("toast-floating__icon");
+  icon.classList.add("margin-floating__icon");
   icon.innerHTML = `
-    <path class="toast-floating__icon-bg" d="M0 14C0 6.268 6.268 0 14 0s14 6.268 14 14-6.268 14-14 14S0 21.732 0 14Z" />
-    <path class="toast-floating__icon-mark" d="M8.2 21.2v-8.65c0-2.05 1.45-3.83 3.45-4.24A3.35 3.35 0 0 1 14 5.2c1.53 0 2.87 1.03 3.25 2.5a4.33 4.33 0 0 1 2.55 3.95v9.55H8.2Z" />
-    <path class="toast-floating__icon-accent" d="M10.7 13.1h6.6v1.45h-6.6v-1.45Zm0 3.15h4.9v1.45h-4.9v-1.45Z" />
-    <g class="toast-floating__icon-badge">
+    <path class="margin-floating__icon-bg" d="M0 14C0 6.268 6.268 0 14 0s14 6.268 14 14-6.268 14-14 14S0 21.732 0 14Z" />
+    <path class="margin-floating__icon-mark" d="M8.2 21.2v-8.65c0-2.05 1.45-3.83 3.45-4.24A3.35 3.35 0 0 1 14 5.2c1.53 0 2.87 1.03 3.25 2.5a4.33 4.33 0 0 1 2.55 3.95v9.55H8.2Z" />
+    <path class="margin-floating__icon-accent" d="M10.7 13.1h6.6v1.45h-6.6v-1.45Zm0 3.15h4.9v1.45h-4.9v-1.45Z" />
+    <g class="margin-floating__icon-badge">
       <circle cx="21.5" cy="21.5" r="5.6" />
       <path d="m18.8 21.4 1.8 1.8 3.7-4" />
     </g>
@@ -606,14 +606,14 @@ function createFloatingStyles(): HTMLStyleElement {
       pointer-events: none;
     }
 
-    .toast-floating {
+    .margin-floating {
       display: grid;
       gap: 10px;
       justify-items: end;
       pointer-events: auto;
     }
 
-    .toast-floating__button {
+    .margin-floating__button {
       box-sizing: border-box;
       display: grid;
       width: 46px;
@@ -632,25 +632,25 @@ function createFloatingStyles(): HTMLStyleElement {
         opacity 140ms ease;
     }
 
-    .toast-floating__button:hover {
+    .margin-floating__button:hover {
       transform: translateY(-1px);
       box-shadow: 0 14px 36px rgb(15 23 42 / 24%);
     }
 
-    .toast-floating__button:focus-visible {
+    .margin-floating__button:focus-visible {
       outline: 3px solid rgb(47 111 237 / 40%);
       outline-offset: 3px;
     }
 
-    .toast-floating__button--primary {
+    .margin-floating__button--primary {
       background: #d96890;
     }
 
-    .toast-floating__button--primary[data-state="enabled"] {
+    .margin-floating__button--primary[data-state="enabled"] {
       background: #d96890;
     }
 
-    .toast-floating__button--secondary {
+    .margin-floating__button--secondary {
       position: absolute;
       top: 50%;
       left: -30px;
@@ -664,36 +664,36 @@ function createFloatingStyles(): HTMLStyleElement {
       transform: translate(-3px, -50%) scale(0.96);
     }
 
-    .toast-floating:hover .toast-floating__button--secondary,
-    .toast-floating:focus-within .toast-floating__button--secondary {
+    .margin-floating:hover .margin-floating__button--secondary,
+    .margin-floating:focus-within .margin-floating__button--secondary {
       opacity: 1;
       transform: translate(0, -50%) scale(1);
     }
 
-    .toast-floating__icon {
+    .margin-floating__icon {
       width: 25px;
       height: 25px;
       display: block;
     }
 
-    .toast-floating__icon-bg {
+    .margin-floating__icon-bg {
       fill: #d96890;
       transition: fill 140ms ease;
     }
 
-    .toast-floating__icon-mark {
+    .margin-floating__icon-mark {
       fill: #ffffff;
       transition: opacity 140ms ease;
     }
 
-    .toast-floating__icon-accent {
+    .margin-floating__icon-accent {
       fill: #d96890;
       transition:
         fill 140ms ease,
         opacity 140ms ease;
     }
 
-    .toast-floating__icon-badge {
+    .margin-floating__icon-badge {
       opacity: 0;
       transform: translate(1px, 1px) scale(0.86);
       transform-origin: 21.5px 21.5px;
@@ -702,13 +702,13 @@ function createFloatingStyles(): HTMLStyleElement {
         transform 140ms ease;
     }
 
-    .toast-floating__icon-badge circle {
+    .margin-floating__icon-badge circle {
       fill: #8ed081;
       stroke: #ffffff;
       stroke-width: 1.4;
     }
 
-    .toast-floating__icon-badge path {
+    .margin-floating__icon-badge path {
       fill: none;
       stroke: #ffffff;
       stroke-width: 1.45;
@@ -716,20 +716,20 @@ function createFloatingStyles(): HTMLStyleElement {
       stroke-linejoin: round;
     }
 
-    .toast-floating__button--primary[data-state="enabled"] .toast-floating__icon-bg {
+    .margin-floating__button--primary[data-state="enabled"] .margin-floating__icon-bg {
       fill: #d96890;
     }
 
-    .toast-floating__button--primary[data-state="enabled"] .toast-floating__icon-accent {
+    .margin-floating__button--primary[data-state="enabled"] .margin-floating__icon-accent {
       fill: #d96890;
     }
 
-    .toast-floating__button--primary[data-state="enabled"] .toast-floating__icon-badge {
+    .margin-floating__button--primary[data-state="enabled"] .margin-floating__icon-badge {
       opacity: 1;
       transform: translate(1px, 1px) scale(1);
     }
 
-    .toast-floating__overlay {
+    .margin-floating__overlay {
       position: absolute;
       right: 54px;
       top: 0;
@@ -744,12 +744,12 @@ function createFloatingStyles(): HTMLStyleElement {
         right: 0;
       }
 
-      .toast-floating__button {
+      .margin-floating__button {
         width: 42px;
         height: 42px;
       }
 
-      .toast-floating__icon {
+      .margin-floating__icon {
         width: 23px;
         height: 23px;
       }

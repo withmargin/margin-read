@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Toast Translate",
-  "description": "Open-source bilingual webpage translation that preserves the original reading context.",
+  "name": "Margin Read",
+  "description": "Translation and notes, placed where reading happens.",
   "version": "0.1.0",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Toast Translate"
+    "default_title": "Margin Read"
   },
   "background": {
     "service_worker": "background.js",

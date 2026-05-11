@@ -17,7 +17,7 @@ afterEach(() => {
 
 describe("getTranslationClassName", () => {
   it("adds the base class and style modifier", () => {
-    expect(getTranslationClassName("integrated")).toBe("toast-translation toast-translation--integrated");
+    expect(getTranslationClassName("integrated")).toBe("margin-translation margin-translation--integrated");
   });
 });
 

@@ -1,5 +1,5 @@
 {
-  "name": "@toast/extension",
+  "name": "@margin/extension",
   "version": "0.1.0",
   "description": "A privacy-first, open-source bilingual webpage translation browser extension.",
   "private": true,

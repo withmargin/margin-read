@@ -84,7 +84,7 @@ function isXTranslatableTweetText(element: HTMLElement, options: TextBlockOption
     return false;
   }
 
-  element.dataset.toastXBlock = "tweet-text";
+  element.dataset.marginXBlock = "tweet-text";
   return true;
 }
 
@@ -101,7 +101,7 @@ function isXArticleTextBlock(element: HTMLElement, options: TextBlockOptions): b
     return false;
   }
 
-  element.dataset.toastXBlock = "article";
+  element.dataset.marginXBlock = "article";
   return true;
 }
 
@@ -160,18 +160,18 @@ function hasEnoughSemanticContent(blocks: HTMLElement[]): boolean {
 }
 
 function splitLegacyContainer(container: HTMLElement, document: Document, options: TextBlockOptions): HTMLElement[] {
-  return splitTextByBrGroups(container, document, options, "toastLegacyBlock");
+  return splitTextByBrGroups(container, document, options, "marginLegacyBlock");
 }
 
 function splitBrSeparatedContainer(container: HTMLElement, document: Document, options: TextBlockOptions): HTMLElement[] {
-  return splitTextByBrGroups(container, document, options, "toastBrSeparatedBlock");
+  return splitTextByBrGroups(container, document, options, "marginBrSeparatedBlock");
 }
 
 function splitTextByBrGroups(
   container: HTMLElement,
   document: Document,
   options: TextBlockOptions,
-  datasetKey: "toastLegacyBlock" | "toastBrSeparatedBlock"
+  datasetKey: "marginLegacyBlock" | "marginBrSeparatedBlock"
 ): HTMLElement[] {
   const existingBlocks = getExistingSplitBlocks(container, datasetKey, options);
   if (existingBlocks.length > 0) {
@@ -261,7 +261,7 @@ function getSplitNodeText(node: ChildNode, options: TextBlockOptions): string {
 
 function getExistingSplitBlocks(
   container: HTMLElement,
-  datasetKey: "toastLegacyBlock" | "toastBrSeparatedBlock",
+  datasetKey: "marginLegacyBlock" | "marginBrSeparatedBlock",
   options: TextBlockOptions
 ): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(`[data-${toKebabCase(datasetKey)}="true"]`)).filter((element) =>

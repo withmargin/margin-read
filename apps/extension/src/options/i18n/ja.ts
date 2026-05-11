@@ -44,7 +44,7 @@ export const ja = {
   statusSettingsSaved: "設定を保存しました。",
   targetLanguage: "翻訳先言語",
   targetLanguageHint: "英語名、現地名、言語コード、別名で検索できます。",
-  title: "Toast 設定",
+  title: "Margin 設定",
   translateQuotedPosts: "Quoted posts を翻訳",
   translateQuotedPostsHint: "X card 内の引用投稿テキストも翻訳します。",
   translateXArticles: "X articles を翻訳",
