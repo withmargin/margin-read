@@ -19,6 +19,7 @@ export interface ExtensionSettings {
   xTranslateQuotedPosts: boolean;
   xSkipNativeTranslatedPosts: boolean;
   openAICompatibleJsonMode: boolean;
+  showFloatingButton: boolean;
 }
 
 export interface TextSegment {

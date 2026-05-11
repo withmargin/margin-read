@@ -17,6 +17,8 @@ export const fr = {
   endpointPresetHint: "Les presets basculent le provider vers OpenAI Compatible et remplissent l'endpoint.",
   fetchModels: "Charger les modeles",
   fetchModelsBusy: "Chargement...",
+  floatingButton: "Bouton flottant de traduction",
+  floatingButtonHint: "Affiche un petit bouton sur la page qui ne traduit qu'apres un clic.",
   localJsonHint: "Desactivez ceci si un runtime local rejette le champ OpenAI response_format.",
   localJsonMode: "Demander le mode JSON",
   localPresetDefault: "Selectionner un runtime local",

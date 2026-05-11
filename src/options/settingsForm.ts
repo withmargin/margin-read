@@ -16,6 +16,7 @@ export function fillForm(settings: ExtensionSettings): void {
   setCheckboxValue("xTranslateQuotedPosts", settings.xTranslateQuotedPosts);
   setCheckboxValue("xSkipNativeTranslatedPosts", settings.xSkipNativeTranslatedPosts);
   setCheckboxValue("openAICompatibleJsonMode", settings.openAICompatibleJsonMode);
+  setCheckboxValue("showFloatingButton", settings.showFloatingButton);
 }
 
 export function readForm(): ExtensionSettings {
@@ -34,7 +35,8 @@ export function readForm(): ExtensionSettings {
     xTranslateArticles: getCheckboxValue("xTranslateArticles"),
     xTranslateQuotedPosts: getCheckboxValue("xTranslateQuotedPosts"),
     xSkipNativeTranslatedPosts: getCheckboxValue("xSkipNativeTranslatedPosts"),
-    openAICompatibleJsonMode: getCheckboxValue("openAICompatibleJsonMode")
+    openAICompatibleJsonMode: getCheckboxValue("openAICompatibleJsonMode"),
+    showFloatingButton: getCheckboxValue("showFloatingButton")
   };
 }
 

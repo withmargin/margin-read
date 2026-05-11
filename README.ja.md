@@ -26,6 +26,7 @@ Toast は Chrome と Chromium 系ブラウザ向けの早期 MVP で、Manifest 
 - LM Studio、Ollama、llama.cpp server などのローカル OpenAI-compatible runtime に対応。
 - Options ページから provider のモデル一覧を取得。
 - 翻訳表示を本文統合または強調表示から選択。
+- 任意でページ上にフローティング翻訳ボタンを表示し、ユーザーがクリックした後だけ翻訳を開始。
 - 永続、セッションのみ、無効の翻訳キャッシュを選択。
 - Popup にテキスト検出、キュー状態、provider エラーの診断情報を表示。
 - 動的に挿入されたコンテンツを検出して処理。

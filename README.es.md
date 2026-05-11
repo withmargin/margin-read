@@ -26,6 +26,7 @@ La extension ya funciona en paginas de articulos normales, paginas antiguas con 
 - Soporta runtimes locales OpenAI-compatible como LM Studio, Ollama y llama.cpp server.
 - Obtiene listas de modelos del provider desde la pagina de opciones.
 - Permite elegir estilos de traduccion integrados o resaltados.
+- Opcionalmente muestra un boton flotante en la pagina que solo inicia la traduccion despues de un clic del usuario.
 - Permite cache persistente, solo de sesion o desactivada.
 - Muestra diagnosticos en el popup para deteccion de texto, estado de cola y errores del provider.
 - Observa contenido insertado dinamicamente.

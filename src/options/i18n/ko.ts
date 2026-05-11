@@ -17,6 +17,8 @@ export const ko = {
   endpointPresetHint: "Preset 을 선택하면 OpenAI Compatible 로 전환하고 endpoint 를 입력합니다.",
   fetchModels: "모델 가져오기",
   fetchModelsBusy: "가져오는 중...",
+  floatingButton: "플로팅 번역 버튼",
+  floatingButtonHint: "웹페이지에 작은 버튼을 표시하고, 클릭한 뒤에만 번역합니다.",
   localJsonHint: "Local runtime 이 OpenAI response_format 필드를 거부하면 이 옵션을 끄세요.",
   localJsonMode: "JSON mode 요청",
   localPresetDefault: "Local runtime 선택",

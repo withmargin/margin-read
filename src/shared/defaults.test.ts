@@ -10,6 +10,7 @@ describe("provider defaults", () => {
     expect(DEFAULT_SETTINGS.provider).toBe("openai");
     expect(DEFAULT_SETTINGS.providerEndpoint).toBe(PROVIDER_DEFAULTS.openai.providerEndpoint);
     expect(DEFAULT_SETTINGS.model).toBe(PROVIDER_DEFAULTS.openai.model);
+    expect(DEFAULT_SETTINGS.showFloatingButton).toBe(false);
   });
 
   it("keeps provider endpoints editable but initialized to official APIs", () => {

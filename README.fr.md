@@ -26,6 +26,7 @@ L'extension est utilisable sur les pages d'articles classiques, les anciennes pa
 - Prendre en charge les runtimes locaux OpenAI-compatible comme LM Studio, Ollama et llama.cpp server.
 - Recuperer les listes de modeles depuis la page d'options.
 - Choisir un affichage de traduction integre ou mis en evidence.
+- Afficher optionnellement un bouton flottant dans la page qui ne lance la traduction qu'apres un clic utilisateur.
 - Choisir un cache persistant, de session ou desactive.
 - Afficher dans le popup les diagnostics de detection de texte, d'etat de file et d'erreurs provider.
 - Observer le contenu insere dynamiquement.

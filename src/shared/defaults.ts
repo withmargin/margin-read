@@ -36,7 +36,8 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   xTranslateArticles: true,
   xTranslateQuotedPosts: false,
   xSkipNativeTranslatedPosts: true,
-  openAICompatibleJsonMode: true
+  openAICompatibleJsonMode: true,
+  showFloatingButton: false
 };
 
 export const SETTINGS_KEY = "toast.settings";

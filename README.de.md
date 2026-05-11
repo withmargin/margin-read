@@ -26,6 +26,7 @@ Die Erweiterung ist fuer normale Artikelseiten, alte textlastige Seiten und eini
 - Unterstuetzt lokale OpenAI-compatible runtimes wie LM Studio, Ollama und llama.cpp server.
 - Ruft provider model lists von der Optionsseite ab.
 - Bietet integrierte oder hervorgehobene Uebersetzungsanzeige.
+- Optional einen schwebenden Seitenbutton anzeigen, der die Uebersetzung erst nach einem Nutzerklick startet.
 - Erlaubt persistenten, sitzungsbasierten oder deaktivierten Uebersetzungs-Cache.
 - Zeigt Popup-Diagnosen fuer Texterkennung, Queue-Zustand und provider-Fehler.
 - Beobachtet dynamisch eingefuegte Inhalte.

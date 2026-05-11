@@ -17,6 +17,8 @@ export const zhCN = {
   endpointPresetHint: "选择 preset 会切换到 OpenAI Compatible 并填入 endpoint。",
   fetchModels: "获取模型列表",
   fetchModelsBusy: "获取中...",
+  floatingButton: "浮动翻译按钮",
+  floatingButtonHint: "在网页上显示小型按钮，只有点击后才会开始翻译。",
   localJsonHint: "如果 local runtime 拒绝 OpenAI response_format 字段，请关闭此选项。",
   localJsonMode: "要求 JSON mode",
   localPresetDefault: "选择 local runtime",

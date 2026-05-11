@@ -1,4 +1,5 @@
-import type { PageDebugState, RuntimeMessage, TranslationProviderId, TranslationResult } from "../shared/types";
+import { SETTINGS_KEY } from "../shared/defaults";
+import type { ExtensionSettings, PageDebugState, RuntimeMessage, TranslationProviderId, TranslationResult } from "../shared/types";
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
 import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
@@ -12,6 +13,8 @@ const CONCURRENCY = 2;
 const LOCAL_BATCH_SIZE = 3;
 const LOCAL_CONCURRENCY = 1;
 const NEAR_VIEWPORT_MULTIPLIER = 1.5;
+const FLOATING_HOST_ID = "toast-floating-controls";
+const FLOATING_HOST_ATTR = "data-toast-floating-controls";
 
 let enabled = false;
 let observer: MutationObserver | undefined;
@@ -26,6 +29,11 @@ let xTranslateArticles = true;
 let xTranslateQuotedPosts = false;
 let xSkipNativeTranslatedPosts = true;
 let debugState: PageDebugState = createDebugState();
+let floatingHost: HTMLElement | undefined;
+let floatingButton: HTMLButtonElement | undefined;
+let floatingButtonEnabled = false;
+let floatingTargetLanguage = "English";
+let floatingHiddenForPage = false;
 
 const blockMap = new Map<string, HTMLElement>();
 const queue = new TranslationQueue<HTMLElement>({
@@ -36,17 +44,11 @@ const queue = new TranslationQueue<HTMLElement>({
 
 chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
   if (message.type === "TOGGLE_TRANSLATION") {
-    enabled = typeof message.enabled === "boolean" ? message.enabled : !enabled;
-    if (enabled) {
-      void startTranslation().finally(() => {
+    void setTranslationEnabled(typeof message.enabled === "boolean" ? message.enabled : !enabled)
+      .finally(() => {
         sendResponse({ ok: true, enabled, debug: getDebugState() });
       });
-      return true;
-    } else {
-      stopTranslation();
-    }
-    sendResponse({ ok: true, enabled, debug: getDebugState() });
-    return;
+    return true;
   }
 
   if (message.type === "GET_PAGE_STATE") {
@@ -55,8 +57,38 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
   }
 });
 
+void initializeFloatingButton();
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "local") {
+    return;
+  }
+
+  const nextSettings = changes[SETTINGS_KEY]?.newValue as Partial<ExtensionSettings> | undefined;
+  if (nextSettings) {
+    syncFloatingButton(nextSettings);
+  }
+});
+
+async function setTranslationEnabled(nextEnabled: boolean): Promise<void> {
+  if (nextEnabled === enabled) {
+    updateFloatingButtonLabel();
+    return;
+  }
+
+  enabled = nextEnabled;
+  if (enabled) {
+    await startTranslation();
+  } else {
+    stopTranslation();
+  }
+  updateFloatingButtonLabel();
+}
+
 async function startTranslation(): Promise<void> {
   runId += 1;
+  observer?.disconnect();
+  observer = undefined;
   try {
     const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
     displayStyle = response.settings?.displayStyle ?? "integrated";
@@ -109,6 +141,7 @@ function stopTranslation(): void {
   debugState = createDebugState();
   debugState.debugMode = debugMode;
   debugState.enabled = false;
+  updateFloatingButtonLabel();
 }
 
 function scanAndQueue(): void {
@@ -257,15 +290,7 @@ interface TranslationBatchResponse {
 
 interface SettingsResponse {
   ok: boolean;
-  settings?: {
-    provider?: TranslationProviderId;
-    displayStyle?: TranslationDisplayStyle;
-    debugMode?: boolean;
-    xOptimizedTranslation?: boolean;
-    xTranslateArticles?: boolean;
-    xTranslateQuotedPosts?: boolean;
-    xSkipNativeTranslatedPosts?: boolean;
-  };
+  settings?: Partial<ExtensionSettings>;
 }
 
 function configureTranslationQueue(provider: TranslationProviderId): void {
@@ -380,6 +405,7 @@ function isToastManagedNode(node: Node): boolean {
 
   return (
     node.classList.contains(TRANSLATION_CLASS) ||
+    node.hasAttribute(FLOATING_HOST_ATTR) ||
     node.hasAttribute(TRANSLATED_ATTR) ||
     node.hasAttribute(BLOCK_ID_ATTR) ||
     node.dataset.toastLegacyBlock === "true" ||
@@ -439,4 +465,290 @@ function recordError(message: string): void {
 function getSampleText(blocks: HTMLElement[]): string | undefined {
   const sample = blocks.map((block) => normalizeText(block.innerText)).find((text) => text.length > 0);
   return sample?.slice(0, 160);
+}
+
+async function initializeFloatingButton(): Promise<void> {
+  if (!document.body) {
+    window.addEventListener("DOMContentLoaded", () => void initializeFloatingButton(), { once: true });
+    return;
+  }
+
+  try {
+    const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
+    if (response.settings) {
+      syncFloatingButton(response.settings);
+    }
+  } catch {
+    removeFloatingButton();
+  }
+}
+
+function syncFloatingButton(settings: Partial<ExtensionSettings>): void {
+  if (typeof settings.showFloatingButton === "boolean") {
+    floatingButtonEnabled = settings.showFloatingButton;
+  }
+  floatingTargetLanguage = settings.targetLanguage || floatingTargetLanguage;
+  if (floatingButtonEnabled && !floatingHiddenForPage) {
+    ensureFloatingButton();
+  } else {
+    removeFloatingButton();
+  }
+  updateFloatingButtonLabel();
+}
+
+function ensureFloatingButton(): void {
+  if (floatingHost || !document.body) {
+    return;
+  }
+
+  floatingHost = document.createElement("div");
+  floatingHost.id = FLOATING_HOST_ID;
+  floatingHost.setAttribute(FLOATING_HOST_ATTR, "true");
+  floatingHost.setAttribute("data-toast-root", "floating-controls");
+  floatingHost.setAttribute("data-position", "right");
+  floatingHost.setAttribute("data-theme", "light");
+  floatingHost.setAttribute("data-state", enabled ? "enabled" : "idle");
+  floatingHost.setAttribute("translate", "no");
+  floatingHost.className = "toast-notranslate";
+  const shadow = floatingHost.attachShadow({ mode: "open" });
+  shadow.append(createFloatingStyles(), createFloatingControls());
+  document.documentElement.append(floatingHost);
+}
+
+function removeFloatingButton(): void {
+  floatingHost?.remove();
+  floatingHost = undefined;
+  floatingButton = undefined;
+}
+
+function createFloatingControls(): HTMLElement {
+  const container = document.createElement("div");
+  container.className = "toast-floating";
+  container.setAttribute("part", "container");
+
+  floatingButton = document.createElement("button");
+  floatingButton.type = "button";
+  floatingButton.className = "toast-floating__button toast-floating__button--primary";
+  floatingButton.setAttribute("part", "primary-button");
+  floatingButton.append(createTranslateIcon());
+  floatingButton.addEventListener("click", () => {
+    void setTranslationEnabled(!enabled);
+  });
+
+  const closeButton = document.createElement("button");
+  closeButton.type = "button";
+  closeButton.className = "toast-floating__button toast-floating__button--secondary";
+  closeButton.setAttribute("part", "close-button");
+  closeButton.textContent = "×";
+  closeButton.title = "Hide Toast on this page";
+  closeButton.setAttribute("aria-label", "Hide Toast floating button on this page");
+  closeButton.addEventListener("click", () => {
+    floatingHiddenForPage = true;
+    removeFloatingButton();
+  });
+
+  const overlay = document.createElement("div");
+  overlay.className = "toast-floating__overlay";
+  overlay.setAttribute("part", "overlay");
+  overlay.hidden = true;
+
+  container.append(floatingButton, closeButton, overlay);
+  return container;
+}
+
+function updateFloatingButtonLabel(): void {
+  if (!floatingButton) {
+    return;
+  }
+
+  floatingHost?.setAttribute("data-state", enabled ? "enabled" : "idle");
+  floatingButton.dataset.state = enabled ? "enabled" : "idle";
+  if (enabled) {
+    floatingButton.title = "Hide Toast translations";
+    floatingButton.setAttribute("aria-label", "Hide Toast translations");
+    return;
+  }
+
+  const label = `Translate into ${floatingTargetLanguage}`;
+  floatingButton.title = label;
+  floatingButton.setAttribute("aria-label", label);
+}
+
+function createTranslateIcon(): SVGSVGElement {
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("viewBox", "0 0 28 28");
+  icon.setAttribute("aria-hidden", "true");
+  icon.setAttribute("focusable", "false");
+  icon.classList.add("toast-floating__icon");
+  icon.innerHTML = `
+    <path class="toast-floating__icon-bg" d="M0 14C0 6.268 6.268 0 14 0s14 6.268 14 14-6.268 14-14 14S0 21.732 0 14Z" />
+    <path class="toast-floating__icon-mark" d="M8.2 21.2v-8.65c0-2.05 1.45-3.83 3.45-4.24A3.35 3.35 0 0 1 14 5.2c1.53 0 2.87 1.03 3.25 2.5a4.33 4.33 0 0 1 2.55 3.95v9.55H8.2Z" />
+    <path class="toast-floating__icon-accent" d="M10.7 13.1h6.6v1.45h-6.6v-1.45Zm0 3.15h4.9v1.45h-4.9v-1.45Z" />
+    <g class="toast-floating__icon-badge">
+      <circle cx="21.5" cy="21.5" r="5.6" />
+      <path d="m18.8 21.4 1.8 1.8 3.7-4" />
+    </g>
+  `;
+  return icon;
+}
+
+function createFloatingStyles(): HTMLStyleElement {
+  const style = document.createElement("style");
+  style.textContent = `
+    :host {
+      all: initial;
+      position: fixed;
+      z-index: 2147483647;
+      top: 50%;
+      right: 18px;
+      transform: translateY(-50%);
+      color-scheme: light;
+      pointer-events: none;
+    }
+
+    .toast-floating {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+      pointer-events: auto;
+    }
+
+    .toast-floating__button {
+      box-sizing: border-box;
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border: 0;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgb(15 23 42 / 18%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 0;
+      line-height: 1;
+      cursor: pointer;
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease,
+        opacity 140ms ease;
+    }
+
+    .toast-floating__button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 36px rgb(15 23 42 / 24%);
+    }
+
+    .toast-floating__button:focus-visible {
+      outline: 3px solid rgb(47 111 237 / 40%);
+      outline-offset: 3px;
+    }
+
+    .toast-floating__button--primary {
+      background: #d96890;
+    }
+
+    .toast-floating__button--primary[data-state="enabled"] {
+      background: #d96890;
+    }
+
+    .toast-floating__button--secondary {
+      position: absolute;
+      top: -8px;
+      right: -6px;
+      width: 28px;
+      height: 28px;
+      color: #ffffff;
+      background: rgb(17 24 39 / 32%);
+      font-size: 24px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(2px) scale(0.96);
+    }
+
+    .toast-floating:hover .toast-floating__button--secondary,
+    .toast-floating:focus-within .toast-floating__button--secondary {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .toast-floating__icon {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+
+    .toast-floating__icon-bg {
+      fill: #d96890;
+      transition: fill 140ms ease;
+    }
+
+    .toast-floating__icon-mark {
+      fill: #ffffff;
+      transition: opacity 140ms ease;
+    }
+
+    .toast-floating__icon-accent {
+      fill: #d96890;
+      transition:
+        fill 140ms ease,
+        opacity 140ms ease;
+    }
+
+    .toast-floating__icon-badge {
+      opacity: 0;
+      transform: translate(1px, 1px) scale(0.86);
+      transform-origin: 21.5px 21.5px;
+      transition:
+        opacity 140ms ease,
+        transform 140ms ease;
+    }
+
+    .toast-floating__icon-badge circle {
+      fill: #8ed081;
+      stroke: #ffffff;
+      stroke-width: 1.4;
+    }
+
+    .toast-floating__icon-badge path {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 1.45;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .toast-floating__button--primary[data-state="enabled"] .toast-floating__icon-bg {
+      fill: #d96890;
+    }
+
+    .toast-floating__button--primary[data-state="enabled"] .toast-floating__icon-accent {
+      fill: #d96890;
+    }
+
+    .toast-floating__button--primary[data-state="enabled"] .toast-floating__icon-badge {
+      opacity: 1;
+      transform: translate(1px, 1px) scale(1);
+    }
+
+    .toast-floating__overlay {
+      position: absolute;
+      right: 62px;
+      top: 0;
+      min-width: 220px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 18px 48px rgb(15 23 42 / 22%);
+    }
+
+    @media (max-width: 720px) {
+      :host {
+        right: 12px;
+      }
+
+      .toast-floating__button {
+        width: 46px;
+        height: 46px;
+      }
+    }
+  `;
+  return style;
 }

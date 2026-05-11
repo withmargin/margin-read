@@ -26,6 +26,7 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Support local OpenAI-compatible runtimes such as LM Studio, Ollama, and llama.cpp server.
 - Fetch provider model lists from the options page.
 - Choose integrated or highlighted translation display styles.
+- Optionally show a floating page button that starts translation only after the user clicks it.
 - Use persistent, session, or disabled translation cache behavior.
 - Show popup diagnostics for text detection, queue state, and provider errors.
 - Observe dynamically inserted content.

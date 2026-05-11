@@ -26,6 +26,7 @@ Toast 는 Chrome 및 Chromium 브라우저용 초기 MVP 이며 Manifest V3 를 
 - LM Studio, Ollama, llama.cpp server 같은 로컬 OpenAI-compatible runtime 지원.
 - Options 페이지에서 provider 모델 목록 가져오기.
 - 본문 통합 또는 강조 표시 번역 스타일 선택.
+- 선택적으로 페이지에 플로팅 번역 버튼을 표시하고 사용자가 클릭한 뒤에만 번역 시작.
 - 영구, 세션, 비활성 번역 캐시 동작 선택.
 - Popup 에 텍스트 감지, 큐 상태, provider 오류 진단 표시.
 - 동적으로 삽입된 콘텐츠 감지 및 처리.

@@ -17,6 +17,8 @@ export const ja = {
   endpointPresetHint: "Preset を選ぶと OpenAI Compatible に切り替え、endpoint を入力します。",
   fetchModels: "モデルを取得",
   fetchModelsBusy: "取得中...",
+  floatingButton: "フローティング翻訳ボタン",
+  floatingButtonHint: "ページ上に小さなボタンを表示し、クリックした後だけ翻訳します。",
   localJsonHint: "Local runtime が OpenAI response_format を拒否する場合はオフにしてください。",
   localJsonMode: "JSON mode を要求",
   localPresetDefault: "Local runtime を選択",
