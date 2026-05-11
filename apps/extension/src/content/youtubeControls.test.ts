@@ -9,7 +9,15 @@ const openOptionsPage = vi.fn();
 beforeEach(() => {
   vi.useFakeTimers();
   document.body.innerHTML = "";
-  sendMessage.mockResolvedValue({ ok: true, settings: { targetLanguage: "Japanese" } });
+  sendMessage.mockImplementation((message: { type?: string }) => {
+    if (message.type === "TRANSLATE_BATCH") {
+      return Promise.resolve({
+        ok: true,
+        results: [{ id: "youtube-caption", text: "翻譯字幕" }]
+      });
+    }
+    return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+  });
   addStorageListener.mockReset();
   openOptionsPage.mockReset();
   vi.stubGlobal("chrome", {
@@ -145,6 +153,252 @@ describe("initializeYouTubeControls", () => {
     translatedItem?.click();
     expect(root?.dataset.mode).toBe("translated");
     expect(root?.dataset.open).toBe("false");
+  });
+
+  it("translates visible YouTube captions into a player overlay", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div class="ytp-caption-window-container">
+          <span class="ytp-caption-segment">Hello</span>
+          <span class="ytp-caption-segment">world</span>
+        </div>
+      `
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const overlayHost = document.querySelector<HTMLElement>("#margin-youtube-caption-overlay");
+    const overlay = overlayHost?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+
+    expect(overlayHost).toBeInstanceOf(HTMLElement);
+    expect(sendMessage).toHaveBeenLastCalledWith({
+      type: "TRANSLATE_BATCH",
+      segments: [{ id: "youtube-caption", text: "Hello world" }]
+    });
+    expect(overlay?.textContent).toBe("翻譯字幕");
+    expect(overlay?.hidden).toBe(false);
+  });
+
+  it("hides the caption overlay when captions disappear", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div class="ytp-caption-window-container">
+          <span class="ytp-caption-segment">Hello world</span>
+        </div>
+      `
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    document.querySelector(".ytp-caption-window-container")?.remove();
+    await Promise.resolve();
+    vi.advanceTimersByTime(80);
+
+    const overlayHost = document.querySelector<HTMLElement>("#margin-youtube-caption-overlay");
+    const overlay = overlayHost?.shadowRoot?.querySelector<HTMLElement>(".margin-youtube-caption");
+    expect(overlayHost).toBeInstanceOf(HTMLElement);
+    expect(overlay?.hidden).toBe(true);
+  });
+
+  it("turns caption translation off when the active mode is selected again", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+    const bilingualItem = host.shadowRoot?.querySelector<HTMLButtonElement>(
+      '.margin-youtube__menu-item[data-action="bilingual"]'
+    );
+
+    bilingualItem?.click();
+    await Promise.resolve();
+    bilingualItem?.click();
+
+    expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
+    expect(host.shadowRoot?.querySelector(".margin-youtube")?.getAttribute("data-mode")).toBe("idle");
+  });
+
+  it("marks translated caption overlay mode separately", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="translated"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")
+        ?.getAttribute("data-mode")
+    ).toBe("translated");
+  });
+
+  it("does not translate the same caption text twice", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    const callsAfterFirstCaption = sendMessage.mock.calls.length;
+
+    document.querySelector(".ytp-caption-window-container")?.append(document.createElement("span"));
+    await Promise.resolve();
+    vi.advanceTimersByTime(80);
+    await Promise.resolve();
+
+    expect(sendMessage).toHaveBeenCalledTimes(callsAfterFirstCaption);
+  });
+
+  it("renders provider errors in the caption overlay", async () => {
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({ ok: false, error: "Provider unavailable" });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("Provider unavailable");
+  });
+
+  it("renders request failures in the caption overlay", async () => {
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.reject(new Error("Network failed"));
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("Network failed");
+  });
+
+  it("falls back when the provider returns no caption translation", async () => {
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return Promise.resolve({ ok: true, results: [] });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe("Caption translation failed.");
+  });
+
+  it("ignores caption responses after the mode is turned off", async () => {
+    let resolveTranslation: (value: unknown) => void = () => undefined;
+    sendMessage.mockImplementation((message: { type?: string }) => {
+      if (message.type === "TRANSLATE_BATCH") {
+        return new Promise((resolve) => {
+          resolveTranslation = resolve;
+        });
+      }
+      return Promise.resolve({ ok: true, settings: { targetLanguage: "Japanese" } });
+    });
+    const host = await mountYouTubeControl();
+    const bilingualItem = host.shadowRoot?.querySelector<HTMLButtonElement>(
+      '.margin-youtube__menu-item[data-action="bilingual"]'
+    );
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+
+    bilingualItem?.click();
+    bilingualItem?.click();
+    resolveTranslation({ ok: true, results: [{ id: "youtube-caption", text: "late result" }] });
+    await Promise.resolve();
+
+    expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
+  });
+
+  it("does not create an overlay when YouTube controls exist without the video player", async () => {
+    setPageUrl("https://www.youtube.com/watch?v=abc");
+    document.body.innerHTML = `
+      <div class="ytp-right-controls">
+        <button class="ytp-subtitles-button"></button>
+      </div>
+      <div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>
+    `;
+
+    initializeYouTubeControls();
+    await Promise.resolve();
+    vi.advanceTimersByTime(250);
+    document
+      .querySelector<HTMLElement>("#margin-youtube-subtitle-control")
+      ?.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')
+      ?.click();
+
+    expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
+  });
+
+  it("removes caption overlay when leaving the watch page", async () => {
+    const host = await mountYouTubeControl();
+    document.querySelector(".html5-video-player")?.insertAdjacentHTML(
+      "beforeend",
+      `<div class="ytp-caption-window-container"><span class="ytp-caption-segment">Hello world</span></div>`
+    );
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await Promise.resolve();
+
+    setPageUrl("https://www.youtube.com/feed/subscriptions");
+    window.dispatchEvent(new Event("yt-navigate-finish"));
+    vi.advanceTimersByTime(250);
+
+    expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
+    expect(document.querySelector("#margin-youtube-subtitle-control")).toBeNull();
   });
 
   it("opens extension settings from the menu", async () => {

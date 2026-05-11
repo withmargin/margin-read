@@ -2,15 +2,23 @@ import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings } from "../shared/types";
 
 const YOUTUBE_CONTROL_HOST_ID = "margin-youtube-subtitle-control";
+const YOUTUBE_CAPTION_HOST_ID = "margin-youtube-caption-overlay";
 const YOUTUBE_CONTROL_ATTR = "data-margin-youtube-control";
+const YOUTUBE_CAPTION_ATTR = "data-margin-youtube-caption-overlay";
 const YOUTUBE_WATCH_PATH = "/watch";
 const YOUTUBE_NAVIGATION_EVENT = "yt-navigate-finish";
+const CAPTION_SEGMENT_SELECTOR = ".ytp-caption-window-container .ytp-caption-segment";
 
 let observer: MutationObserver | undefined;
+let captionObserver: MutationObserver | undefined;
 let rescanTimer: number | undefined;
 let controlHost: HTMLElement | undefined;
+let captionHost: HTMLElement | undefined;
 let targetLanguage = "English";
 let installed = false;
+let captionMode: "idle" | "bilingual" | "translated" = "idle";
+let lastCaptionText = "";
+let activeCaptionRequest = 0;
 
 interface SettingsResponse {
   ok: boolean;
@@ -77,6 +85,7 @@ export function resetYouTubeControlsForTests(): void {
     window.clearTimeout(rescanTimer);
     rescanTimer = undefined;
   }
+  stopCaptionTranslation();
   removeYouTubeControl();
   if (installed) {
     window.removeEventListener(YOUTUBE_NAVIGATION_EVENT, scheduleYouTubeControlScan);
@@ -84,6 +93,8 @@ export function resetYouTubeControlsForTests(): void {
     installed = false;
   }
   targetLanguage = "English";
+  captionMode = "idle";
+  activeCaptionRequest = 0;
 }
 
 function scheduleYouTubeControlScan(): void {
@@ -99,6 +110,7 @@ function scheduleYouTubeControlScan(): void {
 function ensureYouTubeControl(): void {
   if (!isYouTubeWatchPage()) {
     removeYouTubeControl();
+    stopCaptionTranslation();
     return;
   }
 
@@ -124,10 +136,73 @@ function removeYouTubeControl(): void {
   controlHost = undefined;
 }
 
+function startCaptionTranslation(nextMode: "bilingual" | "translated"): void {
+  captionMode = captionMode === nextMode ? "idle" : nextMode;
+  if (captionMode === "idle") {
+    stopCaptionTranslation();
+    updateControlState();
+    return;
+  }
+
+  ensureCaptionOverlay();
+  observeCaptions();
+  refreshCaptionTranslation();
+  updateControlState();
+}
+
+function stopCaptionTranslation(): void {
+  captionMode = "idle";
+  activeCaptionRequest += 1;
+  lastCaptionText = "";
+  captionObserver?.disconnect();
+  captionObserver = undefined;
+  captionHost?.remove();
+  captionHost = undefined;
+}
+
+function ensureCaptionOverlay(): void {
+  if (captionHost) {
+    return;
+  }
+
+  const player = findVideoPlayer();
+  if (!player) {
+    return;
+  }
+
+  captionHost = document.createElement("div");
+  captionHost.id = YOUTUBE_CAPTION_HOST_ID;
+  captionHost.setAttribute(YOUTUBE_CAPTION_ATTR, "true");
+  captionHost.setAttribute("translate", "no");
+  captionHost.className = "margin-notranslate";
+
+  const shadow = captionHost.attachShadow({ mode: "open" });
+  shadow.append(createCaptionStyles(), createCaptionOverlay());
+  player.append(captionHost);
+}
+
+function observeCaptions(): void {
+  captionObserver?.disconnect();
+  const observerTarget = findVideoPlayer();
+  if (!observerTarget) {
+    return;
+  }
+
+  captionObserver = new MutationObserver(() => {
+    window.setTimeout(refreshCaptionTranslation, 80);
+  });
+  captionObserver.observe(observerTarget, { childList: true, subtree: true, characterData: true });
+}
+
 function findRightControls(): HTMLElement | undefined {
   const controls =
     document.querySelector(".html5-video-player .ytp-right-controls") ?? document.querySelector(".ytp-right-controls");
   return controls instanceof HTMLElement ? controls : undefined;
+}
+
+function findVideoPlayer(): HTMLElement | undefined {
+  const player = document.querySelector(".html5-video-player");
+  return player instanceof HTMLElement ? player : undefined;
 }
 
 function createControlHost(): HTMLElement {
@@ -159,14 +234,16 @@ function createControl(): HTMLElement {
   menu.setAttribute("role", "menu");
 
   const bilingualItem = createMenuItem("Bilingual captions", "Show original captions with Margin translation.", () => {
-    root.dataset.mode = root.dataset.mode === "bilingual" ? "idle" : "bilingual";
+    startCaptionTranslation("bilingual");
+    root.dataset.mode = captionMode;
     root.dataset.open = "false";
     updateControlState();
   });
   bilingualItem.dataset.action = "bilingual";
 
   const translateItem = createMenuItem("Translated captions", "Show only translated captions.", () => {
-    root.dataset.mode = root.dataset.mode === "translated" ? "idle" : "translated";
+    startCaptionTranslation("translated");
+    root.dataset.mode = captionMode;
     root.dataset.open = "false";
     updateControlState();
   });
@@ -210,6 +287,7 @@ function updateControlState(): void {
   const root = controlHost.shadowRoot.querySelector(".margin-youtube");
   if (root instanceof HTMLElement) {
     root.dataset.hasCaptions = String(hasCaptions);
+    root.dataset.mode = captionMode;
   }
 
   const button = controlHost.shadowRoot.querySelector(".margin-youtube__button");
@@ -229,6 +307,72 @@ function updateControlState(): void {
   });
 }
 
+function refreshCaptionTranslation(): void {
+  if (captionMode === "idle") {
+    return;
+  }
+
+  ensureCaptionOverlay();
+  const captionText = readVisibleCaptionText();
+  if (!captionText) {
+    renderCaptionOverlay("");
+    lastCaptionText = "";
+    return;
+  }
+  if (captionText === lastCaptionText) {
+    return;
+  }
+
+  lastCaptionText = captionText;
+  void translateCaption(captionText);
+}
+
+async function translateCaption(text: string): Promise<void> {
+  const requestId = activeCaptionRequest + 1;
+  activeCaptionRequest = requestId;
+  renderCaptionOverlay("Translating...");
+
+  try {
+    const response: { ok?: boolean; results?: Array<{ id: string; text: string }>; error?: string } =
+      await chrome.runtime.sendMessage({
+      type: "TRANSLATE_BATCH",
+      segments: [{ id: "youtube-caption", text }]
+    });
+
+    if (captionMode === "idle" || requestId !== activeCaptionRequest) {
+      return;
+    }
+
+    const translatedText = response.results?.find((result) => result.id === "youtube-caption")?.text;
+    renderCaptionOverlay(response.ok && translatedText ? translatedText : response.error || "Caption translation failed.");
+  } catch (error) {
+    if (captionMode !== "idle" && requestId === activeCaptionRequest) {
+      renderCaptionOverlay(error instanceof Error ? error.message : "Caption translation failed.");
+    }
+  }
+}
+
+function readVisibleCaptionText(): string {
+  return Array.from(document.querySelectorAll(CAPTION_SEGMENT_SELECTOR), (segment) => segment.textContent?.trim() ?? "")
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function renderCaptionOverlay(text: string): void {
+  if (!captionHost?.shadowRoot) {
+    return;
+  }
+  const overlay = captionHost.shadowRoot.querySelector<HTMLElement>(".margin-youtube-caption");
+  if (!overlay) {
+    return;
+  }
+  overlay.textContent = text;
+  overlay.hidden = text.length === 0;
+  overlay.dataset.mode = captionMode;
+}
+
 function hasYouTubeCaptionControls(): boolean {
   const subtitlesButton = document.querySelector(".ytp-subtitles-button");
   if (!(subtitlesButton instanceof HTMLElement)) {
@@ -243,7 +387,13 @@ function isMarginYouTubeMutation(mutation: MutationRecord): boolean {
 }
 
 function isMarginYouTubeNode(node: Node): boolean {
-  return node instanceof HTMLElement && (node.hasAttribute(YOUTUBE_CONTROL_ATTR) || node.id === YOUTUBE_CONTROL_HOST_ID);
+  return (
+    node instanceof HTMLElement &&
+    (node.hasAttribute(YOUTUBE_CONTROL_ATTR) ||
+      node.hasAttribute(YOUTUBE_CAPTION_ATTR) ||
+      node.id === YOUTUBE_CONTROL_HOST_ID ||
+      node.id === YOUTUBE_CAPTION_HOST_ID)
+  );
 }
 
 function isYouTubePage(): boolean {
@@ -373,6 +523,50 @@ function createControlStyles(): HTMLStyleElement {
       color: rgb(255 255 255 / 68%);
       font-size: 11px;
       line-height: 1.35;
+    }
+  `;
+  return style;
+}
+
+function createCaptionOverlay(): HTMLElement {
+  const overlay = document.createElement("div");
+  overlay.className = "margin-youtube-caption";
+  overlay.hidden = true;
+  return overlay;
+}
+
+function createCaptionStyles(): HTMLStyleElement {
+  const style = document.createElement("style");
+  style.textContent = `
+    :host {
+      all: initial;
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      z-index: 2147483646;
+      max-width: min(78%, 920px);
+      transform: translateX(-50%);
+      pointer-events: none;
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .margin-youtube-caption {
+      box-sizing: border-box;
+      border-radius: 8px;
+      background: rgb(0 0 0 / 78%);
+      color: #ffffff;
+      font-size: clamp(16px, 2.1vw, 28px);
+      font-weight: 600;
+      line-height: 1.35;
+      padding: 6px 12px;
+      text-align: center;
+      text-shadow: 0 1px 2px rgb(0 0 0 / 50%);
+      white-space: pre-wrap;
+    }
+
+    .margin-youtube-caption[data-mode="translated"] {
+      background: rgb(217 104 144 / 88%);
     }
   `;
   return style;
