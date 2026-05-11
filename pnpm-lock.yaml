@@ -41,6 +41,8 @@ importers:
 
   apps/extension: {}
 
+  apps/website: {}
+
 packages:
 
   '@babel/helper-string-parser@7.27.1':

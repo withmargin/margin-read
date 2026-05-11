@@ -1,0 +1,12 @@
+{
+  "name": "@toast/website",
+  "version": "0.1.0",
+  "description": "Marketing website for Toast Translate.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "clean": "node scripts/clean.mjs",
+    "dev": "node scripts/dev.mjs"
+  }
+}

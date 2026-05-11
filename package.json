@@ -6,10 +6,12 @@
   "type": "module",
   "packageManager": "pnpm@10.15.0",
   "scripts": {
-    "build": "pnpm --filter @toast/extension build",
+    "build": "pnpm -r build",
+    "build:extension": "pnpm --filter @toast/extension build",
+    "build:website": "pnpm --filter @toast/website build",
     "check": "pnpm --filter @toast/extension check",
     "check:extension": "pnpm --filter @toast/extension check:extension",
-    "clean": "pnpm --filter @toast/extension clean",
+    "clean": "pnpm -r clean",
     "lint": "pnpm --filter @toast/extension lint",
     "test": "pnpm --filter @toast/extension test",
     "test:watch": "pnpm --filter @toast/extension test:watch"
