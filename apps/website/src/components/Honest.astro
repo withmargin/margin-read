@@ -1,44 +1,39 @@
 ---
-// Honest — known limitations the team chose to surface rather than hide.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <section id="honest" style="border-top: 1px solid var(--line);">
   <p class="eyebrow">
-    <span class="num">08</span><span data-i18n="hon.eye">Honestly</span>
+    <span class="num">08</span><span>{t("hon.eye")}</span>
   </p>
   <h2 class="serif">
-    <span data-i18n="hon.t1">Margin is still an</span>
-    <em data-i18n="hon.t2">early MVP</em><span data-i18n="hon.t3">.</span>
+    <span>{t("hon.t1")}</span>
+    <em>{t("hon.t2")}</em><span>{t("hon.t3")}</span>
   </h2>
-  <p class="section-lede" data-i18n="hon.lede">
-    It works well on article pages, legacy text-heavy pages, and a few
-    high-value dynamic pages like X. But there are rough edges, and we're
-    listing them here instead of hiding them.
-  </p>
+  <p class="section-lede">{t("hon.lede")}</p>
 
   <div class="features" style="background: var(--cream);">
     <div class="feature" style="padding-top: 28px;">
       <div class="num">L.01</div>
-      <h3 data-i18n="lim.1t">Firefox isn't a primary target yet</h3>
-      <p data-i18n="lim.1b">
-        Chrome / Chromium first. Firefox will follow.
-      </p>
+      <h3>{t("lim.1t")}</h3>
+      <p>{t("lim.1b")}</p>
     </div>
     <div class="feature" style="padding-top: 28px;">
       <div class="num">L.02</div>
-      <h3 data-i18n="lim.2t">Some highly dynamic apps</h3>
-      <p data-i18n="lim.2b">
-        On SPAs that aggressively rewrite the DOM, translation blocks may get
-        moved or removed. Working on it.
-      </p>
+      <h3>{t("lim.2t")}</h3>
+      <p>{t("lim.2b")}</p>
     </div>
     <div class="feature" style="padding-top: 28px;">
       <div class="num">L.03</div>
-      <h3 data-i18n="lim.3t">Large pages translate in batches</h3>
-      <p data-i18n="lim.3b">
-        To stay friendly with provider rate limits, translations appear
-        progressively rather than all at once.
-      </p>
+      <h3>{t("lim.3t")}</h3>
+      <p>{t("lim.3b")}</p>
     </div>
   </div>
 </section>

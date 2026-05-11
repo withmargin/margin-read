@@ -1,112 +1,46 @@
 ---
-// Seven-item FAQ using native <details> / <summary>.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
+const items = [
+  { num: "Q.01", q: t("faq.q1"), a: t("faq.a1") },
+  { num: "Q.02", q: t("faq.q2"), a: t("faq.a2") },
+  { num: "Q.03", q: t("faq.q3"), a: t("faq.a3") },
+  { num: "Q.04", q: t("faq.q4"), a: t("faq.a4") },
+  { num: "Q.05", q: t("faq.q5"), a: t("faq.a5") },
+  { num: "Q.06", q: t("faq.q6"), a: t("faq.a6") },
+  { num: "Q.07", q: t("faq.q7"), a: t("faq.a7") },
+];
 ---
 
 <section id="faq">
   <p class="eyebrow">
-    <span class="num">10</span><span data-i18n="faq.eye"
-      >Frequently asked</span
-    >
+    <span class="num">10</span><span>{t("faq.eye")}</span>
   </p>
   <h2 class="serif">
-    <span data-i18n="faq.t1">Questions, before you</span>
-    <em data-i18n="faq.t2">install</em><span data-i18n="faq.t3">.</span>
+    <span>{t("faq.t1")}</span>
+    <em>{t("faq.t2")}</em><span>{t("faq.t3")}</span>
   </h2>
-  <p class="section-lede" data-i18n="faq.lede">
-    A short list. Longer answers live in the docs/ directory of the
-    repository.
-  </p>
+  <p class="section-lede">{t("faq.lede")}</p>
 
   <div class="faq-list">
-    <details class="faq" open>
-      <summary>
-        <span class="q-num">Q.01</span><span data-i18n="faq.q1"
-          >Why bring your own API key?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a1">
-        Cloud translation services route every paragraph you read through their
-        servers, where it can be logged, analyzed, or used for training. With
-        BYO-key, your reading is sent only to the provider you already chose to
-        trust. Margin itself sees nothing.
-      </div>
-    </details>
-    <details class="faq">
-      <summary>
-        <span class="q-num">Q.02</span><span data-i18n="faq.q2"
-          >How is this different from Google Translate or DeepL?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a2">
-        Most extensions replace the page with a translated copy. Margin keeps
-        the original and inserts the translation beneath. The bilingual layout
-        is the point: it is a reading tool for people who do not want to leave
-        the source language behind.
-      </div>
-    </details>
-    <details class="faq">
-      <summary>
-        <span class="q-num">Q.03</span><span data-i18n="faq.q3"
-          >Which AI provider should I pick?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a3">
-        For long-form English-to-Chinese with tone preservation, Claude is
-        usually a safe default. For the lowest cost and broad model selection,
-        GPT-4o mini. For a generous free tier and East Asian languages,
-        Gemini Flash. The endpoint field accepts any OpenAI-compatible
-        gateway.
-      </div>
-    </details>
-    <details class="faq">
-      <summary>
-        <span class="q-num">Q.04</span><span data-i18n="faq.q4"
-          >Will my API key leak?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a4">
-        The key lives in chrome.storage on your profile. Provider requests
-        are issued from the extension service worker. There is no Margin
-        server in the path. Treat your browser profile as your trust
-        boundary — standard advice for any extension that holds credentials.
-      </div>
-    </details>
-    <details class="faq">
-      <summary>
-        <span class="q-num">Q.05</span><span data-i18n="faq.q5"
-          >Does it work on PDFs?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a5">
-        Not yet. Margin targets HTML pages today. PDF support is on the
-        roadmap; in the meantime, paste the text into a plain HTML reader, or
-        use a browser PDF-to-HTML viewer.
-      </div>
-    </details>
-    <details class="faq">
-      <summary>
-        <span class="q-num">Q.06</span><span data-i18n="faq.q6"
-          >Why is the codebase TypeScript?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a6">
-        A privacy-claiming extension should be auditable. TypeScript on
-        Manifest V3 with Rolldown gives a small, readable surface area. The
-        repository contains the PRD, principles, threat model, and roadmap so
-        the design choices are checkable, not just the binaries.
-      </div>
-    </details>
-    <details class="faq">
-      <summary>
-        <span class="q-num">Q.07</span><span data-i18n="faq.q7"
-          >When will it be on the Chrome Web Store?</span
-        ><span class="q-marker">+</span>
-      </summary>
-      <div class="answer" data-i18n="faq.a7">
-        Soon. The MVP is functional today as an unpacked install. Submit your
-        email above to get notified the day it lands. There will be no second
-        mail.
-      </div>
-    </details>
+    {
+      items.map((item, i) => (
+        <details class="faq" open={i === 0}>
+          <summary>
+            <span class="q-num">{item.num}</span>
+            <span>{item.q}</span>
+            <span class="q-marker">+</span>
+          </summary>
+          <div class="answer">{item.a}</div>
+        </details>
+      ))
+    }
   </div>
 </section>

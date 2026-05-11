@@ -1,37 +1,36 @@
 ---
-// Cost estimator — pages/day × words × model rate.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <section id="pricing">
   <p class="eyebrow">
-    <span class="num">09</span><span data-i18n="price.eye"
-      >Bring your own cost</span
-    >
+    <span class="num">09</span><span>{t("price.eye")}</span>
   </p>
   <h2 class="serif">
-    <span data-i18n="price.t1">Margin is free.</span>
-    <em data-i18n="price.t2">Your API bill</em><span data-i18n="price.t3"
-      > is yours.</span
-    >
+    <span>{t("price.t1")}</span>
+    <em>{t("price.t2")}</em><span>{t("price.t3")}</span>
   </h2>
-  <p class="section-lede" data-i18n="price.lede">
-    There is no Margin subscription. The only cost is the provider's per-token
-    rate, paid directly to OpenAI, Anthropic, or Google. Most reading sessions
-    are measured in cents.
-  </p>
+  <p class="section-lede">{t("price.lede")}</p>
 
   <div class="pricing-grid">
     <div class="calc">
-      <h4 data-i18n="price.calc">Cost estimator · monthly</h4>
+      <h4>{t("price.calc")}</h4>
 
       <div class="calc-row">
-        <span data-i18n="price.pages">Pages translated / day</span>
+        <span>{t("price.pages")}</span>
         <span class="v" id="calcPagesV">10</span>
       </div>
       <input type="range" id="calcPages" min="1" max="100" value="10" step="1" />
 
       <div class="calc-row">
-        <span data-i18n="price.words">Avg. words / page</span>
+        <span>{t("price.words")}</span>
         <span class="v" id="calcWordsV">1,200</span>
       </div>
       <input
@@ -44,7 +43,7 @@
       />
 
       <div class="calc-row" style="margin-bottom:10px">
-        <span data-i18n="price.model">Model</span>
+        <span>{t("price.model")}</span>
         <span class="v" id="calcModelV">GPT-4o mini</span>
       </div>
       <div class="pick" id="calcModelPick">
@@ -58,44 +57,20 @@
       <div class="calc-out">
         <div>
           <div class="v"><em>$</em><span id="calcDay">0.07</span></div>
-          <div class="l" data-i18n="price.per_day">per day</div>
+          <div class="l">{t("price.per_day")}</div>
         </div>
         <div>
           <div class="v"><em>$</em><span id="calcMonth">2.16</span></div>
-          <div class="l" data-i18n="price.per_month">per month</div>
+          <div class="l">{t("price.per_month")}</div>
         </div>
       </div>
     </div>
 
     <ul class="price-notes">
-      <li>
-        <div class="n">$.01</div>
-        <div data-i18n="price.n1">
-          A typical research paper (≈10k words) translated end-to-end with
-          GPT-4o mini comes in under one cent.
-        </div>
-      </li>
-      <li>
-        <div class="n">$.00</div>
-        <div data-i18n="price.n2">
-          Cached pages cost zero. Margin's persistent cache means re-reading a
-          translated page never re-bills you.
-        </div>
-      </li>
-      <li>
-        <div class="n">B Y O</div>
-        <div data-i18n="price.n3">
-          Bring your own key. The endpoint is editable — plug in any
-          compatible gateway, self-hosted router, or routed proxy.
-        </div>
-      </li>
-      <li>
-        <div class="n">FREE</div>
-        <div data-i18n="price.n4">
-          Gemini's free tier is generous enough for casual reading. Most users
-          never see a bill at all.
-        </div>
-      </li>
+      <li><div class="n">$.01</div><div>{t("price.n1")}</div></li>
+      <li><div class="n">$.00</div><div>{t("price.n2")}</div></li>
+      <li><div class="n">B Y O</div><div>{t("price.n3")}</div></li>
+      <li><div class="n">FREE</div><div>{t("price.n4")}</div></li>
     </ul>
   </div>
 </section>

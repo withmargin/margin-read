@@ -128,7 +128,8 @@ nav.links a:hover { color: var(--jam); }
   font-size: 11px;
   letter-spacing: .08em;
 }
-.lang-switch button {
+.lang-switch button,
+.lang-switch .lang-link {
   background: transparent;
   border: none;
   padding: 7px 14px;
@@ -136,8 +137,12 @@ nav.links a:hover { color: var(--jam); }
   cursor: pointer;
   font: inherit;
   text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
-.lang-switch button.on { background: var(--ink); color: var(--cream); }
+.lang-switch button.on,
+.lang-switch .lang-link.on { background: var(--ink); color: var(--cream); }
 
 /* Hero */
 .hero-grid {

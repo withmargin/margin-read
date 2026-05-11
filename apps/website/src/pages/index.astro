@@ -13,22 +13,25 @@ import Honest from "../components/Honest.astro";
 import Pricing from "../components/Pricing.astro";
 import Faq from "../components/Faq.astro";
 import SiteFooter from "../components/SiteFooter.astro";
+import { resolveLocale } from "../i18n/utils";
+
+const locale = resolveLocale(Astro.currentLocale);
 ---
 
-<Layout>
-  <Topbar />
+<Layout locale={locale}>
+  <Topbar locale={locale} />
   <main class="wrap">
-    <Hero />
-    <Demo />
-    <Features />
-    <Providers />
-    <Privacy />
-    <DisplayStyles />
-    <XOptimization />
-    <Tech />
-    <Honest />
-    <Pricing />
-    <Faq />
+    <Hero locale={locale} />
+    <Demo locale={locale} />
+    <Features locale={locale} />
+    <Providers locale={locale} />
+    <Privacy locale={locale} />
+    <DisplayStyles locale={locale} />
+    <XOptimization locale={locale} />
+    <Tech locale={locale} />
+    <Honest locale={locale} />
+    <Pricing locale={locale} />
+    <Faq locale={locale} />
   </main>
-  <SiteFooter />
+  <SiteFooter locale={locale} />
 </Layout>

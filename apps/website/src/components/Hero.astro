@@ -1,31 +1,25 @@
 ---
-// Hero — full-page bilingual reading column on the right,
-// dual CTAs and waitlist signup on the left.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <section class="hero" id="top">
-  <p class="eyebrow">
-    <span data-i18n="hero.eyebrow"
-      >Privacy-first · Bilingual · Open source · MIT</span
-    >
-  </p>
+  <p class="eyebrow">{t("hero.eyebrow")}</p>
   <div class="hero-grid">
     <div>
       <h1 class="serif">
-        <span data-i18n="hero.t1">Read the web in two languages</span><span
-          data-i18n="hero.t1b">,</span
-        >
-        <em data-i18n="hero.t2">without losing</em><span data-i18n="hero.t3"
-          > the original.</span
-        >
+        <span>{t("hero.t1")}</span><span>{t("hero.t1b")}</span>
+        <em>{t("hero.t2")}</em><span>{t("hero.t3")}</span>
       </h1>
       <p class="pitch">
-        <strong data-i18n="hero.p1">Margin</strong>
-        <span data-i18n="hero.p2"
-          > inserts the translation beneath each paragraph. The original stays
-          exactly where it was. Bring your own API key — OpenAI, Anthropic, or
-          Google. No Margin server, no account, no telemetry.</span
-        >
+        <strong>{t("hero.p1")}</strong>
+        <span>{t("hero.p2")}</span>
       </p>
       <div class="cta-row">
         <a
@@ -33,70 +27,42 @@
           href="https://github.com/linyiru/margin-read/"
           target="_blank"
           rel="noopener">
-          <span data-i18n="hero.cta1">Install from source</span>
-          <span class="cta-meta mono" data-i18n="hero.cta1m"
-            >unpacked · MV3</span
-          >
+          <span>{t("hero.cta1")}</span>
+          <span class="cta-meta mono">{t("hero.cta1m")}</span>
         </a>
         <button class="cta" id="openWaitlistBtn" type="button">
-          <span data-i18n="hero.cta2">Notify me on launch</span>
-          <span class="cta-meta mono" data-i18n="hero.cta2m"
-            >Chrome Web Store · soon</span
-          >
+          <span>{t("hero.cta2")}</span>
+          <span class="cta-meta mono">{t("hero.cta2m")}</span>
         </button>
       </div>
-      <form class="signup hidden" id="signup-form">
+      <form class="signup hidden" id="signup-form" data-locale={locale}>
         <input
           type="email"
-          placeholder="you@example.com"
+          placeholder={t("hero.email_ph")}
           required
-          data-i18n-attr="placeholder"
-          data-i18n="hero.email_ph"
         />
-        <button type="submit" data-i18n="hero.cta">Submit</button>
+        <button type="submit">{t("hero.cta")}</button>
       </form>
       <p class="signup-note">
         <span class="dot">●</span>
-        <span data-i18n="hero.note"
-          >No spam. No third-party tracking. Two CTAs, equal weight: try it now,
-          or wait for the store.</span
-        >
+        <span>{t("hero.note")}</span>
       </p>
     </div>
     <div>
       <div class="hero-page" aria-hidden="true">
         <div class="hp-corner mono">
-          <span>FIG. 01</span><span>READING / PARALLEL</span>
+          <span>{t("hero.fig")}</span><span>{t("hero.fig_label")}</span>
         </div>
         <div class="hp-spine"></div>
-        <div class="hp-meta mono" data-i18n="hero.hp_meta">
-          arXiv · cs.CL · 2024 · 12 min read
-        </div>
-        <h4 class="hp-title serif" data-i18n="hero.hp_title">
-          Mixture of Experts: A Survey for Long-Context Models
-        </h4>
-        <div class="hp-byline mono" data-i18n="hero.hp_byline">
-          — J. Smolinski · Y. Tanaka · M. Reyes
-        </div>
-        <p class="hp-para hp-en" data-i18n="hero.hp_p1">
-          Most translation extensions replace the page. Margin does the
-          opposite — the original stays, and the translation grows beneath,
-          paragraph by paragraph.
-        </p>
-        <p class="hp-para hp-zh" data-i18n="hero.hp_p1z">
-          大多數翻譯外掛把整頁取代。Margin 反其道而行——原文留下，譯文一段一段在下方長出來。
-        </p>
-        <p class="hp-para hp-en" data-i18n="hero.hp_p2">
-          When the original is one glance away, you verify a translated phrase
-          the moment it feels off.
-        </p>
-        <p class="hp-para hp-zh" data-i18n="hero.hp_p2z">
-          當原文只在一瞥之間，你能在感覺翻譯不對勁的瞬間立刻驗證。
-        </p>
+        <div class="hp-meta mono">{t("hero.hp_meta")}</div>
+        <h4 class="hp-title serif">{t("hero.hp_title")}</h4>
+        <div class="hp-byline mono">{t("hero.hp_byline")}</div>
+        <p class="hp-para hp-en">{t("hero.hp_p1")}</p>
+        <p class="hp-para hp-zh">{t("hero.hp_p1z")}</p>
+        <p class="hp-para hp-en">{t("hero.hp_p2")}</p>
+        <p class="hp-para hp-zh">{t("hero.hp_p2z")}</p>
         <div class="hp-cap mono">
-          <span>● TRANSLATED IN-PLACE</span><span data-i18n="hero.hp_cap2"
-            >PARAGRAPH × PARAGRAPH</span
-          >
+          <span>{t("hero.hp_cap1")}</span><span>{t("hero.hp_cap2")}</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,13 @@
 ---
 import MarginMark from "./MarginMark.astro";
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 
 const year = new Date().getFullYear();
 ---
@@ -12,23 +20,19 @@ const year = new Date().getFullYear();
           <MarginMark />
           <span>Margin</span>
         </div>
-        <p class="footer-tag" data-i18n="ft.tag">
-          A privacy-first browser extension for bilingual webpage translation.
-          The original stays, the translation grows beneath. Bring your own API
-          key.
-        </p>
+        <p class="footer-tag">{t("ft.tag")}</p>
       </div>
       <div>
-        <h5 data-i18n="ft.h1">PRODUCT</h5>
+        <h5>{t("ft.h1")}</h5>
         <ul>
-          <li><a href="#demo" data-i18n="ft.demo">How it works</a></li>
-          <li><a href="#features" data-i18n="ft.features">Features</a></li>
-          <li><a href="#privacy" data-i18n="ft.privacy">Privacy</a></li>
-          <li><a href="#styles" data-i18n="ft.styles">Display styles</a></li>
+          <li><a href="#demo">{t("ft.demo")}</a></li>
+          <li><a href="#features">{t("ft.features")}</a></li>
+          <li><a href="#privacy">{t("ft.privacy")}</a></li>
+          <li><a href="#styles">{t("ft.styles")}</a></li>
         </ul>
       </div>
       <div>
-        <h5 data-i18n="ft.h2">DOCS</h5>
+        <h5>{t("ft.h2")}</h5>
         <ul>
           <li>
             <a
@@ -57,7 +61,7 @@ const year = new Date().getFullYear();
         </ul>
       </div>
       <div>
-        <h5 data-i18n="ft.h3">CONNECT</h5>
+        <h5>{t("ft.h3")}</h5>
         <ul>
           <li>
             <a
@@ -81,11 +85,7 @@ const year = new Date().getFullYear();
       </div>
     </div>
     <div class="footer-bottom">
-      <span
-        >© {year} Margin · <span data-i18n="ft.priv"
-          >Privacy-first · Open source · MIT</span
-        ></span
-      >
+      <span>© {year} Margin · <span>{t("ft.priv")}</span></span>
       <span
         ><a
           href="https://github.com/linyiru/margin-read/"

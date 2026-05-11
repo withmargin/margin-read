@@ -4,6 +4,8 @@
 import { defaultLocale, locales, ui } from "./ui";
 import type { Locale, TranslationKey } from "./ui";
 
+export type { Locale, TranslationKey };
+
 export function isLocale(value: string | undefined): value is Locale {
   return value !== undefined && (locales as readonly string[]).includes(value);
 }

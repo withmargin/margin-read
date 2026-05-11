@@ -1,5 +1,13 @@
 ---
-// Tech / OSS section — code snippet, stats grid, and OSS callout.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+
 // The code-block uses set:html so curly braces / arrow functions in the
 // snippet aren't interpreted as Astro template expressions.
 const codeSnippet = `<span class="c">// src/content/detect.ts</span><br />
@@ -16,20 +24,13 @@ const codeSnippet = `<span class="c">// src/content/detect.ts</span><br />
 
 <section id="tech">
   <p class="eyebrow">
-    <span class="num">07</span><span data-i18n="tech.eye"
-      >Tech · Open source</span
-    >
+    <span class="num">07</span><span>{t("tech.eye")}</span>
   </p>
   <h2 class="serif">
-    <span data-i18n="tech.t1">Every slice</span>
-    <em data-i18n="tech.t2">shows its grain</em><span data-i18n="tech.t3"
-      >.</span
-    >
+    <span>{t("tech.t1")}</span>
+    <em>{t("tech.t2")}</em><span>{t("tech.t3")}</span>
   </h2>
-  <p class="section-lede" data-i18n="tech.lede">
-    Margin is built in TypeScript on Manifest V3 and bundled with Rolldown.
-    MIT-licensed; the source is public.
-  </p>
+  <p class="section-lede">{t("tech.lede")}</p>
 
   <div class="tech-grid">
     <div>
@@ -39,41 +40,35 @@ const codeSnippet = `<span class="c">// src/content/detect.ts</span><br />
           <div class="v">
             86.6<span style="font-size:.5em;color:var(--mute)">%</span>
           </div>
-          <div class="l">TypeScript</div>
+          <div class="l">{t("tech.stat_lang")}</div>
         </div>
         <div class="stat">
           <div class="v">MV3</div>
-          <div class="l">Manifest V3</div>
+          <div class="l">{t("tech.stat_mv3")}</div>
         </div>
         <div class="stat">
           <div class="v">MIT</div>
-          <div class="l">License</div>
+          <div class="l">{t("tech.stat_license")}</div>
         </div>
         <div class="stat">
           <div class="v">0</div>
-          <div class="l">Telemetry calls</div>
+          <div class="l">{t("tech.stat_telemetry")}</div>
         </div>
       </div>
     </div>
     <div>
       <h4
         class="serif"
-        style="font-size:30px;line-height:1.1;margin:0 0 14px;"
-        data-i18n="tech.s1">
-        "No license has been selected yet." Actually, it's MIT.
+        style="font-size:30px;line-height:1.1;margin:0 0 14px;">
+        {t("tech.s1")}
       </h4>
       <p
-        style="color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0 0 18px;"
-        data-i18n="tech.s1b">
-        Margin is an open-source MVP. Issues, PRs, forks, and self-hosting are
-        welcome. We believe privacy you can verify is the only privacy worth
-        claiming — so the source is public.
+        style="color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0 0 18px;">
+        {t("tech.s1b")}
       </p>
       <p
-        style="color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0 0 18px;"
-        data-i18n="tech.s2b">
-        Want to contribute? The docs are there: Product Requirements,
-        Principles, Threat Model, Roadmap. Start in docs/.
+        style="color:var(--ink-soft);font-size:15px;line-height:1.6;margin:0 0 18px;">
+        {t("tech.s2b")}
       </p>
       <a
         class="repo-link"
@@ -84,7 +79,7 @@ const codeSnippet = `<span class="c">// src/content/detect.ts</span><br />
           style="font-family:'Playfair Display',serif;font-size:18px;letter-spacing:0;text-transform:none;"
           >★</span
         >
-        github.com/linyiru/margin-read
+        {t("tech.repo")}
       </a>
     </div>
   </div>

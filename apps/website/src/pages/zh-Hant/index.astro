@@ -1,0 +1,39 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Topbar from "../../components/Topbar.astro";
+import Hero from "../../components/Hero.astro";
+import Demo from "../../components/Demo.astro";
+import Features from "../../components/Features.astro";
+import Providers from "../../components/Providers.astro";
+import Privacy from "../../components/Privacy.astro";
+import DisplayStyles from "../../components/DisplayStyles.astro";
+import XOptimization from "../../components/XOptimization.astro";
+import Tech from "../../components/Tech.astro";
+import Honest from "../../components/Honest.astro";
+import Pricing from "../../components/Pricing.astro";
+import Faq from "../../components/Faq.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import { resolveLocale } from "../../i18n/utils";
+
+// Astro.currentLocale resolves to "zh-Hant" because this file lives at
+// src/pages/zh-Hant/. resolveLocale guards against unexpected values.
+const locale = resolveLocale(Astro.currentLocale);
+---
+
+<Layout locale={locale}>
+  <Topbar locale={locale} />
+  <main class="wrap">
+    <Hero locale={locale} />
+    <Demo locale={locale} />
+    <Features locale={locale} />
+    <Providers locale={locale} />
+    <Privacy locale={locale} />
+    <DisplayStyles locale={locale} />
+    <XOptimization locale={locale} />
+    <Tech locale={locale} />
+    <Honest locale={locale} />
+    <Pricing locale={locale} />
+    <Faq locale={locale} />
+  </main>
+  <SiteFooter locale={locale} />
+</Layout>

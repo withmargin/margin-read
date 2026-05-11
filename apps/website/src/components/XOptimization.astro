@@ -1,25 +1,23 @@
 ---
-// X (Twitter) optimization showcase + checklist.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <section id="xopt">
   <p class="eyebrow">
-    <span class="num">06</span><span data-i18n="x.eye"
-      >X (Twitter) optimization</span
-    >
+    <span class="num">06</span><span>{t("x.eye")}</span>
   </p>
   <h2 class="serif">
-    <span data-i18n="x.t1">In a flood of posts,</span>
-    <em data-i18n="x.t2">translate only what's worth reading</em><span
-      data-i18n="x.t3">.</span
-    >
+    <span>{t("x.t1")}</span>
+    <em>{t("x.t2")}</em><span>{t("x.t3")}</span>
   </h2>
-  <p class="section-lede" data-i18n="x.lede">
-    Timelines aren't articles. Margin ships an X-specific detector that
-    targets tweet bodies and longform articles only — skipping profile names,
-    like and view counts, media controls, and posts X already marks as
-    translated.
-  </p>
+  <p class="section-lede">{t("x.lede")}</p>
 
   <div class="xopt-grid">
     <div>
@@ -28,64 +26,33 @@
           <div class="x-avatar"></div>
           <div>
             <div>
-              <span class="x-name" data-i18n="x.name">Mari Yamada</span><span
-                class="x-handle">@mariyamada</span
+              <span class="x-name">{t("x.name")}</span><span class="x-handle"
+                >{t("x.handle")}</span
               >
             </div>
-            <div class="x-handle">2:14 PM · May 8, 2026</div>
+            <div class="x-handle">{t("x.time")}</div>
           </div>
         </div>
-        <div class="x-text" data-i18n="x.tweet">
-          After ten years of duct-taping a legacy browser extension in the lab,
-          I've finally decided to rewrite it from scratch. The hard part isn't
-          the code — it's the negotiation with the version of myself who
-          shipped it.
-        </div>
+        <div class="x-text">{t("x.tweet")}</div>
         <div class="x-translation">
-          <span class="label">譯</span><span data-i18n="x.tweet_zh"
-            >在研究室用了十年的老瀏覽器外掛，終於決定自己重寫一遍。難的不是寫程式，是跟過去的自己談判。</span
-          >
+          <span class="label">譯</span><span>{t("x.tweet_zh")}</span>
         </div>
         <div class="x-skip">
           <span class="strike">@mariyamada</span> ·
           <span class="strike">142 ❤</span> ·
           <span class="strike">38 ↻</span> ·
-          <span data-i18n="x.skip">Margin won't translate any of these</span>
+          <span>{t("x.skip")}</span>
         </div>
       </div>
     </div>
     <div>
       <ul class="xopt-list">
-        <li>
-          <span class="check">✓</span><span data-i18n="x.l1"
-            >Translates tweetText only — not display names</span
-          >
-        </li>
-        <li>
-          <span class="check">✓</span><span data-i18n="x.l2"
-            >Skips like, repost, and view counts</span
-          >
-        </li>
-        <li>
-          <span class="check">✓</span><span data-i18n="x.l3"
-            >Detects the body of long-form X articles</span
-          >
-        </li>
-        <li>
-          <span class="check">✓</span><span data-i18n="x.l4"
-            >Quoted posts disabled by default; opt-in from options</span
-          >
-        </li>
-        <li>
-          <span class="check">✓</span><span data-i18n="x.l5"
-            >Skips posts X already marks as translated</span
-          >
-        </li>
-        <li>
-          <span class="check">✓</span><span data-i18n="x.l6"
-            >Picks up newly-loaded cards as you scroll</span
-          >
-        </li>
+        <li><span class="check">✓</span><span>{t("x.l1")}</span></li>
+        <li><span class="check">✓</span><span>{t("x.l2")}</span></li>
+        <li><span class="check">✓</span><span>{t("x.l3")}</span></li>
+        <li><span class="check">✓</span><span>{t("x.l4")}</span></li>
+        <li><span class="check">✓</span><span>{t("x.l5")}</span></li>
+        <li><span class="check">✓</span><span>{t("x.l6")}</span></li>
       </ul>
     </div>
   </div>

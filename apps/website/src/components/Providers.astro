@@ -1,22 +1,23 @@
 ---
-// Three supported AI providers + their default endpoints.
+import { useTranslations, type Locale } from "../i18n/utils";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
 ---
 
 <section id="providers">
   <p class="eyebrow">
-    <span class="num">03</span><span data-i18n="prov.eye"
-      >Supported AI providers</span
-    >
+    <span class="num">03</span><span>{t("prov.eye")}</span>
   </p>
   <h2 class="serif">
-    <span data-i18n="prov.t1">Three frontier models,</span>
-    <em data-i18n="prov.t2">one</em><span data-i18n="prov.t3"> is yours.</span>
+    <span>{t("prov.t1")}</span>
+    <em>{t("prov.t2")}</em><span>{t("prov.t3")}</span>
   </h2>
-  <p class="section-lede" data-i18n="prov.lede">
-    Margin is not bound to a single provider. The endpoint field is editable
-    for compatible gateways and self-hosted routing. "Fetch models" reads
-    available models directly from the provider.
-  </p>
+  <p class="section-lede">{t("prov.lede")}</p>
 
   <div class="providers">
     <div class="prov">
@@ -32,11 +33,7 @@
           <div class="prov-meta">GPT-4o · GPT-4 · GPT-3.5</div>
         </div>
       </div>
-      <p data-i18n="prov.openai">
-        Stable, broad model selection, mature ecosystem. Margin streams via
-        chat completions and can fetch your account's available models from
-        the options page.
-      </p>
+      <p>{t("prov.openai")}</p>
       <div class="prov-endpoint">
         <span class="arrow">→</span>https://api.openai.com/v1/chat/completions
       </div>
@@ -57,10 +54,7 @@
           <div class="prov-meta">Claude Opus · Sonnet · Haiku</div>
         </div>
       </div>
-      <p data-i18n="prov.claude">
-        Strong on long passages and tone preservation. Often shines on
-        research articles and reportage where nuance matters.
-      </p>
+      <p>{t("prov.claude")}</p>
       <div class="prov-endpoint">
         <span class="arrow">→</span>https://api.anthropic.com/v1/messages
       </div>
@@ -79,10 +73,7 @@
           <div class="prov-meta">Gemini 1.5 · 2.0 Flash · Pro</div>
         </div>
       </div>
-      <p data-i18n="prov.gemini">
-        Generous free tier, strong East Asian languages, low-latency Flash
-        variants — ideal when translating large amounts of text continuously.
-      </p>
+      <p>{t("prov.gemini")}</p>
       <div class="prov-endpoint">
         <span class="arrow">→</span
         >https://generativelanguage.googleapis.com/v1beta/models

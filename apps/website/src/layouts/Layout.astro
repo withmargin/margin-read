@@ -1,26 +1,51 @@
 ---
 import "../styles/global.css";
+import { getAbsoluteLocaleUrl } from "astro:i18n";
+import { useTranslations, type Locale } from "../i18n/utils";
+import { locales, htmlLang } from "../i18n/ui";
 
 interface Props {
+  locale: Locale;
   title?: string;
   description?: string;
-  lang?: "en" | "zh-Hant";
 }
 
-const {
-  title = "Margin — Read in two languages",
-  description = "A privacy-first browser extension for bilingual webpage translation. The original stays, the translation grows beneath. Bring your own API key.",
-  lang = "en",
-} = Astro.props;
+const { locale, title, description } = Astro.props;
+const t = useTranslations(locale);
+
+const pageTitle = title ?? t("html.title");
+const pageDescription = description ?? t("html.description");
+
+// `Astro.url.pathname` is the current locale's path (e.g. `/zh-Hant/`).
+// Strip the locale prefix so we can rebuild absolute URLs for each peer.
+const stripped = Astro.url.pathname.replace(
+  new RegExp(`^/(?:${locales.join("|")})(?=/|$)`),
+  "",
+);
+const path = stripped === "" ? "/" : stripped;
+
+const alternates = locales.map((l) => ({
+  hreflang: l,
+  href: getAbsoluteLocaleUrl(l, path),
+}));
+const xDefault = getAbsoluteLocaleUrl("en", path);
+const canonical = getAbsoluteLocaleUrl(locale, path);
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={htmlLang[locale]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <title>{title}</title>
+    <meta name="description" content={pageDescription} />
+    <title>{pageTitle}</title>
+    <link rel="canonical" href={canonical} />
+    {
+      alternates.map((alt) => (
+        <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={xDefault} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,7 +53,7 @@ const {
       rel="stylesheet"
     />
   </head>
-  <body data-lang="en">
+  <body data-locale={locale}>
     <slot />
     <script>
       import "../scripts/site.ts";
