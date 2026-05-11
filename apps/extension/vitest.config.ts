@@ -12,6 +12,7 @@ export default defineConfig({
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
         "src/content/textBlocks.ts",
+        "src/content/youtubeCaptionTracks.ts",
         "src/content/youtubeControls.ts"
       ],
       exclude: ["src/**/*.test.ts", "src/shared/types.ts"],
