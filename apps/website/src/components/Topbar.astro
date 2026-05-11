@@ -1,0 +1,30 @@
+---
+import MarginMark from "./MarginMark.astro";
+---
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="brand">
+      <MarginMark />
+      <span>Margin</span>
+      <small>BILINGUAL NOTES</small>
+    </a>
+    <nav class="links">
+      <a href="#demo" data-i18n="nav.demo">How it works</a>
+      <a href="#features" data-i18n="nav.features">Features</a>
+      <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
+      <a href="#providers" data-i18n="nav.providers">AI Providers</a>
+      <a
+        href="https://github.com/linyiru/toast/"
+        target="_blank"
+        rel="noopener"
+        data-i18n="nav.github">GitHub</a>
+    </nav>
+    <div class="controls">
+      <div class="lang-switch" role="tablist">
+        <button data-lang-set="zh">中</button>
+        <button data-lang-set="en" class="on">EN</button>
+      </div>
+    </div>
+  </div>
+</div>
