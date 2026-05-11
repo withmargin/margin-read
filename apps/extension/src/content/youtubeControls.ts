@@ -809,20 +809,16 @@ function createCaptionStyles(): HTMLStyleElement {
 
     .margin-youtube-caption {
       box-sizing: border-box;
-      border-radius: 8px;
-      background: rgb(0 0 0 / 78%);
+      border-radius: 2px;
+      background: rgb(8 8 8 / 75%);
       color: #ffffff;
       font-size: clamp(16px, 2.1vw, 28px);
-      font-weight: 600;
+      font-weight: 400;
       line-height: 1.35;
-      padding: 6px 12px;
+      padding: 2px 4px;
       text-align: center;
-      text-shadow: 0 1px 2px rgb(0 0 0 / 50%);
+      text-shadow: none;
       white-space: pre-wrap;
-    }
-
-    .margin-youtube-caption[data-mode="translated"] {
-      background: rgb(217 104 144 / 88%);
     }
   `;
   return style;
