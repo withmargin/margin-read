@@ -49,6 +49,15 @@ export const ja = {
   translateQuotedPostsHint: "X card 内の引用投稿テキストも翻訳します。",
   translateXArticles: "X articles を翻訳",
   translateXArticlesHint: "X longform article のタイトルと本文ブロックを翻訳します。",
+  youtubeCaptions: "YouTube 字幕",
+  youtubeCaptionsHint:
+    "Margin は現在、既存の YouTube 字幕トラックを翻訳します。手動字幕や自動生成字幕がない動画では、翻訳の前に speech-to-text が必要です。",
+  youtubeExistingCaptions: "既存の字幕",
+  youtubeExistingCaptionsHint:
+    "作成者が提供した字幕と YouTube 自動字幕に対応し、選択した翻訳 provider で翻訳します。",
+  youtubeSpeechToText: "AI 字幕",
+  youtubeSpeechToTextHint:
+    "まだ利用できません。YouTube 字幕がない動画には、OpenAI または local speech-to-text provider が必要です。",
   xOptimization: "X 最適化",
   xSkipNative: "X の翻訳済み投稿をスキップ",
   xSkipNativeHint: "X が翻訳済みとして表示している投稿の再翻訳を避けます。"

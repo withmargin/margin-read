@@ -49,6 +49,15 @@ export const ko = {
   translateQuotedPostsHint: "X card 안의 인용 게시물 텍스트도 번역합니다.",
   translateXArticles: "X articles 번역",
   translateXArticlesHint: "X longform article 제목과 읽을 수 있는 본문 블록을 번역합니다.",
+  youtubeCaptions: "YouTube 자막",
+  youtubeCaptionsHint:
+    "Margin 은 현재 기존 YouTube 자막 트랙을 번역합니다. 수동 자막이나 자동 생성 자막이 없는 영상은 번역 전에 speech-to-text 가 필요합니다.",
+  youtubeExistingCaptions: "기존 자막",
+  youtubeExistingCaptionsHint:
+    "제작자가 제공한 자막과 YouTube 자동 자막을 지원하며, 선택한 번역 provider 로 번역합니다.",
+  youtubeSpeechToText: "AI 자막",
+  youtubeSpeechToTextHint:
+    "아직 사용할 수 없습니다. YouTube 자막이 없는 영상은 OpenAI 또는 local speech-to-text provider 가 필요합니다.",
   xOptimization: "X 최적화",
   xSkipNative: "X 번역된 게시물 건너뛰기",
   xSkipNativeHint: "X 가 이미 번역한 것으로 표시한 게시물을 다시 번역하지 않습니다."

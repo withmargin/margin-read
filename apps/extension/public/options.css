@@ -79,6 +79,27 @@ legend {
   gap: var(--space-3);
 }
 
+.section-note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.info-card {
+  display: grid;
+  gap: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  background: #fbfcfe;
+}
+
+.info-card strong {
+  color: #333840;
+  font-size: 14px;
+}
+
 @media (min-width: 760px) {
   .section-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -87,6 +108,11 @@ legend {
   .section-grid > fieldset,
   .section-grid > label:has(#model-select) {
     grid-column: 1 / -1;
+  }
+
+  .section-grid > [data-field="provider"],
+  .section-grid > [data-field="api-key"] {
+    grid-template-rows: auto 38px minmax(34px, auto);
   }
 }
 

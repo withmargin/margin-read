@@ -49,6 +49,15 @@ export const de = {
   translateQuotedPostsHint: "Uebersetzt auch verschachtelten zitierten Post-Text in X cards.",
   translateXArticles: "X articles uebersetzen",
   translateXArticlesHint: "Uebersetzt Titel von X longform articles und lesbare Rich-Text-Bloecke.",
+  youtubeCaptions: "YouTube Untertitel",
+  youtubeCaptionsHint:
+    "Margin uebersetzt derzeit vorhandene YouTube Untertitelspuren. Wenn ein Video keine manuellen oder automatisch erzeugten Untertitel hat, ist vor der Uebersetzung speech-to-text erforderlich.",
+  youtubeExistingCaptions: "Vorhandene Untertitel",
+  youtubeExistingCaptionsHint:
+    "Funktioniert mit vom Creator bereitgestellten Untertiteln und YouTube Auto-Untertiteln. Sie werden mit dem gewaehlten provider uebersetzt.",
+  youtubeSpeechToText: "AI Untertitel",
+  youtubeSpeechToTextHint:
+    "Noch nicht verfuegbar. Videos ohne YouTube Untertitel benoetigen einen OpenAI oder lokalen speech-to-text provider, bevor Margin sie uebersetzen kann.",
   xOptimization: "X Optimierung",
   xSkipNative: "Von X uebersetzte Posts ueberspringen",
   xSkipNativeHint: "Verhindert erneutes Uebersetzen von Posts, die X bereits als uebersetzt markiert."

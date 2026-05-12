@@ -49,6 +49,15 @@ export const en = {
   translateQuotedPostsHint: "Also translate nested quoted post text inside X cards.",
   translateXArticles: "Translate X articles",
   translateXArticlesHint: "Translate X longform article titles and readable rich text blocks.",
+  youtubeCaptions: "YouTube captions",
+  youtubeCaptionsHint:
+    "Margin currently translates existing YouTube caption tracks. If a video has no manual or auto-generated captions, speech-to-text is required before translation can work.",
+  youtubeExistingCaptions: "Existing captions",
+  youtubeExistingCaptionsHint:
+    "Works with creator-provided captions and YouTube auto captions. These are translated by your selected translation provider.",
+  youtubeSpeechToText: "AI subtitles",
+  youtubeSpeechToTextHint:
+    "Not available yet. Videos without YouTube captions will need an OpenAI or local speech-to-text provider before Margin can translate them.",
   xOptimization: "X optimization",
   xSkipNative: "Skip X translated posts",
   xSkipNativeHint: "Avoid retranslating posts that X already marks as translated."

@@ -49,6 +49,14 @@ export const zhCN = {
   translateQuotedPostsHint: "同时翻译 X card 里嵌套引用帖文的文字。",
   translateXArticles: "翻译 X articles",
   translateXArticlesHint: "翻译 X longform article 标题与可阅读文字区块。",
+  youtubeCaptions: "YouTube 字幕",
+  youtubeCaptionsHint:
+    "Margin 目前会翻译 YouTube 既有字幕轨。如果视频没有手动字幕或自动生成字幕，就需要先通过语音识别生成字幕，才能进行翻译。",
+  youtubeExistingCaptions: "既有字幕",
+  youtubeExistingCaptionsHint: "支持创作者提供的字幕与 YouTube 自动字幕，并使用你选择的翻译服务进行翻译。",
+  youtubeSpeechToText: "AI 字幕",
+  youtubeSpeechToTextHint:
+    "尚未提供。没有 YouTube 字幕的视频，需要 OpenAI 或 local speech-to-text provider 才能让 Margin 翻译。",
   xOptimization: "X 优化",
   xSkipNative: "略过 X 已翻译帖文",
   xSkipNativeHint: "避免重复翻译 X 已标示翻译过的帖文。"

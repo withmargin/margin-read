@@ -25,12 +25,30 @@ describe("options layout", () => {
     );
   });
 
+  it("marks the provider and API key fields for row alignment", () => {
+    const document = createDocument(optionsHtml);
+
+    expect(document.querySelector('[data-field="provider"] select[name="provider"]')).not.toBeNull();
+    expect(document.querySelector('[data-field="api-key"] input[name="apiKey"]')).not.toBeNull();
+  });
+
   it("hides the specific source language picker until the user opts in", () => {
     const document = createDocument(optionsHtml);
 
     expect(document.querySelector("#source-language-mode")).not.toBeNull();
     expect(document.querySelector("#source-language-specific")?.hasAttribute("hidden")).toBe(true);
     expect(document.querySelector<HTMLInputElement>('[name="sourceLanguage"]')?.type).toBe("hidden");
+  });
+
+  it("explains YouTube caption requirements before display settings", () => {
+    const document = createDocument(optionsHtml);
+    const youtubeHeading = document.querySelector('[data-i18n="youtubeCaptions"]');
+    const displayHeading = document.querySelector('[data-i18n="displayStyle"]');
+
+    expect(youtubeHeading).not.toBeNull();
+    expect(displayHeading).not.toBeNull();
+    expect(document.querySelector('[data-i18n="youtubeSpeechToTextHint"]')).not.toBeNull();
+    expect(youtubeHeading!.compareDocumentPosition(displayHeading!) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
   });
 });
 

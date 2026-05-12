@@ -49,6 +49,14 @@ export const zhTW = {
   translateQuotedPostsHint: "同時翻譯 X card 裡巢狀引用貼文的文字。",
   translateXArticles: "翻譯 X articles",
   translateXArticlesHint: "翻譯 X longform article 標題與可閱讀文字區塊。",
+  youtubeCaptions: "YouTube 字幕",
+  youtubeCaptionsHint:
+    "Margin 目前會翻譯 YouTube 既有字幕軌。如果影片沒有手動字幕或自動產生字幕，就需要先透過語音辨識產生字幕，才能進行翻譯。",
+  youtubeExistingCaptions: "既有字幕",
+  youtubeExistingCaptionsHint: "支援創作者提供的字幕與 YouTube 自動字幕，並使用你選擇的翻譯服務進行翻譯。",
+  youtubeSpeechToText: "AI 字幕",
+  youtubeSpeechToTextHint:
+    "尚未提供。沒有 YouTube 字幕的影片，需要 OpenAI 或 local speech-to-text provider 才能讓 Margin 翻譯。",
   xOptimization: "X 最佳化",
   xSkipNative: "略過 X 已翻譯貼文",
   xSkipNativeHint: "避免重複翻譯 X 已標示翻譯過的貼文。"

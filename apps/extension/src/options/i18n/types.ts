@@ -47,6 +47,12 @@ export const MESSAGE_KEYS = [
   "translateQuotedPostsHint",
   "translateXArticles",
   "translateXArticlesHint",
+  "youtubeCaptions",
+  "youtubeCaptionsHint",
+  "youtubeExistingCaptions",
+  "youtubeExistingCaptionsHint",
+  "youtubeSpeechToText",
+  "youtubeSpeechToTextHint",
   "xOptimization",
   "xSkipNative",
   "xSkipNativeHint"

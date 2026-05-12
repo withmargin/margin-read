@@ -15,7 +15,7 @@
         <section class="settings-section">
           <h2 data-i18n="provider">Provider</h2>
           <div class="section-grid">
-            <label>
+            <label data-field="provider">
               <span data-i18n="provider">Provider</span>
               <select name="provider">
                 <option value="openai">OpenAI</option>
@@ -48,7 +48,7 @@
                 </span>
               </label>
             </fieldset>
-            <label>
+            <label data-field="api-key">
               <span data-i18n="apiKey">API key</span>
               <input name="apiKey" type="password" autocomplete="off" />
               <span class="hint" data-i18n="apiKeyHint">Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.</span>
@@ -111,6 +111,27 @@
               </span>
               <span class="hint" data-i18n="sourceSpecificHint">Use this only when every page you translate is mostly the same source language.</span>
             </label>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 data-i18n="youtubeCaptions">YouTube captions</h2>
+          <p class="section-note" data-i18n="youtubeCaptionsHint">
+            Margin currently translates existing YouTube caption tracks. If a video has no manual or auto-generated captions, speech-to-text is required before translation can work.
+          </p>
+          <div class="section-grid">
+            <div class="info-card">
+              <strong data-i18n="youtubeExistingCaptions">Existing captions</strong>
+              <span class="hint" data-i18n="youtubeExistingCaptionsHint">
+                Works with creator-provided captions and YouTube auto captions. These are translated by your selected translation provider.
+              </span>
+            </div>
+            <div class="info-card">
+              <strong data-i18n="youtubeSpeechToText">AI subtitles</strong>
+              <span class="hint" data-i18n="youtubeSpeechToTextHint">
+                Not available yet. Videos without YouTube captions will need an OpenAI or local speech-to-text provider before Margin can translate them.
+              </span>
+            </div>
           </div>
         </section>
 

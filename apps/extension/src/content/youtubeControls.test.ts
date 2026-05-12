@@ -62,6 +62,7 @@ describe("initializeYouTubeControls", () => {
 
     const button = host?.shadowRoot?.querySelector<HTMLButtonElement>(".margin-youtube__button");
     expect(button?.getAttribute("aria-label")).toBe("Margin captions into Japanese");
+    expect(button?.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("does not inject outside YouTube watch pages", () => {
@@ -95,7 +96,7 @@ describe("initializeYouTubeControls", () => {
     expect(document.querySelector("#margin-youtube-subtitle-control")).toBeNull();
   });
 
-  it("disables caption actions when YouTube has no subtitle control", async () => {
+  it("explains unavailable caption actions when YouTube has no subtitle control", async () => {
     setPageUrl("https://www.youtube.com/watch?v=abc");
     document.body.innerHTML = `
       <div class="html5-video-player">
@@ -112,7 +113,13 @@ describe("initializeYouTubeControls", () => {
       '.margin-youtube__menu-item[data-action="bilingual"], .margin-youtube__menu-item[data-action="translated"]'
     );
 
-    expect(Array.from(captionItems ?? [], (item) => item.disabled)).toEqual([true, true]);
+    expect(Array.from(captionItems ?? [], (item) => item.disabled)).toEqual([false, false]);
+    expect(
+      Array.from(captionItems ?? [], (item) => item.querySelector(".margin-youtube__menu-detail")?.textContent)
+    ).toEqual([
+      "No YouTube captions detected. AI subtitles will need speech-to-text support.",
+      "No YouTube captions detected. AI subtitles will need speech-to-text support."
+    ]);
   });
 
   it("treats disabled YouTube subtitle controls as unavailable", async () => {
@@ -133,6 +140,21 @@ describe("initializeYouTubeControls", () => {
     expect(host?.shadowRoot?.querySelector(".margin-youtube")?.getAttribute("data-has-captions")).toBe("false");
   });
 
+  it("shows why captions cannot be translated when no YouTube caption track exists", async () => {
+    const host = await mountYouTubeControl();
+
+    host.shadowRoot?.querySelector<HTMLButtonElement>('.margin-youtube__menu-item[data-action="bilingual"]')?.click();
+    await flushPromises();
+
+    expect(
+      document
+        .querySelector<HTMLElement>("#margin-youtube-caption-overlay")
+        ?.shadowRoot?.querySelector(".margin-youtube-caption")?.textContent
+    ).toBe(
+      "This video does not expose YouTube captions. AI subtitles will require speech-to-text support, which is not configured yet."
+    );
+  });
+
   it("opens the menu and toggles caption modes", async () => {
     const host = await mountYouTubeControl();
     const root = host.shadowRoot?.querySelector<HTMLElement>(".margin-youtube");
@@ -144,16 +166,26 @@ describe("initializeYouTubeControls", () => {
       '.margin-youtube__menu-item[data-action="translated"]'
     );
 
+    expect(bilingualItem?.querySelector(".margin-youtube__menu-detail")?.textContent).toBe(
+      "Show original captions with Margin translation."
+    );
+    expect(translatedItem?.querySelector(".margin-youtube__menu-detail")?.textContent).toBe(
+      "Show only translated captions."
+    );
+
     button?.click();
     expect(root?.dataset.open).toBe("true");
 
     bilingualItem?.click();
     expect(root?.dataset.mode).toBe("bilingual");
     expect(root?.dataset.open).toBe("false");
+    expect(button?.getAttribute("aria-pressed")).toBe("true");
+    expect(button?.getAttribute("aria-label")).toBe("Margin captions are on for Japanese");
 
     translatedItem?.click();
     expect(root?.dataset.mode).toBe("translated");
     expect(root?.dataset.open).toBe("false");
+    expect(button?.getAttribute("aria-pressed")).toBe("true");
   });
 
   it("translates visible YouTube captions into a player overlay", async () => {
@@ -771,6 +803,7 @@ describe("initializeYouTubeControls", () => {
 
     expect(document.querySelector("#margin-youtube-caption-overlay")).toBeNull();
     expect(host.shadowRoot?.querySelector(".margin-youtube")?.getAttribute("data-mode")).toBe("idle");
+    expect(host.shadowRoot?.querySelector(".margin-youtube__button")?.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("marks translated caption overlay mode separately", async () => {
@@ -1112,9 +1145,9 @@ describe("initializeYouTubeControls", () => {
 
     storageListener?.({ [SETTINGS_KEY]: { newValue: { targetLanguage: "French" } } }, "local");
 
-    expect(host.shadowRoot?.querySelector(".margin-youtube__button")?.getAttribute("aria-label")).toBe(
-      "Margin captions into French"
-    );
+    const button = host.shadowRoot?.querySelector(".margin-youtube__button");
+    expect(button?.getAttribute("aria-label")).toBe("Margin captions into French");
+    expect(button?.getAttribute("aria-pressed")).toBe("false");
   });
 
   it("keeps the default language when settings cannot be loaded", async () => {

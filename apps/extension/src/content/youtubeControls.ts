@@ -20,6 +20,8 @@ const CAPTION_REFRESH_DELAY_MS = 20;
 const CAPTION_CACHE_LIMIT = 120;
 const CAPTION_TRACK_BATCH_SIZE = 32;
 const CAPTION_PLAYBACK_POLL_MS = 100;
+const NO_YOUTUBE_CAPTIONS_MESSAGE =
+  "This video does not expose YouTube captions. AI subtitles will require speech-to-text support, which is not configured yet.";
 
 let observer: MutationObserver | undefined;
 let captionObserver: MutationObserver | undefined;
@@ -284,10 +286,15 @@ async function startCaptionTrackPipeline(): Promise<void> {
   try {
     const track = choosePreferredCaptionTrack(await discoverYouTubeCaptionTracks(document));
     if (!track) {
+      renderNoCaptionSourceNotice();
       return;
     }
     const cues = await fetchCaptionCuesWithYouTubeFallback(track);
-    if (captionMode === "idle" || requestId !== activeTrackRequest || cues.length === 0) {
+    if (captionMode === "idle" || requestId !== activeTrackRequest) {
+      return;
+    }
+    if (cues.length === 0) {
+      renderNoCaptionSourceNotice();
       return;
     }
     captionTrackCues = cues;
@@ -297,8 +304,16 @@ async function startCaptionTrackPipeline(): Promise<void> {
     if (requestId === activeTrackRequest) {
       captionTrackCues = [];
       translatedTrackCues.clear();
+      renderNoCaptionSourceNotice();
     }
   }
+}
+
+function renderNoCaptionSourceNotice(): void {
+  if (captionMode === "idle" || readVisibleCaptionText()) {
+    return;
+  }
+  renderCaptionOverlay(NO_YOUTUBE_CAPTIONS_MESSAGE);
 }
 
 async function translateCaptionTrack(cues: YouTubeCaptionCue[], requestId: number): Promise<void> {
@@ -461,6 +476,7 @@ function createMenuItem(label: string, description: string, onClick: () => void)
   const item = document.createElement("button");
   item.type = "button";
   item.className = "margin-youtube__menu-item";
+  item.dataset.defaultDetail = description;
   item.setAttribute("role", "menuitem");
 
   const text = document.createElement("span");
@@ -490,18 +506,25 @@ function updateControlState(): void {
 
   const button = controlHost.shadowRoot.querySelector(".margin-youtube__button");
   if (button instanceof HTMLButtonElement) {
+    const captionsActive = captionMode !== "idle";
     const label = hasCaptions
-      ? `Margin captions into ${targetLanguage}`
+      ? captionsActive
+        ? `Margin captions are on for ${targetLanguage}`
+        : `Margin captions into ${targetLanguage}`
       : `Margin captions into ${targetLanguage} when captions are available`;
     button.title = label;
     button.setAttribute("aria-label", label);
+    button.setAttribute("aria-pressed", String(captionsActive));
   }
 
   const captionItems = controlHost.shadowRoot.querySelectorAll<HTMLButtonElement>(
     '.margin-youtube__menu-item[data-action="bilingual"], .margin-youtube__menu-item[data-action="translated"]'
   );
   captionItems.forEach((item) => {
-    item.disabled = !hasCaptions;
+    const detail = item.querySelector<HTMLElement>(".margin-youtube__menu-detail")!;
+    detail.textContent = hasCaptions
+      ? item.dataset.defaultDetail!
+      : "No YouTube captions detected. AI subtitles will need speech-to-text support.";
   });
 }
 
@@ -693,6 +716,7 @@ function createControlStyles(): HTMLStyleElement {
     }
 
     .margin-youtube__button {
+      position: relative;
       display: grid;
       width: 36px;
       height: 36px;
@@ -710,6 +734,25 @@ function createControlStyles(): HTMLStyleElement {
     .margin-youtube[data-open="true"] .margin-youtube__button {
       opacity: 1;
       background: rgb(255 255 255 / 12%);
+    }
+
+    .margin-youtube[data-mode="bilingual"] .margin-youtube__button,
+    .margin-youtube[data-mode="translated"] .margin-youtube__button {
+      color: #3ea6ff;
+      opacity: 1;
+    }
+
+    .margin-youtube[data-mode="bilingual"] .margin-youtube__button::after,
+    .margin-youtube[data-mode="translated"] .margin-youtube__button::after {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #3ea6ff;
+      box-shadow: 0 0 0 2px rgb(15 15 15);
+      content: "";
     }
 
     .margin-youtube__button:focus-visible {

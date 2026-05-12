@@ -49,6 +49,15 @@ export const es = {
   translateQuotedPostsHint: "También traduce el texto de posts citados anidados dentro de tarjetas de X.",
   translateXArticles: "Traducir X articles",
   translateXArticlesHint: "Traduce títulos de X longform article y bloques de texto legibles.",
+  youtubeCaptions: "Subtitulos de YouTube",
+  youtubeCaptionsHint:
+    "Margin actualmente traduce pistas de subtitulos existentes de YouTube. Si un video no tiene subtitulos manuales ni generados automaticamente, se necesita speech-to-text antes de traducir.",
+  youtubeExistingCaptions: "Subtitulos existentes",
+  youtubeExistingCaptionsHint:
+    "Funciona con subtitulos del creador y subtitulos automaticos de YouTube. Se traducen con el provider seleccionado.",
+  youtubeSpeechToText: "Subtitulos AI",
+  youtubeSpeechToTextHint:
+    "Aun no disponible. Los videos sin subtitulos de YouTube necesitaran un provider speech-to-text de OpenAI o local antes de que Margin pueda traducirlos.",
   xOptimization: "Optimización de X",
   xSkipNative: "Omitir posts ya traducidos por X",
   xSkipNativeHint: "Evita retraducir posts que X ya marca como traducidos."
