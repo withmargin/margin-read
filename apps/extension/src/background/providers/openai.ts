@@ -1,3 +1,5 @@
+import type { ChatCompletion, ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
+import type { Model } from "openai/resources/models";
 import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult } from "../../shared/types";
 import {
   assertProviderResponse,
@@ -10,13 +12,9 @@ import type { TranslationProvider } from "./types";
 
 const STRUCTURED_OUTPUT_NAME = "translations";
 
-interface OpenAIChatCompletionResponse {
-  choices?: Array<{ message?: { content?: string } }>;
-}
-
-interface OpenAIModelListResponse {
-  data?: Array<{ id?: string }>;
-}
+type OpenAIRequestBody = ChatCompletionCreateParamsNonStreaming;
+type OpenAIResponse = ChatCompletion;
+type OpenAIModelListResponse = { data?: Array<Partial<Model>> };
 
 export const openaiProvider: TranslationProvider = {
   id: "openai",
@@ -34,23 +32,25 @@ async function translateWithOpenAI(
   segments: TextSegment[],
   settings: ExtensionSettings
 ): Promise<TranslationResult[]> {
+  const body = {
+    model: settings.model,
+    temperature: 0,
+    ...buildResponseFormat(settings),
+    messages: [
+      { role: "system", content: TRANSLATION_SYSTEM_PROMPT },
+      { role: "user", content: buildTranslationPayload(segments, settings) }
+    ]
+  } satisfies OpenAIRequestBody;
+
   const response = await fetch(settings.providerEndpoint, {
     method: "POST",
     headers: buildOpenAIHeaders(settings),
-    body: JSON.stringify({
-      model: settings.model,
-      temperature: 0,
-      ...buildResponseFormat(settings),
-      messages: [
-        { role: "system", content: TRANSLATION_SYSTEM_PROMPT },
-        { role: "user", content: buildTranslationPayload(segments, settings) }
-      ]
-    })
+    body: JSON.stringify(body)
   });
 
   await assertProviderResponse(response);
 
-  const payload = (await response.json()) as OpenAIChatCompletionResponse;
+  const payload = (await response.json()) as Partial<OpenAIResponse>;
   const content = payload.choices?.[0]?.message?.content;
 
   if (!content) {
@@ -80,7 +80,9 @@ function buildOpenAIHeaders(settings: ExtensionSettings): Record<string, string>
   };
 }
 
-function buildResponseFormat(settings: ExtensionSettings): { response_format?: Record<string, unknown> } {
+function buildResponseFormat(
+  settings: ExtensionSettings
+): { response_format?: OpenAIRequestBody["response_format"] } {
   if (settings.provider === "openai") {
     return {
       response_format: {
@@ -88,7 +90,7 @@ function buildResponseFormat(settings: ExtensionSettings): { response_format?: R
         json_schema: {
           name: STRUCTURED_OUTPUT_NAME,
           strict: true,
-          schema: getTranslationSchema()
+          schema: getTranslationSchema() as Record<string, unknown>
         }
       }
     };

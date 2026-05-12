@@ -14,5 +14,8 @@
     "package": "pnpm build && node scripts/package-extension.mjs",
     "test": "vitest run --coverage",
     "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "openai": "^6.37.0"
   }
 }
