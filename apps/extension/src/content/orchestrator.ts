@@ -1,5 +1,6 @@
 import type { ExtensionSettings, PageDebugState, TranslationProviderId, TranslationResult } from "../shared/types";
 import { type TranslationDisplayStyle } from "./displayStyle";
+import { collectSiteAdapterBlocks } from "./siteAdapters";
 import { collectTextBlocks } from "./textBlocks";
 import {
   BLOCK_ID_ATTR,
@@ -149,7 +150,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       return;
     }
 
-    const blocks = collectTextBlocks(document, {
+    const textBlockOptions = {
       minTextLength: MIN_TEXT_LENGTH,
       translatedAttr: TRANSLATED_ATTR,
       translationClass: TRANSLATION_CLASS,
@@ -157,7 +158,9 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       xTranslateArticles,
       xTranslateQuotedPosts,
       xSkipNativeTranslatedPosts
-    }).slice(0, 80);
+    };
+    const adapterBlocks = collectSiteAdapterBlocks(document, textBlockOptions);
+    const blocks = (adapterBlocks.length > 0 ? adapterBlocks : collectTextBlocks(document, textBlockOptions)).slice(0, 80);
     debugState.lastScanAt = Date.now();
     debugState.detectedBlocks = blocks.length;
     debugState.enqueuedBlocks += blocks.length;

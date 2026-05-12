@@ -10,6 +10,7 @@ export default defineConfig({
       include: [
         "src/shared/**/*.ts",
         "src/background/**/*.ts",
+        "src/content/siteAdapters/**/*.ts",
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
         "src/content/floatingButton.ts",
@@ -18,7 +19,12 @@ export default defineConfig({
         "src/content/youtubeCaptionTracks.ts",
         "src/content/youtubeControls.ts"
       ],
-      exclude: ["src/**/*.test.ts", "src/shared/types.ts", "src/background/providers/types.ts"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/shared/types.ts",
+        "src/background/providers/types.ts",
+        "src/content/siteAdapters/types.ts"
+      ],
       thresholds: {
         lines: 95,
         functions: 95,
