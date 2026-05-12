@@ -16,6 +16,7 @@ import {
   TRANSLATION_SYSTEM_PROMPT,
   validateTranslations
 } from "./providers/shared";
+import { openaiCompatibleProvider, openaiProvider } from "./providers/openai";
 
 const sessionCache = new Map<string, string>();
 
@@ -130,8 +131,12 @@ async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: bo
     return { ok: false, error: "Configure an API key before fetching models." };
   }
 
-  if (settings.provider === "openai" || settings.provider === "openai-compatible") {
-    return { ok: true, models: await listOpenAIModels(settings) };
+  if (settings.provider === "openai") {
+    return { ok: true, models: await openaiProvider.listModels(settings) };
+  }
+
+  if (settings.provider === "openai-compatible") {
+    return { ok: true, models: await openaiCompatibleProvider.listModels(settings) };
   }
 
   if (settings.provider === "anthropic") {
@@ -143,19 +148,6 @@ async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: bo
   }
 
   return { ok: false, error: "Unsupported translation provider." };
-}
-
-async function listOpenAIModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
-  const response = await fetch(getOpenAIModelsEndpoint(settings.providerEndpoint), {
-    headers: getOpenAICompatibleHeaders(settings)
-  });
-  await assertProviderResponse(response);
-
-  const payload = (await response.json()) as { data?: Array<{ id?: string }> };
-  return (payload.data ?? [])
-    .filter((model): model is { id: string } => typeof model.id === "string" && model.id.length > 0)
-    .map((model) => ({ id: model.id }))
-    .sort((left, right) => left.id.localeCompare(right.id));
 }
 
 async function listAnthropicModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
@@ -194,13 +186,6 @@ async function listGoogleModels(settings: ExtensionSettings): Promise<ProviderMo
     .map((model) => ({ id: model.name.replace(/^models\//, ""), displayName: model.displayName }));
 }
 
-function getOpenAIModelsEndpoint(providerEndpoint: string): string {
-  const url = new URL(providerEndpoint);
-  url.pathname = "/v1/models";
-  url.search = "";
-  return url.toString();
-}
-
 function getAnthropicModelsEndpoint(providerEndpoint: string): string {
   const url = new URL(providerEndpoint);
   url.pathname = "/v1/models";
@@ -209,8 +194,12 @@ function getAnthropicModelsEndpoint(providerEndpoint: string): string {
 }
 
 async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {
-  if (settings.provider === "openai" || settings.provider === "openai-compatible") {
-    return requestOpenAITranslation(segments, settings);
+  if (settings.provider === "openai") {
+    return openaiProvider.translate(segments, settings);
+  }
+
+  if (settings.provider === "openai-compatible") {
+    return openaiCompatibleProvider.translate(segments, settings);
   }
 
   if (settings.provider === "anthropic") {
@@ -222,55 +211,6 @@ async function requestProviderTranslation(segments: TextSegment[], settings: Ext
   }
 
   throw new Error("Unsupported translation provider.");
-}
-
-async function requestOpenAITranslation(
-  segments: TextSegment[],
-  settings: ExtensionSettings
-): Promise<TranslationResult[]> {
-  const response = await fetch(settings.providerEndpoint, {
-    method: "POST",
-    headers: getOpenAICompatibleHeaders(settings),
-    body: JSON.stringify({
-      model: settings.model,
-      temperature: 0,
-      ...(shouldRequestOpenAIJsonMode(settings) ? { response_format: { type: "json_object" } } : {}),
-      messages: [
-        {
-          role: "system",
-          content: TRANSLATION_SYSTEM_PROMPT
-        },
-        {
-          role: "user",
-          content: buildTranslationPayload(segments, settings)
-        }
-      ]
-    })
-  });
-
-  await assertProviderResponse(response);
-
-  const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const content = payload.choices?.[0]?.message?.content;
-
-  if (!content) {
-    throw new Error("Provider response did not include translated content.");
-  }
-
-  return parseTranslations(content, segments);
-}
-
-function getOpenAICompatibleHeaders(settings: ExtensionSettings): Record<string, string> {
-  return {
-    "Content-Type": "application/json",
-    ...(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {})
-  };
-}
-
-function shouldRequestOpenAIJsonMode(settings: ExtensionSettings): boolean {
-  return settings.provider === "openai" || settings.openAICompatibleJsonMode;
 }
 
 async function requestAnthropicTranslation(
