@@ -32,6 +32,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   service worker. `textBlocks.ts` is reduced to default semantic +
   legacy fallback detection.
 
+- **X adapter flags are now nested under `siteAdapters.x.*`.** The
+  four flat top-level keys (`xOptimizedTranslation`,
+  `xTranslateArticles`, `xTranslateQuotedPosts`,
+  `xSkipNativeTranslatedPosts`) became one structured object so the
+  options form, settings type, and future adapters do not balloon
+  the top level of `ExtensionSettings`. Settings now carry an
+  explicit `version: 1` field, and storage is migrated on read via
+  a stepwise, fixture-pinned migration framework
+  (`src/shared/migrations/`). Existing user settings are upgraded
+  automatically — preferences are preserved, no manual reconfigure.
+
 ### Reliability
 
 - Added 22 new unit tests covering the floating button install
@@ -40,6 +51,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Site adapter registry has its own coverage scope and tests. Global
   line coverage at 97%.
+
+- Settings migration is gated by frozen JSON fixtures of real
+  historical storage shapes plus a parameterised guard test that
+  asserts every fixture migrates cleanly to the current version.
+  This pattern makes future schema bumps mechanical — drop the new
+  fixture, write the new step migrator, the test suite enforces
+  the rest.
 
 ## [0.2.0] - 2026-05-12
 
