@@ -133,7 +133,7 @@ apps/extension/src/background/     Service worker、provider request、settings 
 apps/extension/src/content/        页面文字检测、队列与译文插入
 apps/extension/src/options/        Extension options 页面
 apps/extension/src/popup/          Popup UI 与诊断信息
-apps/extension/src/providers/      Provider adapters
+apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         共用 types、defaults、storage 与 messages
 apps/extension/public/             静态 extension UI 与 content CSS
 apps/extension/scripts/            Build 与 extension validation scripts

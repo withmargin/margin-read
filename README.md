@@ -171,7 +171,7 @@ apps/extension/src/background/     Service worker, provider requests, settings, 
 apps/extension/src/content/        Page text detection, queueing, and translation insertion
 apps/extension/src/options/        Extension options page
 apps/extension/src/popup/          Popup UI and diagnostics
-apps/extension/src/providers/      Provider adapters
+apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         Shared types, defaults, storage, and messages
 apps/extension/public/             Static extension UI and content CSS
 apps/extension/scripts/            Build and extension validation scripts

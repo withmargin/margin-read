@@ -169,7 +169,7 @@ apps/extension/src/background/     Service worker、provider request、settings 
 apps/extension/src/content/        頁面文字偵測、佇列與譯文插入
 apps/extension/src/options/        Extension options 頁面
 apps/extension/src/popup/          Popup UI 與診斷資訊
-apps/extension/src/providers/      Provider adapters
+apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         共用 types、defaults、storage 與 messages
 apps/extension/public/             靜態 extension UI 與 content CSS
 apps/extension/scripts/            Build 與 extension validation scripts

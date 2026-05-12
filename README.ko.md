@@ -133,7 +133,7 @@ apps/extension/src/background/     Service worker, provider request, settings, c
 apps/extension/src/content/        페이지 텍스트 감지, 큐, 번역 삽입
 apps/extension/src/options/        Extension options 페이지
 apps/extension/src/popup/          Popup UI 와 진단
-apps/extension/src/providers/      Provider adapters
+apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         공통 types, defaults, storage, messages
 apps/extension/public/             정적 extension UI 와 content CSS
 apps/extension/scripts/            Build 와 extension validation scripts

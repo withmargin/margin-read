@@ -133,7 +133,7 @@ apps/extension/src/background/     Service worker, provider requests, settings u
 apps/extension/src/content/        Seitentexterkennung, Queue und Uebersetzungseinfuegung
 apps/extension/src/options/        Extension options page
 apps/extension/src/popup/          Popup UI und Diagnosen
-apps/extension/src/providers/      Provider adapters
+apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         Gemeinsame types, defaults, storage und messages
 apps/extension/public/             Statische extension UI und content CSS
 apps/extension/scripts/            Build und extension validation scripts
