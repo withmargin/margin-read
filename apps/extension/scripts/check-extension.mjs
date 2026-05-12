@@ -1,9 +1,17 @@
-import { readFile, readdir, stat } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
+import { constants } from "node:fs";
 import { join } from "node:path";
 
 const root = new URL("..", import.meta.url).pathname;
 const manifest = JSON.parse(await readFile(join(root, "manifest.json"), "utf8"));
 const failures = [];
+
+const BUNDLE_SIZE_BUDGETS = {
+  "background.js": 20 * 1024,
+  "popup.js": 10 * 1024,
+  "content.js": 100 * 1024,
+  "options.js": 80 * 1024
+};
 
 assert(manifest.manifest_version === 3, "manifest_version must be 3.");
 assert(!manifest.background || manifest.background.type === "module", "background service worker must be an ES module.");
@@ -28,6 +36,37 @@ for (const file of files) {
 function containsProviderApiKey(content) {
   const googlePrefix = "AI" + "za";
   return content.includes("sk-ant-") || content.includes("sk-proj-") || content.includes(googlePrefix);
+}
+
+await checkBundleSizes();
+
+async function checkBundleSizes() {
+  const distDir = join(root, "dist");
+  if (!(await exists(distDir))) {
+    return;
+  }
+
+  for (const [name, limit] of Object.entries(BUNDLE_SIZE_BUDGETS)) {
+    const path = join(distDir, name);
+    if (!(await exists(path))) {
+      continue;
+    }
+    const info = await stat(path);
+    assert(
+      info.size <= limit,
+      `${name} (${info.size} bytes) exceeds bundle budget of ${limit} bytes. ` +
+        `A regression here usually means an SDK or large dependency was imported as runtime instead of type-only.`
+    );
+  }
+}
+
+async function exists(path) {
+  try {
+    await access(path, constants.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 if (failures.length > 0) {
