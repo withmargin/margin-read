@@ -1,3 +1,4 @@
+import type { Content, GenerateContentResponse, GenerationConfig, Model } from "@google/genai";
 import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult } from "../../shared/types";
 import {
   assertProviderResponse,
@@ -8,18 +9,16 @@ import {
 } from "./shared";
 import type { TranslationProvider } from "./types";
 
-interface GeminiGenerateContentResponse {
-  candidates?: Array<{
-    content?: { parts?: Array<{ text?: string }> };
-  }>;
+interface GeminiRequestBody {
+  generationConfig: GenerationConfig;
+  systemInstruction: Content;
+  contents: Content[];
 }
 
+type GeminiResponse = GenerateContentResponse;
+
 interface GeminiModelListResponse {
-  models?: Array<{
-    name?: string;
-    displayName?: string;
-    supportedGenerationMethods?: string[];
-  }>;
+  models?: Array<Partial<Model> & { supportedGenerationMethods?: string[] }>;
 }
 
 export const googleProvider: TranslationProvider = {
@@ -34,30 +33,32 @@ async function translateWithGoogle(
 ): Promise<TranslationResult[]> {
   const endpoint = buildGenerateContentEndpoint(settings);
 
+  const body = {
+    generationConfig: {
+      temperature: 0,
+      responseMimeType: "application/json",
+      responseSchema: getTranslationSchema()
+    },
+    systemInstruction: {
+      parts: [{ text: TRANSLATION_SYSTEM_PROMPT }]
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: buildTranslationPayload(segments, settings) }]
+      }
+    ]
+  } satisfies GeminiRequestBody;
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      generationConfig: {
-        temperature: 0,
-        responseMimeType: "application/json",
-        responseSchema: getTranslationSchema()
-      },
-      systemInstruction: {
-        parts: [{ text: TRANSLATION_SYSTEM_PROMPT }]
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: buildTranslationPayload(segments, settings) }]
-        }
-      ]
-    })
+    body: JSON.stringify(body)
   });
 
   await assertProviderResponse(response);
 
-  const payload = (await response.json()) as GeminiGenerateContentResponse;
+  const payload = (await response.json()) as Partial<GeminiResponse>;
   const content = payload.candidates?.[0]?.content?.parts?.find((part) => part.text)?.text;
 
   if (!content) {
