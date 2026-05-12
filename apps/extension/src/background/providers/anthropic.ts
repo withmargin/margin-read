@@ -1,0 +1,106 @@
+import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult } from "../../shared/types";
+import {
+  assertProviderResponse,
+  buildTranslationPayload,
+  getTranslationSchema,
+  parseTranslations,
+  TRANSLATION_SYSTEM_PROMPT,
+  validateTranslations
+} from "./shared";
+import type { TranslationProvider } from "./types";
+
+const ANTHROPIC_VERSION = "2023-06-01";
+const TRANSLATION_TOOL_NAME = "return_translations";
+
+interface AnthropicMessagesResponse {
+  content?: Array<{
+    type?: string;
+    text?: string;
+    name?: string;
+    input?: unknown;
+  }>;
+}
+
+interface AnthropicModelListResponse {
+  data?: Array<{ id?: string; display_name?: string }>;
+}
+
+export const anthropicProvider: TranslationProvider = {
+  id: "anthropic",
+  translate: translateWithAnthropic,
+  listModels: listAnthropicModels
+};
+
+async function translateWithAnthropic(
+  segments: TextSegment[],
+  settings: ExtensionSettings
+): Promise<TranslationResult[]> {
+  const response = await fetch(settings.providerEndpoint, {
+    method: "POST",
+    headers: buildAnthropicHeaders(settings),
+    body: JSON.stringify({
+      model: settings.model,
+      max_tokens: 4096,
+      temperature: 0,
+      system: TRANSLATION_SYSTEM_PROMPT,
+      tools: [
+        {
+          name: TRANSLATION_TOOL_NAME,
+          description: "Return translated text segments for bilingual webpage reading.",
+          input_schema: getTranslationSchema()
+        }
+      ],
+      tool_choice: { type: "tool", name: TRANSLATION_TOOL_NAME },
+      messages: [{ role: "user", content: buildTranslationPayload(segments, settings) }]
+    })
+  });
+
+  await assertProviderResponse(response);
+
+  const payload = (await response.json()) as AnthropicMessagesResponse;
+  const toolInput = payload.content?.find(
+    (item) => item.type === "tool_use" && item.name === TRANSLATION_TOOL_NAME && item.input
+  )?.input;
+
+  if (toolInput) {
+    return validateTranslations(toolInput, segments);
+  }
+
+  const content = payload.content?.find((item) => item.type === "text" && item.text)?.text;
+  if (!content) {
+    throw new Error("Provider response did not include translated content.");
+  }
+
+  return parseTranslations(content, segments);
+}
+
+async function listAnthropicModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
+  const response = await fetch(buildModelsEndpoint(settings.providerEndpoint), {
+    headers: buildAnthropicHeaders(settings)
+  });
+  await assertProviderResponse(response);
+
+  const payload = (await response.json()) as AnthropicModelListResponse;
+  return (payload.data ?? [])
+    .filter(
+      (model): model is { id: string; display_name?: string } =>
+        typeof model.id === "string" && model.id.length > 0
+    )
+    .map((model) => ({ id: model.id, displayName: model.display_name }));
+}
+
+function buildAnthropicHeaders(settings: ExtensionSettings): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    "x-api-key": settings.apiKey,
+    "anthropic-version": ANTHROPIC_VERSION,
+    "anthropic-dangerous-direct-browser-access": "true"
+  };
+}
+
+function buildModelsEndpoint(providerEndpoint: string): string {
+  const url = new URL(providerEndpoint);
+  url.pathname = "/v1/models";
+  url.search = "";
+  return url.toString();
+}

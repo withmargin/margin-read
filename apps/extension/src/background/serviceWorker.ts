@@ -11,11 +11,10 @@ import { hashText } from "../shared/hash";
 import {
   assertProviderResponse,
   buildTranslationPayload,
-  getTranslationSchema,
   parseTranslations,
-  TRANSLATION_SYSTEM_PROMPT,
-  validateTranslations
+  TRANSLATION_SYSTEM_PROMPT
 } from "./providers/shared";
+import { anthropicProvider } from "./providers/anthropic";
 import { openaiCompatibleProvider, openaiProvider } from "./providers/openai";
 
 const sessionCache = new Map<string, string>();
@@ -140,7 +139,7 @@ async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: bo
   }
 
   if (settings.provider === "anthropic") {
-    return { ok: true, models: await listAnthropicModels(settings) };
+    return { ok: true, models: await anthropicProvider.listModels(settings) };
   }
 
   if (settings.provider === "google") {
@@ -148,24 +147,6 @@ async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: bo
   }
 
   return { ok: false, error: "Unsupported translation provider." };
-}
-
-async function listAnthropicModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
-  const response = await fetch(getAnthropicModelsEndpoint(settings.providerEndpoint), {
-    headers: {
-      "x-api-key": settings.apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    }
-  });
-  await assertProviderResponse(response);
-
-  const payload = (await response.json()) as {
-    data?: Array<{ id?: string; display_name?: string }>;
-  };
-  return (payload.data ?? [])
-    .filter((model): model is { id: string; display_name?: string } => typeof model.id === "string" && model.id.length > 0)
-    .map((model) => ({ id: model.id, displayName: model.display_name }));
 }
 
 async function listGoogleModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
@@ -186,13 +167,6 @@ async function listGoogleModels(settings: ExtensionSettings): Promise<ProviderMo
     .map((model) => ({ id: model.name.replace(/^models\//, ""), displayName: model.displayName }));
 }
 
-function getAnthropicModelsEndpoint(providerEndpoint: string): string {
-  const url = new URL(providerEndpoint);
-  url.pathname = "/v1/models";
-  url.search = "";
-  return url.toString();
-}
-
 async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {
   if (settings.provider === "openai") {
     return openaiProvider.translate(segments, settings);
@@ -203,7 +177,7 @@ async function requestProviderTranslation(segments: TextSegment[], settings: Ext
   }
 
   if (settings.provider === "anthropic") {
-    return requestAnthropicTranslation(segments, settings);
+    return anthropicProvider.translate(segments, settings);
   }
 
   if (settings.provider === "google") {
@@ -211,64 +185,6 @@ async function requestProviderTranslation(segments: TextSegment[], settings: Ext
   }
 
   throw new Error("Unsupported translation provider.");
-}
-
-async function requestAnthropicTranslation(
-  segments: TextSegment[],
-  settings: ExtensionSettings
-): Promise<TranslationResult[]> {
-  const response = await fetch(settings.providerEndpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": settings.apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: settings.model,
-      max_tokens: 4096,
-      temperature: 0,
-      system: TRANSLATION_SYSTEM_PROMPT,
-      tools: [
-        {
-          name: "return_translations",
-          description: "Return translated text segments for bilingual webpage reading.",
-          input_schema: getTranslationSchema()
-        }
-      ],
-      tool_choice: {
-        type: "tool",
-        name: "return_translations"
-      },
-      messages: [
-        {
-          role: "user",
-          content: buildTranslationPayload(segments, settings)
-        }
-      ]
-    })
-  });
-
-  await assertProviderResponse(response);
-
-  const payload = (await response.json()) as {
-    content?: Array<{ type?: string; text?: string; name?: string; input?: unknown }>;
-  };
-  const toolInput = payload.content?.find(
-    (item) => item.type === "tool_use" && item.name === "return_translations" && item.input
-  )?.input;
-
-  if (toolInput) {
-    return validateTranslations(toolInput, segments);
-  }
-
-  const content = payload.content?.find((item) => item.type === "text" && item.text)?.text;
-  if (!content) {
-    throw new Error("Provider response did not include translated content.");
-  }
-
-  return parseTranslations(content, segments);
 }
 
 async function requestGoogleTranslation(
