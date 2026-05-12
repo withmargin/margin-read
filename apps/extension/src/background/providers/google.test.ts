@@ -74,8 +74,18 @@ describe("googleProvider.translate", () => {
     expect(calls[0].url).toBe(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=g-test"
     );
-    expect(calls[0].body.generationConfig).toEqual({ temperature: 0, responseMimeType: "application/json" });
-    expect((calls[0].body.systemInstruction as { parts: Array<{ text: string }> }).parts[0].text).toContain("Return only valid JSON");
+    const generationConfig = calls[0].body.generationConfig as {
+      temperature: number;
+      responseMimeType: string;
+      responseSchema: { type: string; properties: Record<string, unknown> };
+    };
+    expect(generationConfig.temperature).toBe(0);
+    expect(generationConfig.responseMimeType).toBe("application/json");
+    expect(generationConfig.responseSchema.type).toBe("object");
+    expect(generationConfig.responseSchema.properties).toHaveProperty("translations");
+    expect((calls[0].body.systemInstruction as { parts: Array<{ text: string }> }).parts[0].text).toContain(
+      "Return only valid JSON"
+    );
   });
 
   it("URL-encodes special characters in model name and api key", async () => {

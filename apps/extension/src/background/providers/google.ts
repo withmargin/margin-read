@@ -2,6 +2,7 @@ import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult }
 import {
   assertProviderResponse,
   buildTranslationPayload,
+  getTranslationSchema,
   parseTranslations,
   TRANSLATION_SYSTEM_PROMPT
 } from "./shared";
@@ -39,7 +40,8 @@ async function translateWithGoogle(
     body: JSON.stringify({
       generationConfig: {
         temperature: 0,
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        responseSchema: getTranslationSchema()
       },
       systemInstruction: {
         parts: [{ text: TRANSLATION_SYSTEM_PROMPT }]
