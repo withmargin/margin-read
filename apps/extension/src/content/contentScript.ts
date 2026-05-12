@@ -2,7 +2,7 @@ import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings, RuntimeMessage } from "../shared/types";
 import { installFloatingButton, type FloatingButtonHandle } from "./floatingButton";
 import { createOrchestrator } from "./orchestrator";
-import { initializeYouTubeControls } from "./youtubeControls";
+import { initializeYouTubeControls } from "./siteAdapters/youtube";
 
 interface SettingsResponse {
   ok: boolean;

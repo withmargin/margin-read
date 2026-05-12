@@ -1,12 +1,12 @@
-import { SETTINGS_KEY } from "../shared/defaults";
-import type { ExtensionSettings } from "../shared/types";
+import { SETTINGS_KEY } from "../../../shared/defaults";
+import type { ExtensionSettings } from "../../../shared/types";
 import {
   choosePreferredCaptionTrack,
   discoverYouTubeCaptionTracks,
   fetchYouTubeCaptionCues,
   fetchYouTubeCaptionCuesFromUrl,
   type YouTubeCaptionCue
-} from "./youtubeCaptionTracks";
+} from "./captionTracks";
 
 const YOUTUBE_CONTROL_HOST_ID = "margin-youtube-subtitle-control";
 const YOUTUBE_CAPTION_HOST_ID = "margin-youtube-caption-overlay";

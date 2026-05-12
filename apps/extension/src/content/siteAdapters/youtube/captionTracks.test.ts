@@ -6,7 +6,7 @@ import {
   fetchYouTubeCaptionCues,
   parseJson3CaptionCues,
   parseXmlCaptionCues
-} from "./youtubeCaptionTracks";
+} from "./captionTracks";
 
 beforeEach(() => {
   document.body.innerHTML = "";
