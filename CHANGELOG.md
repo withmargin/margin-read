@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Content script split into focused modules.** The 763-line
+  `contentScript.ts` is now a 70-line entry that wires three single-
+  responsibility modules: `orchestrator.ts` (translation lifecycle,
+  queue, observers, debug state), `translationRenderer.ts` (DOM
+  insertion of pending / done / error states with retry wiring), and
+  `floatingButton.ts` (shadow-DOM toggle UI). User-visible behavior
+  is unchanged; the change makes future feature work — per-site
+  adapters, additional UI controls, alternative renderers — far less
+  prone to introducing regressions in unrelated parts of the page
+  pipeline.
+
+### Reliability
+
+- Added 22 new unit tests covering the floating button install
+  lifecycle and the translation renderer's pending/done/error/retry
+  flows. Renderer and floating button modules at ~100% line coverage.
+
 ## [0.2.0] - 2026-05-12
 
 ### Changed
