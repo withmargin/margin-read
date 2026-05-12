@@ -8,9 +8,7 @@ import type {
   TranslationResult
 } from "../shared/types";
 import { hashText } from "../shared/hash";
-import { anthropicProvider } from "./providers/anthropic";
-import { googleProvider } from "./providers/google";
-import { openaiCompatibleProvider, openaiProvider } from "./providers/openai";
+import { getProvider } from "./providers";
 
 const sessionCache = new Map<string, string>();
 
@@ -120,46 +118,24 @@ function getRuntimeMessageType(message: unknown): string {
   return "unknown";
 }
 
-async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: boolean; models?: ProviderModel[]; error?: string }> {
+async function listProviderModels(
+  settings: ExtensionSettings
+): Promise<{ ok: boolean; models?: ProviderModel[]; error?: string }> {
   if (!settings.apiKey && settings.provider !== "openai-compatible") {
     return { ok: false, error: "Configure an API key before fetching models." };
   }
 
-  if (settings.provider === "openai") {
-    return { ok: true, models: await openaiProvider.listModels(settings) };
+  try {
+    const provider = getProvider(settings.provider);
+    return { ok: true, models: await provider.listModels(settings) };
+  } catch (error: unknown) {
+    return { ok: false, error: error instanceof Error ? error.message : "Unsupported translation provider." };
   }
-
-  if (settings.provider === "openai-compatible") {
-    return { ok: true, models: await openaiCompatibleProvider.listModels(settings) };
-  }
-
-  if (settings.provider === "anthropic") {
-    return { ok: true, models: await anthropicProvider.listModels(settings) };
-  }
-
-  if (settings.provider === "google") {
-    return { ok: true, models: await googleProvider.listModels(settings) };
-  }
-
-  return { ok: false, error: "Unsupported translation provider." };
 }
 
-async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {
-  if (settings.provider === "openai") {
-    return openaiProvider.translate(segments, settings);
-  }
-
-  if (settings.provider === "openai-compatible") {
-    return openaiCompatibleProvider.translate(segments, settings);
-  }
-
-  if (settings.provider === "anthropic") {
-    return anthropicProvider.translate(segments, settings);
-  }
-
-  if (settings.provider === "google") {
-    return googleProvider.translate(segments, settings);
-  }
-
-  throw new Error("Unsupported translation provider.");
+async function requestProviderTranslation(
+  segments: TextSegment[],
+  settings: ExtensionSettings
+): Promise<TranslationResult[]> {
+  return getProvider(settings.provider).translate(segments, settings);
 }
