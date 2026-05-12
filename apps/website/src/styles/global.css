@@ -118,6 +118,19 @@ nav.links {
   color: var(--ink-soft);
 }
 nav.links a:hover { color: var(--jam); }
+
+/* Mobile topbar: hide the in-page anchor nav (visitors scroll instead),
+   drop the BILINGUAL NOTES kicker, tighten side padding. Brand + lang
+   switch are the only essentials at <=720px. */
+@media (max-width: 720px) {
+  nav.links { display: none; }
+  .topbar-inner { padding: 12px 20px; gap: 16px; }
+  .brand { font-size: 19px; gap: 10px; }
+}
+@media (max-width: 480px) {
+  .brand small { display: none; }
+  .topbar-inner { padding: 11px 16px; gap: 12px; }
+}
 .controls { display: flex; align-items: center; gap: 16px; }
 .lang-switch {
   display: inline-flex;
