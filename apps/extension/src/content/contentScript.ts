@@ -1,15 +1,18 @@
 import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings, PageDebugState, RuntimeMessage, TranslationProviderId, TranslationResult } from "../shared/types";
-import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
+import { type TranslationDisplayStyle } from "./displayStyle";
 import { installFloatingButton, type FloatingButtonHandle } from "./floatingButton";
-import { applyTranslationLayout } from "./layoutStrategy";
 import { collectTextBlocks } from "./textBlocks";
+import {
+  BLOCK_ID_ATTR,
+  TRANSLATED_ATTR,
+  TRANSLATION_CLASS,
+  createTranslationRenderer,
+  type TranslationRenderer
+} from "./translationRenderer";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 import { initializeYouTubeControls } from "./youtubeControls";
 
-const TRANSLATION_CLASS = "margin-translation";
-const TRANSLATED_ATTR = "data-margin-translated";
-const BLOCK_ID_ATTR = "data-margin-block-id";
 const MIN_TEXT_LENGTH = 24;
 const BATCH_SIZE = 6;
 const CONCURRENCY = 2;
@@ -38,6 +41,13 @@ const queue = new TranslationQueue<HTMLElement>({
   batchSize: BATCH_SIZE,
   concurrency: CONCURRENCY,
   worker: translateBlocks
+});
+const renderer: TranslationRenderer = createTranslationRenderer({
+  displayStyle,
+  blockMap,
+  onRetry: (block) => {
+    void translateBlocks([block]);
+  }
 });
 
 chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
@@ -91,6 +101,7 @@ async function startTranslation(): Promise<void> {
   try {
     const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
     displayStyle = response.settings?.displayStyle ?? "integrated";
+    renderer.setDisplayStyle(displayStyle);
     debugMode = response.settings?.debugMode ?? false;
     const selectedProvider = response.settings?.provider ?? "openai";
     xOptimizedTranslation = response.settings?.xOptimizedTranslation ?? true;
@@ -186,7 +197,8 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
     };
   });
 
-  insertPendingState(blocks);
+  renderer.insertPendingState(blocks);
+  updateDebugCounts();
 
   let response: TranslationBatchResponse;
   try {
@@ -197,7 +209,8 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Provider request failed.";
     recordError(message);
-    insertErrorState(blocks, message);
+    renderer.insertErrorState(blocks, message);
+    updateDebugCounts();
     return;
   }
 
@@ -208,11 +221,12 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
   if (!response.ok || !response.results) {
     const message = response.error ?? "Translation failed.";
     recordError(message);
-    insertErrorState(blocks, message);
+    renderer.insertErrorState(blocks, message);
+    updateDebugCounts();
     return;
   }
 
-  applyTranslations(response.results);
+  renderer.applyTranslations(response.results);
   const translatedIds = new Set(response.results.map((result) => result.id));
   const missingBlocks = segments
     .filter((segment) => !translatedIds.has(segment.id))
@@ -222,7 +236,7 @@ async function translateBlocks(blocks: HTMLElement[]): Promise<void> {
   if (missingBlocks.length > 0) {
     const message = "The provider did not return a translation for this block.";
     recordError(message);
-    insertErrorState(missingBlocks, message);
+    renderer.insertErrorState(missingBlocks, message);
   }
   updateDebugCounts();
 }
@@ -298,95 +312,6 @@ function configureTranslationQueue(provider: TranslationProviderId): void {
       ? { batchSize: LOCAL_BATCH_SIZE, concurrency: LOCAL_CONCURRENCY }
       : { batchSize: BATCH_SIZE, concurrency: CONCURRENCY }
   );
-}
-
-function applyTranslations(results: TranslationResult[]): void {
-  for (const result of results) {
-    const element = blockMap.get(result.id);
-    if (!element) {
-      continue;
-    }
-    element.setAttribute(TRANSLATED_ATTR, "done");
-    upsertTranslation(element, result.text, "done");
-  }
-  updateDebugCounts();
-}
-
-function insertPendingState(blocks: HTMLElement[]): void {
-  for (const block of blocks) {
-    if (isLegacySplitBlock(block)) {
-      continue;
-    }
-    upsertTranslation(block, "Translating...", "pending");
-  }
-  updateDebugCounts();
-}
-
-function insertErrorState(blocks: HTMLElement[], message: string): void {
-  for (const block of blocks) {
-    block.setAttribute(TRANSLATED_ATTR, "error");
-    upsertTranslation(block, message, "error");
-  }
-  updateDebugCounts();
-}
-
-function upsertTranslation(source: HTMLElement, text: string, state: "pending" | "done" | "error"): void {
-  let translation = source.nextElementSibling;
-  if (!translation?.classList.contains(TRANSLATION_CLASS)) {
-    translation = createTranslationElement(source);
-    source.insertAdjacentElement("afterend", translation);
-  }
-
-  if (!(translation instanceof HTMLElement)) {
-    return;
-  }
-
-  translation.className = getTranslationClassName(displayStyle);
-  translation.dataset.marginSource = getTranslationSource(source);
-  translation.dataset.state = state;
-  translation.removeAttribute("style");
-  if (displayStyle === "integrated") {
-    applyIntegratedStyle(source, translation);
-    applyTranslationLayout(source, translation);
-  }
-  translation.replaceChildren();
-
-  if (state === "error") {
-    const message = document.createElement("span");
-    message.textContent = text;
-
-    const retry = document.createElement("button");
-    retry.type = "button";
-    retry.className = "margin-retry";
-    retry.textContent = "Retry";
-    retry.addEventListener("click", () => {
-      source.removeAttribute(TRANSLATED_ATTR);
-      void translateBlocks([source]);
-    });
-
-    translation.append(message, retry);
-    return;
-  }
-
-  translation.textContent = text;
-}
-
-function createTranslationElement(source: HTMLElement): HTMLElement {
-  return document.createElement(isLegacySplitBlock(source) ? "span" : "div");
-}
-
-function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
-  if (source.dataset.marginXBlock) {
-    return "x";
-  }
-  if (isLegacySplitBlock(source)) {
-    return "legacy";
-  }
-  return "web";
-}
-
-function isLegacySplitBlock(element: HTMLElement): boolean {
-  return element.dataset.marginLegacyBlock === "true" || element.dataset.marginBrSeparatedBlock === "true";
 }
 
 function isMarginMutation(mutation: MutationRecord): boolean {

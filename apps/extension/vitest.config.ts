@@ -14,6 +14,7 @@ export default defineConfig({
         "src/content/displayStyle.ts",
         "src/content/floatingButton.ts",
         "src/content/textBlocks.ts",
+        "src/content/translationRenderer.ts",
         "src/content/youtubeCaptionTracks.ts",
         "src/content/youtubeControls.ts"
       ],
