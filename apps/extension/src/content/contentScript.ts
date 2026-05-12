@@ -1,6 +1,7 @@
 import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings, PageDebugState, RuntimeMessage, TranslationProviderId, TranslationResult } from "../shared/types";
 import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
+import { applyTranslationLayout } from "./layoutStrategy";
 import { collectTextBlocks } from "./textBlocks";
 import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 import { initializeYouTubeControls } from "./youtubeControls";
@@ -350,6 +351,7 @@ function upsertTranslation(source: HTMLElement, text: string, state: "pending" |
   translation.removeAttribute("style");
   if (displayStyle === "integrated") {
     applyIntegratedStyle(source, translation);
+    applyTranslationLayout(source, translation);
   }
   translation.replaceChildren();
 
