@@ -1,0 +1,7 @@
+{
+  "apiKey": "sk-test",
+  "xOptimizedTranslation": true,
+  "legacyExperimentalFlag": "should be dropped",
+  "anotherDeadKey": 42,
+  "provider": "not-a-real-provider"
+}

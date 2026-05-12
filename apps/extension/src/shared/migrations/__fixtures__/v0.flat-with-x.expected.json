@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "provider": "anthropic",
+  "providerEndpoint": "https://api.anthropic.com/v1/messages",
+  "apiKey": "placeholder-anthropic-key",
+  "model": "claude-3-5-haiku-latest",
+  "sourceLanguage": "auto",
+  "targetLanguage": "繁體中文",
+  "displayStyle": "integrated",
+  "cacheMode": "persistent",
+  "debugMode": false,
+  "siteAdapters": {
+    "x": {
+      "enabled": false,
+      "translateArticles": false,
+      "quotedPosts": true,
+      "skipNativeTranslated": false
+    }
+  },
+  "openAICompatibleJsonMode": true,
+  "showFloatingButton": true
+}

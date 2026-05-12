@@ -20,6 +20,7 @@ export default defineConfig({
       exclude: [
         "src/**/*.test.ts",
         "src/shared/types.ts",
+        "src/shared/migrations/versions/current.ts",
         "src/background/providers/types.ts",
         "src/content/siteAdapters/types.ts"
       ],

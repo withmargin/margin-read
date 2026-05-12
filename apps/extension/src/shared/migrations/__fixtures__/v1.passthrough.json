@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "provider": "google",
+  "providerEndpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+  "apiKey": "g-test",
+  "model": "gemini-1.5-flash",
+  "sourceLanguage": "auto",
+  "targetLanguage": "Español",
+  "displayStyle": "highlighted",
+  "cacheMode": "session",
+  "debugMode": true,
+  "siteAdapters": {
+    "x": {
+      "enabled": true,
+      "translateArticles": false,
+      "quotedPosts": true,
+      "skipNativeTranslated": false
+    }
+  },
+  "openAICompatibleJsonMode": false,
+  "showFloatingButton": true
+}

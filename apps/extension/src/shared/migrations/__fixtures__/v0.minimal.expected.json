@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "providerEndpoint": "https://api.openai.com/v1/chat/completions",
+  "apiKey": "sk-test",
+  "model": "gpt-4.1-mini",
+  "sourceLanguage": "auto",
+  "targetLanguage": "English",
+  "displayStyle": "integrated",
+  "cacheMode": "persistent",
+  "debugMode": false,
+  "siteAdapters": {
+    "x": {
+      "enabled": true,
+      "translateArticles": true,
+      "quotedPosts": false,
+      "skipNativeTranslated": true
+    }
+  },
+  "openAICompatibleJsonMode": true,
+  "showFloatingButton": false
+}

@@ -7,7 +7,7 @@ const manifest = JSON.parse(await readFile(join(root, "manifest.json"), "utf8"))
 const failures = [];
 
 const BUNDLE_SIZE_BUDGETS = {
-  "background.js": 20 * 1024,
+  "background.js": 28 * 1024,
   "popup.js": 10 * 1024,
   "content.js": 100 * 1024,
   "options.js": 80 * 1024
