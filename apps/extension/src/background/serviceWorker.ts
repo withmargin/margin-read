@@ -1,5 +1,4 @@
 import { clearPersistentCache, getCachedTranslation, getSettings, setCachedTranslation } from "../shared/storage";
-import { extractJsonObject } from "../shared/json";
 import type {
   ExtensionSettings,
   RuntimeMessage,
@@ -9,6 +8,14 @@ import type {
   TranslationResult
 } from "../shared/types";
 import { hashText } from "../shared/hash";
+import {
+  assertProviderResponse,
+  buildTranslationPayload,
+  getTranslationSchema,
+  parseTranslations,
+  TRANSLATION_SYSTEM_PROMPT,
+  validateTranslations
+} from "./providers/shared";
 
 const sessionCache = new Map<string, string>();
 
@@ -217,23 +224,6 @@ async function requestProviderTranslation(segments: TextSegment[], settings: Ext
   throw new Error("Unsupported translation provider.");
 }
 
-function buildTranslationPayload(segments: TextSegment[], settings: ExtensionSettings): string {
-  const source =
-    settings.sourceLanguage.trim().toLowerCase() === "auto"
-      ? "auto-detected source language"
-      : settings.sourceLanguage.trim();
-
-  return JSON.stringify({
-    task: "Translate each segment for bilingual webpage reading.",
-    sourceLanguage: source,
-    targetLanguage: settings.targetLanguage,
-    outputSchema: {
-      translations: [{ id: "segment id", text: "translated text" }]
-    },
-    segments
-  });
-}
-
 async function requestOpenAITranslation(
   segments: TextSegment[],
   settings: ExtensionSettings
@@ -248,8 +238,7 @@ async function requestOpenAITranslation(
       messages: [
         {
           role: "system",
-          content:
-            "You are a translation engine for a browser extension. Return only valid JSON. Preserve meaning, names, URLs, code-like tokens, and formatting where practical."
+          content: TRANSLATION_SYSTEM_PROMPT
         },
         {
           role: "user",
@@ -300,8 +289,7 @@ async function requestAnthropicTranslation(
       model: settings.model,
       max_tokens: 4096,
       temperature: 0,
-      system:
-        "You are a translation engine for a browser extension. Return only valid JSON. Preserve meaning, names, URLs, code-like tokens, and formatting where practical.",
+      system: TRANSLATION_SYSTEM_PROMPT,
       tools: [
         {
           name: "return_translations",
@@ -362,11 +350,7 @@ async function requestGoogleTranslation(
         responseMimeType: "application/json"
       },
       systemInstruction: {
-        parts: [
-          {
-            text: "You are a translation engine for a browser extension. Return only valid JSON. Preserve meaning, names, URLs, code-like tokens, and formatting where practical."
-          }
-        ]
+        parts: [{ text: TRANSLATION_SYSTEM_PROMPT }]
       },
       contents: [
         {
@@ -391,59 +375,3 @@ async function requestGoogleTranslation(
   return parseTranslations(content, segments);
 }
 
-async function assertProviderResponse(response: Response): Promise<void> {
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Provider request failed with ${response.status}: ${detail.slice(0, 240)}`);
-  }
-}
-
-function parseTranslations(content: string, segments: TextSegment[]): TranslationResult[] {
-  return validateTranslations(JSON.parse(extractJsonObject(content)), segments);
-}
-
-function validateTranslations(value: unknown, segments: TextSegment[]): TranslationResult[] {
-  const translations =
-    typeof value === "object" && value !== null && "translations" in value && Array.isArray(value.translations)
-      ? value.translations
-      : [];
-  const validIds = new Set(segments.map((segment) => segment.id));
-
-  return translations.filter(
-    (translation): translation is TranslationResult =>
-      isTranslationResult(translation) &&
-      validIds.has(translation.id) &&
-      translation.text.trim().length > 0
-  );
-}
-
-function isTranslationResult(value: unknown): value is TranslationResult {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "id" in value &&
-    typeof value.id === "string" &&
-    "text" in value &&
-    typeof value.text === "string"
-  );
-}
-
-function getTranslationSchema(): object {
-  return {
-    type: "object",
-    properties: {
-      translations: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            id: { type: "string" },
-            text: { type: "string" }
-          },
-          required: ["id", "text"]
-        }
-      }
-    },
-    required: ["translations"]
-  };
-}

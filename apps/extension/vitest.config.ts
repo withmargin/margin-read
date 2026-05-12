@@ -9,13 +9,14 @@ export default defineConfig({
       reporter: ["text", "json-summary"],
       include: [
         "src/shared/**/*.ts",
+        "src/background/providers/**/*.ts",
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
         "src/content/textBlocks.ts",
         "src/content/youtubeCaptionTracks.ts",
         "src/content/youtubeControls.ts"
       ],
-      exclude: ["src/**/*.test.ts", "src/shared/types.ts"],
+      exclude: ["src/**/*.test.ts", "src/shared/types.ts", "src/background/providers/types.ts"],
       thresholds: {
         lines: 95,
         functions: 95,
