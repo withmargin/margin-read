@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResp
   return true;
 });
 
-async function handleMessage(message: RuntimeMessage): Promise<unknown> {
+export async function handleMessage(message: RuntimeMessage): Promise<unknown> {
   if (message.type === "GET_SETTINGS") {
     return { ok: true, settings: await getSettings() };
   }

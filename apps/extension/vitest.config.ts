@@ -9,7 +9,7 @@ export default defineConfig({
       reporter: ["text", "json-summary"],
       include: [
         "src/shared/**/*.ts",
-        "src/background/providers/**/*.ts",
+        "src/background/**/*.ts",
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
         "src/content/textBlocks.ts",
