@@ -8,13 +8,8 @@ import type {
   TranslationResult
 } from "../shared/types";
 import { hashText } from "../shared/hash";
-import {
-  assertProviderResponse,
-  buildTranslationPayload,
-  parseTranslations,
-  TRANSLATION_SYSTEM_PROMPT
-} from "./providers/shared";
 import { anthropicProvider } from "./providers/anthropic";
+import { googleProvider } from "./providers/google";
 import { openaiCompatibleProvider, openaiProvider } from "./providers/openai";
 
 const sessionCache = new Map<string, string>();
@@ -143,28 +138,10 @@ async function listProviderModels(settings: ExtensionSettings): Promise<{ ok: bo
   }
 
   if (settings.provider === "google") {
-    return { ok: true, models: await listGoogleModels(settings) };
+    return { ok: true, models: await googleProvider.listModels(settings) };
   }
 
   return { ok: false, error: "Unsupported translation provider." };
-}
-
-async function listGoogleModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
-  const endpoint = `${settings.providerEndpoint.replace(/\/$/, "")}?key=${encodeURIComponent(settings.apiKey)}`;
-  const response = await fetch(endpoint);
-  await assertProviderResponse(response);
-
-  const payload = (await response.json()) as {
-    models?: Array<{ name?: string; displayName?: string; supportedGenerationMethods?: string[] }>;
-  };
-  return (payload.models ?? [])
-    .filter(
-      (model): model is { name: string; displayName?: string; supportedGenerationMethods?: string[] } =>
-        typeof model.name === "string" &&
-        model.name.length > 0 &&
-        (model.supportedGenerationMethods?.includes("generateContent") ?? true)
-    )
-    .map((model) => ({ id: model.name.replace(/^models\//, ""), displayName: model.displayName }));
 }
 
 async function requestProviderTranslation(segments: TextSegment[], settings: ExtensionSettings): Promise<TranslationResult[]> {
@@ -181,53 +158,8 @@ async function requestProviderTranslation(segments: TextSegment[], settings: Ext
   }
 
   if (settings.provider === "google") {
-    return requestGoogleTranslation(segments, settings);
+    return googleProvider.translate(segments, settings);
   }
 
   throw new Error("Unsupported translation provider.");
 }
-
-async function requestGoogleTranslation(
-  segments: TextSegment[],
-  settings: ExtensionSettings
-): Promise<TranslationResult[]> {
-  const endpoint = `${settings.providerEndpoint.replace(/\/$/, "")}/${encodeURIComponent(
-    settings.model
-  )}:generateContent?key=${encodeURIComponent(settings.apiKey)}`;
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      generationConfig: {
-        temperature: 0,
-        responseMimeType: "application/json"
-      },
-      systemInstruction: {
-        parts: [{ text: TRANSLATION_SYSTEM_PROMPT }]
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: buildTranslationPayload(segments, settings) }]
-        }
-      ]
-    })
-  });
-
-  await assertProviderResponse(response);
-
-  const payload = (await response.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-  };
-  const content = payload.candidates?.[0]?.content?.parts?.find((part) => part.text)?.text;
-
-  if (!content) {
-    throw new Error("Provider response did not include translated content.");
-  }
-
-  return parseTranslations(content, segments);
-}
-
