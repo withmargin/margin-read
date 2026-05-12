@@ -96,10 +96,11 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       renderer.setDisplayStyle(displayStyle);
       debugMode = response.settings?.debugMode ?? false;
       const selectedProvider = response.settings?.provider ?? "openai";
-      xOptimizedTranslation = response.settings?.xOptimizedTranslation ?? true;
-      xTranslateArticles = response.settings?.xTranslateArticles ?? true;
-      xTranslateQuotedPosts = response.settings?.xTranslateQuotedPosts ?? false;
-      xSkipNativeTranslatedPosts = response.settings?.xSkipNativeTranslatedPosts ?? true;
+      const xConfig = response.settings?.siteAdapters?.x;
+      xOptimizedTranslation = xConfig?.enabled ?? true;
+      xTranslateArticles = xConfig?.translateArticles ?? true;
+      xTranslateQuotedPosts = xConfig?.quotedPosts ?? false;
+      xSkipNativeTranslatedPosts = xConfig?.skipNativeTranslated ?? true;
       debugState = {
         ...createDebugState(),
         debugMode,

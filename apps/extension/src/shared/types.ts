@@ -4,7 +4,21 @@ export type CacheMode = "session" | "persistent" | "disabled";
 
 export type TranslationProviderId = "openai" | "anthropic" | "google" | "openai-compatible";
 
+export const SETTINGS_VERSION = 1;
+
+export interface XSiteAdapterSettings {
+  enabled: boolean;
+  translateArticles: boolean;
+  quotedPosts: boolean;
+  skipNativeTranslated: boolean;
+}
+
+export interface SiteAdapterSettings {
+  x: XSiteAdapterSettings;
+}
+
 export interface ExtensionSettings {
+  version: typeof SETTINGS_VERSION;
   provider: TranslationProviderId;
   providerEndpoint: string;
   apiKey: string;
@@ -14,10 +28,7 @@ export interface ExtensionSettings {
   displayStyle: DisplayStyle;
   cacheMode: CacheMode;
   debugMode: boolean;
-  xOptimizedTranslation: boolean;
-  xTranslateArticles: boolean;
-  xTranslateQuotedPosts: boolean;
-  xSkipNativeTranslatedPosts: boolean;
+  siteAdapters: SiteAdapterSettings;
   openAICompatibleJsonMode: boolean;
   showFloatingButton: boolean;
 }

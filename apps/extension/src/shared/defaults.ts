@@ -1,4 +1,4 @@
-import type { ExtensionSettings, TranslationProviderId } from "./types";
+import { SETTINGS_VERSION, type ExtensionSettings, type TranslationProviderId } from "./types";
 
 export const PROVIDER_DEFAULTS: Record<
   TranslationProviderId,
@@ -23,6 +23,7 @@ export const PROVIDER_DEFAULTS: Record<
 };
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
+  version: SETTINGS_VERSION,
   provider: "openai",
   providerEndpoint: PROVIDER_DEFAULTS.openai.providerEndpoint,
   apiKey: "",
@@ -32,10 +33,14 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   displayStyle: "integrated",
   cacheMode: "persistent",
   debugMode: false,
-  xOptimizedTranslation: true,
-  xTranslateArticles: true,
-  xTranslateQuotedPosts: false,
-  xSkipNativeTranslatedPosts: true,
+  siteAdapters: {
+    x: {
+      enabled: true,
+      translateArticles: true,
+      quotedPosts: false,
+      skipNativeTranslated: true
+    }
+  },
   openAICompatibleJsonMode: true,
   showFloatingButton: false
 };

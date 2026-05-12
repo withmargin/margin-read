@@ -11,10 +11,10 @@ export function fillForm(settings: ExtensionSettings): void {
   setInputValue("displayStyle", settings.displayStyle);
   setInputValue("cacheMode", settings.cacheMode);
   setCheckboxValue("debugMode", settings.debugMode);
-  setCheckboxValue("xOptimizedTranslation", settings.xOptimizedTranslation);
-  setCheckboxValue("xTranslateArticles", settings.xTranslateArticles);
-  setCheckboxValue("xTranslateQuotedPosts", settings.xTranslateQuotedPosts);
-  setCheckboxValue("xSkipNativeTranslatedPosts", settings.xSkipNativeTranslatedPosts);
+  setCheckboxValue("xOptimizedTranslation", settings.siteAdapters.x.enabled);
+  setCheckboxValue("xTranslateArticles", settings.siteAdapters.x.translateArticles);
+  setCheckboxValue("xTranslateQuotedPosts", settings.siteAdapters.x.quotedPosts);
+  setCheckboxValue("xSkipNativeTranslatedPosts", settings.siteAdapters.x.skipNativeTranslated);
   setCheckboxValue("openAICompatibleJsonMode", settings.openAICompatibleJsonMode);
   setCheckboxValue("showFloatingButton", settings.showFloatingButton);
 }
@@ -31,10 +31,14 @@ export function readForm(): ExtensionSettings {
     displayStyle: getInputValue("displayStyle") as DisplayStyle,
     cacheMode: getInputValue("cacheMode") as CacheMode,
     debugMode: getCheckboxValue("debugMode"),
-    xOptimizedTranslation: getCheckboxValue("xOptimizedTranslation"),
-    xTranslateArticles: getCheckboxValue("xTranslateArticles"),
-    xTranslateQuotedPosts: getCheckboxValue("xTranslateQuotedPosts"),
-    xSkipNativeTranslatedPosts: getCheckboxValue("xSkipNativeTranslatedPosts"),
+    siteAdapters: {
+      x: {
+        enabled: getCheckboxValue("xOptimizedTranslation"),
+        translateArticles: getCheckboxValue("xTranslateArticles"),
+        quotedPosts: getCheckboxValue("xTranslateQuotedPosts"),
+        skipNativeTranslated: getCheckboxValue("xSkipNativeTranslatedPosts")
+      }
+    },
     openAICompatibleJsonMode: getCheckboxValue("openAICompatibleJsonMode"),
     showFloatingButton: getCheckboxValue("showFloatingButton")
   };
