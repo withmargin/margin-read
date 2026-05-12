@@ -68,7 +68,7 @@ describe("buildTranslationPayload", () => {
 });
 
 describe("getTranslationSchema", () => {
-  it("declares translations as an array of {id, text}", () => {
+  it("declares translations as an array of {id, text} and forbids unknown keys", () => {
     expect(getTranslationSchema()).toEqual({
       type: "object",
       properties: {
@@ -80,11 +80,13 @@ describe("getTranslationSchema", () => {
               id: { type: "string" },
               text: { type: "string" }
             },
-            required: ["id", "text"]
+            required: ["id", "text"],
+            additionalProperties: false
           }
         }
       },
-      required: ["translations"]
+      required: ["translations"],
+      additionalProperties: false
     });
   });
 });

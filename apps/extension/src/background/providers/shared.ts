@@ -33,11 +33,13 @@ export function getTranslationSchema(): object {
             id: { type: "string" },
             text: { type: "string" }
           },
-          required: ["id", "text"]
+          required: ["id", "text"],
+          additionalProperties: false
         }
       }
     },
-    required: ["translations"]
+    required: ["translations"],
+    additionalProperties: false
   };
 }
 

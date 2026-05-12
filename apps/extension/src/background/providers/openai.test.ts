@@ -48,7 +48,7 @@ afterEach(() => {
 });
 
 describe("openaiProvider.translate", () => {
-  it("posts to the configured endpoint with bearer auth and system prompt", async () => {
+  it("posts to the configured endpoint with bearer auth, system prompt, and strict json_schema", async () => {
     const body = JSON.stringify({
       choices: [{ message: { content: '{"translations":[{"id":"a","text":"你好"}]}' } }]
     });
@@ -69,7 +69,14 @@ describe("openaiProvider.translate", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe("https://api.openai.com/v1/chat/completions");
     expect((calls[0].init.headers as Record<string, string>).Authorization).toBe("Bearer sk-test");
-    expect(calls[0].body.response_format).toEqual({ type: "json_object" });
+    const responseFormat = calls[0].body.response_format as {
+      type: string;
+      json_schema: { name: string; strict: boolean; schema: { type: string } };
+    };
+    expect(responseFormat.type).toBe("json_schema");
+    expect(responseFormat.json_schema.name).toBe("translations");
+    expect(responseFormat.json_schema.strict).toBe(true);
+    expect(responseFormat.json_schema.schema.type).toBe("object");
     expect(calls[0].body.model).toBe("gpt-4o-mini");
     expect((calls[0].body.messages as Array<{ role: string }>)[0].role).toBe("system");
   });
@@ -115,25 +122,34 @@ describe("openaiCompatibleProvider.translate", () => {
     expect(headers["Content-Type"]).toBe("application/json");
   });
 
-  it("requests JSON mode only when openAICompatibleJsonMode is on", async () => {
+  it("uses json_object (not json_schema) when openAICompatibleJsonMode is on", async () => {
     const body = JSON.stringify({
       choices: [{ message: { content: '{"translations":[]}' } }]
     });
-    const { fetch: stubOn, calls: callsOn } = stubFetch(new Response(body, { status: 200 }));
-    vi.stubGlobal("fetch", stubOn);
+    const { fetch: stub, calls } = stubFetch(new Response(body, { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
     await openaiCompatibleProvider.translate(
       segments,
       makeSettings({ provider: "openai-compatible", openAICompatibleJsonMode: true })
     );
-    expect(callsOn[0].body.response_format).toEqual({ type: "json_object" });
 
-    const { fetch: stubOff, calls: callsOff } = stubFetch(new Response(body, { status: 200 }));
-    vi.stubGlobal("fetch", stubOff);
+    expect(calls[0].body.response_format).toEqual({ type: "json_object" });
+  });
+
+  it("omits response_format entirely when openAICompatibleJsonMode is off", async () => {
+    const body = JSON.stringify({
+      choices: [{ message: { content: '{"translations":[]}' } }]
+    });
+    const { fetch: stub, calls } = stubFetch(new Response(body, { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
     await openaiCompatibleProvider.translate(
       segments,
       makeSettings({ provider: "openai-compatible", openAICompatibleJsonMode: false })
     );
-    expect(callsOff[0].body.response_format).toBeUndefined();
+
+    expect(calls[0].body.response_format).toBeUndefined();
   });
 });
 

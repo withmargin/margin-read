@@ -2,10 +2,13 @@ import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult }
 import {
   assertProviderResponse,
   buildTranslationPayload,
+  getTranslationSchema,
   parseTranslations,
   TRANSLATION_SYSTEM_PROMPT
 } from "./shared";
 import type { TranslationProvider } from "./types";
+
+const STRUCTURED_OUTPUT_NAME = "translations";
 
 interface OpenAIChatCompletionResponse {
   choices?: Array<{ message?: { content?: string } }>;
@@ -37,7 +40,7 @@ async function translateWithOpenAI(
     body: JSON.stringify({
       model: settings.model,
       temperature: 0,
-      ...(shouldRequestJsonMode(settings) ? { response_format: { type: "json_object" } } : {}),
+      ...buildResponseFormat(settings),
       messages: [
         { role: "system", content: TRANSLATION_SYSTEM_PROMPT },
         { role: "user", content: buildTranslationPayload(segments, settings) }
@@ -77,8 +80,25 @@ function buildOpenAIHeaders(settings: ExtensionSettings): Record<string, string>
   };
 }
 
-function shouldRequestJsonMode(settings: ExtensionSettings): boolean {
-  return settings.provider === "openai" || settings.openAICompatibleJsonMode;
+function buildResponseFormat(settings: ExtensionSettings): { response_format?: Record<string, unknown> } {
+  if (settings.provider === "openai") {
+    return {
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: STRUCTURED_OUTPUT_NAME,
+          strict: true,
+          schema: getTranslationSchema()
+        }
+      }
+    };
+  }
+
+  if (settings.openAICompatibleJsonMode) {
+    return { response_format: { type: "json_object" } };
+  }
+
+  return {};
 }
 
 function buildModelsEndpoint(providerEndpoint: string): string {
