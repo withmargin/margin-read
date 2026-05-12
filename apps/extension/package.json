@@ -1,6 +1,6 @@
 {
   "name": "@margin/extension",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Privacy-first translation and notes, placed where reading happens.",
   "private": true,
   "type": "module",
