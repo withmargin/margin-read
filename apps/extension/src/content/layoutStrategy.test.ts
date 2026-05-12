@@ -149,8 +149,8 @@ function createElement({
   source.className = className ?? "";
   Object.assign(source.dataset, dataset);
   parent.append(source);
-  vi.spyOn(source, "getBoundingClientRect").mockReturnValue(sourceRect as DOMRect);
-  vi.spyOn(parent, "getBoundingClientRect").mockReturnValue(parentRect as DOMRect);
+  vi.spyOn(source, "getBoundingClientRect").mockReturnValue(sourceRect);
+  vi.spyOn(parent, "getBoundingClientRect").mockReturnValue(parentRect);
   vi.spyOn(window, "getComputedStyle").mockImplementation((element) =>
     element === source ? (sourceStyle as CSSStyleDeclaration) : style({ display: "block" })
   );
