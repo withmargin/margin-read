@@ -20,11 +20,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   prone to introducing regressions in unrelated parts of the page
   pipeline.
 
+- **Site-specific code now lives behind a documented `SiteAdapter`
+  interface.** All X (Twitter) tweet and long-form article detection
+  moves out of `textBlocks.ts` into
+  `src/content/siteAdapters/x.ts`. YouTube subtitle and caption-
+  track support moves into `src/content/siteAdapters/youtube/`.
+  Adding support for a new site (Medium, Substack, a SaaS app's
+  reader view) is now a matter of dropping a new adapter into
+  `siteAdapters/` and registering it in `siteAdapters/index.ts` —
+  no edits required in the generic text-block detection or the
+  service worker. `textBlocks.ts` is reduced to default semantic +
+  legacy fallback detection.
+
 ### Reliability
 
 - Added 22 new unit tests covering the floating button install
   lifecycle and the translation renderer's pending/done/error/retry
   flows. Renderer and floating button modules at ~100% line coverage.
+
+- Site adapter registry has its own coverage scope and tests. Global
+  line coverage at 97%.
 
 ## [0.2.0] - 2026-05-12
 
