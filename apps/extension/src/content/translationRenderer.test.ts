@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   BLOCK_ID_ATTR,
+  RENDER_STRATEGY_ATTR,
   TRANSLATED_ATTR,
   TRANSLATION_CLASS,
   createTranslationRenderer,
@@ -29,11 +30,18 @@ function getTranslation(source: HTMLElement): HTMLElement | null {
   return next instanceof HTMLElement && next.classList.contains(TRANSLATION_CLASS) ? next : null;
 }
 
+function getNestedTranslation(source: HTMLElement): HTMLElement | null {
+  const child = Array.from(source.children).find(
+    (element): element is HTMLElement => element instanceof HTMLElement && element.classList.contains(TRANSLATION_CLASS)
+  );
+  return child ?? null;
+}
+
 beforeEach(() => {
   document.body.innerHTML = "";
   blockMap = new Map();
   onRetry = vi.fn<(block: HTMLElement) => void>();
-  renderer = createTranslationRenderer({ displayStyle: "integrated", blockMap, onRetry });
+  renderer = createTranslationRenderer({ displayStyle: "balanced", targetLanguage: "English", blockMap, onRetry });
 });
 
 describe("applyTranslations", () => {
@@ -124,6 +132,43 @@ describe("display style handling", () => {
     expect(translation?.dataset.marginSource).toBe("legacy");
   });
 
+  it("keeps definition term translations inside the term", () => {
+    const block = document.createElement("dt");
+    block.textContent = "Term";
+    block.setAttribute(BLOCK_ID_ATTR, "a");
+    block.setAttribute(RENDER_STRATEGY_ATTR, "inline");
+    document.body.append(block);
+    blockMap.set("a", block);
+
+    renderer.applyTranslations([{ id: "a", text: "術語" }]);
+
+    const translation = getNestedTranslation(block);
+    expect(getTranslation(block)).toBeNull();
+    expect(translation?.tagName).toBe("SPAN");
+    expect(translation?.dataset.marginLayout).toBe("definition-term");
+    expect(translation?.textContent).toBe("術語");
+  });
+
+  it("keeps table cell translations inside the source cell", () => {
+    const table = document.createElement("table");
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.textContent = "System prompt and output style";
+    cell.setAttribute(BLOCK_ID_ATTR, "a");
+    cell.setAttribute(RENDER_STRATEGY_ATTR, "table-cell");
+    row.append(cell);
+    table.append(row);
+    document.body.append(table);
+    blockMap.set("a", cell);
+
+    renderer.applyTranslations([{ id: "a", text: "系統提示與輸出風格" }]);
+
+    const translation = getNestedTranslation(cell);
+    expect(getTranslation(cell)).toBeNull();
+    expect(translation?.dataset.marginLayout).toBe("table-cell");
+    expect(translation?.textContent).toBe("系統提示與輸出風格");
+  });
+
   it("tags translations from X blocks with the x source", () => {
     const block = appendBlock("a");
     block.dataset.marginXBlock = "tweet-text";
@@ -143,6 +188,18 @@ describe("display style handling", () => {
     renderer.applyTranslations([{ id: "a", text: "second" }]);
 
     expect(getTranslation(block)?.className).not.toBe(initialClass);
+  });
+
+  it("applies target language typography on render", () => {
+    const block = appendBlock("a");
+
+    renderer.setTargetLanguage("Traditional Chinese");
+    renderer.applyTranslations([{ id: "a", text: "你好 Margin" }]);
+
+    const translation = getTranslation(block);
+    expect(translation?.lang).toBe("zh-TW");
+    expect(translation?.dir).toBe("auto");
+    expect(translation?.style.getPropertyValue("line-break")).toBe("auto");
   });
 });
 

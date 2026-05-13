@@ -1,0 +1,26 @@
+{
+  "expectedTexts": [
+    "Margins are where reading becomes personal",
+    "A translation layer should sit near the original sentence while preserving the shape of the page.",
+    "The best browser reading tools avoid treating navigation, promotion, and captions as equal reading material."
+  ],
+  "excludedTexts": [
+    "Subscribe for weekly essays",
+    "This caption should stay out of the article archetype by default.",
+    "Popular posts"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "Margins are where reading becomes personal",
+      "role": "heading",
+      "source": "archetype",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "A translation layer should sit near",
+      "role": "paragraph",
+      "source": "archetype",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

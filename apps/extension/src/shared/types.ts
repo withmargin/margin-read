@@ -1,4 +1,6 @@
-export type DisplayStyle = "integrated" | "highlighted";
+export type ModernDisplayStyle = "balanced" | "quiet" | "focus" | "card";
+export type LegacyDisplayStyle = "integrated" | "highlighted";
+export type DisplayStyle = ModernDisplayStyle | LegacyDisplayStyle;
 
 export type CacheMode = "session" | "persistent" | "disabled";
 

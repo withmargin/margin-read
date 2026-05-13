@@ -1,7 +1,21 @@
-import { DEFAULT_SETTINGS } from "../defaults";
+import { cloneDefaults, pickDefined } from "./helpers";
 import { migrateV0ToV1 } from "./v0-to-v1";
 import { parseV0 } from "./versions/v0";
 import { SETTINGS_VERSION, type ExtensionSettingsCurrent } from "./versions/current";
+
+const CARRIED_V1_FIELDS = [
+  "provider",
+  "providerEndpoint",
+  "apiKey",
+  "model",
+  "sourceLanguage",
+  "targetLanguage",
+  "displayStyle",
+  "cacheMode",
+  "debugMode",
+  "openAICompatibleJsonMode",
+  "showFloatingButton"
+] as const satisfies readonly (keyof ExtensionSettingsCurrent)[];
 
 /**
  * Public entry: walk the migration chain from whatever version the
@@ -85,19 +99,7 @@ function parseV1(stored: unknown): ExtensionSettingsCurrent {
 
   return {
     ...defaults,
-    ...(source.provider !== undefined ? { provider: source.provider } : {}),
-    ...(source.providerEndpoint !== undefined ? { providerEndpoint: source.providerEndpoint } : {}),
-    ...(source.apiKey !== undefined ? { apiKey: source.apiKey } : {}),
-    ...(source.model !== undefined ? { model: source.model } : {}),
-    ...(source.sourceLanguage !== undefined ? { sourceLanguage: source.sourceLanguage } : {}),
-    ...(source.targetLanguage !== undefined ? { targetLanguage: source.targetLanguage } : {}),
-    ...(source.displayStyle !== undefined ? { displayStyle: source.displayStyle } : {}),
-    ...(source.cacheMode !== undefined ? { cacheMode: source.cacheMode } : {}),
-    ...(source.debugMode !== undefined ? { debugMode: source.debugMode } : {}),
-    ...(source.openAICompatibleJsonMode !== undefined
-      ? { openAICompatibleJsonMode: source.openAICompatibleJsonMode }
-      : {}),
-    ...(source.showFloatingButton !== undefined ? { showFloatingButton: source.showFloatingButton } : {}),
+    ...pickDefined(source, CARRIED_V1_FIELDS),
     siteAdapters: {
       x: {
         ...defaults.siteAdapters.x,
@@ -105,14 +107,5 @@ function parseV1(stored: unknown): ExtensionSettingsCurrent {
       }
     },
     version: SETTINGS_VERSION
-  };
-}
-
-function cloneDefaults(): ExtensionSettingsCurrent {
-  return {
-    ...DEFAULT_SETTINGS,
-    siteAdapters: {
-      x: { ...DEFAULT_SETTINGS.siteAdapters.x }
-    }
   };
 }

@@ -1,21 +1,26 @@
+import { normalizeText } from "../shared/text";
 import type { ExtensionSettings, PageDebugState, TranslationProviderId, TranslationResult } from "../shared/types";
+import type { BlockCandidate } from "./blockCandidates";
 import { type TranslationDisplayStyle } from "./displayStyle";
+import { createIncludedBlockCandidates } from "./extraction/shared";
 import { collectSiteAdapterBlocks } from "./siteAdapters";
-import { collectTextBlocks } from "./textBlocks";
+import { collectBlockCandidates } from "./textBlocks";
 import {
   BLOCK_ID_ATTR,
+  RENDER_STRATEGY_ATTR,
   TRANSLATED_ATTR,
   TRANSLATION_CLASS,
   createTranslationRenderer,
   type TranslationRenderer
 } from "./translationRenderer";
-import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
+import { compareQueueItems, TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
 const MIN_TEXT_LENGTH = 24;
 const BATCH_SIZE = 6;
 const CONCURRENCY = 2;
 const LOCAL_BATCH_SIZE = 3;
 const LOCAL_CONCURRENCY = 1;
+const INITIAL_QUEUE_LIMIT = 80;
 const NEAR_VIEWPORT_MULTIPLIER = 1.5;
 const FLOATING_HOST_ATTR = "data-margin-floating-controls";
 
@@ -49,7 +54,8 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let pending = false;
   let nextId = 1;
   let runId = 0;
-  let displayStyle: TranslationDisplayStyle = "integrated";
+  let displayStyle: TranslationDisplayStyle = "balanced";
+  let targetLanguage = "English";
   let debugMode = false;
   let xOptimizedTranslation = true;
   let xTranslateArticles = true;
@@ -58,6 +64,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let debugState: PageDebugState = createDebugState();
 
   const blockMap = new Map<string, HTMLElement>();
+  const candidateByElement = new WeakMap<HTMLElement, BlockCandidate>();
   const queue = new TranslationQueue<HTMLElement>({
     batchSize: BATCH_SIZE,
     concurrency: CONCURRENCY,
@@ -65,6 +72,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   });
   const renderer: TranslationRenderer = createTranslationRenderer({
     displayStyle,
+    targetLanguage,
     blockMap,
     onRetry: (block) => {
       void translateBlocks([block]);
@@ -92,8 +100,10 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     observer = undefined;
     try {
       const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
-      displayStyle = response.settings?.displayStyle ?? "integrated";
+      displayStyle = response.settings?.displayStyle ?? "balanced";
+      targetLanguage = response.settings?.targetLanguage ?? targetLanguage;
       renderer.setDisplayStyle(displayStyle);
+      renderer.setTargetLanguage(targetLanguage);
       debugMode = response.settings?.debugMode ?? false;
       const selectedProvider = response.settings?.provider ?? "openai";
       const xConfig = response.settings?.siteAdapters?.x;
@@ -139,6 +149,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     document.querySelectorAll(`[${TRANSLATED_ATTR}]`).forEach((node) => {
       node.removeAttribute(TRANSLATED_ATTR);
       node.removeAttribute(BLOCK_ID_ATTR);
+      node.removeAttribute(RENDER_STRATEGY_ATTR);
     });
     blockMap.clear();
     debugState = createDebugState();
@@ -161,17 +172,22 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       xSkipNativeTranslatedPosts
     };
     const adapterBlocks = collectSiteAdapterBlocks(document, textBlockOptions);
-    const blocks = (adapterBlocks.length > 0 ? adapterBlocks : collectTextBlocks(document, textBlockOptions)).slice(0, 80);
+    const candidates =
+      adapterBlocks.length > 0
+        ? createIncludedBlockCandidates(adapterBlocks, "adapter")
+        : collectBlockCandidates(document, textBlockOptions);
+    rememberCandidates(candidates);
+    const initialQueueItems = candidates.map(createQueueItem).sort(compareQueueItems).slice(0, INITIAL_QUEUE_LIMIT);
     debugState.lastScanAt = Date.now();
-    debugState.detectedBlocks = blocks.length;
-    debugState.enqueuedBlocks += blocks.length;
-    debugState.sampleText = getSampleText(blocks);
-    if (blocks.length === 0) {
+    debugState.detectedBlocks = candidates.length;
+    debugState.enqueuedBlocks += initialQueueItems.length;
+    debugState.sampleText = getSampleText(candidates);
+    if (candidates.length === 0) {
       debugState.lastError = "No readable text blocks were detected on this page.";
     }
-    queue.enqueue(blocks.map(createQueueItem));
-    for (const block of blocks) {
-      viewportObserver?.observe(block);
+    queue.enqueue(initialQueueItems);
+    for (const candidate of candidates) {
+      viewportObserver?.observe(candidate.element);
     }
     updateDebugCounts();
   }
@@ -239,16 +255,18 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     viewportObserver?.disconnect();
     viewportObserver = new IntersectionObserver(
       (entries) => {
-        const blocks = entries
+        const candidates = entries
           .filter((entry) => entry.isIntersecting)
           .map((entry) => entry.target)
           .filter(
             (target): target is HTMLElement => target instanceof HTMLElement && !target.hasAttribute(TRANSLATED_ATTR)
-          );
+          )
+          .map((element) => candidateByElement.get(element))
+          .filter((candidate): candidate is BlockCandidate => Boolean(candidate));
 
-        if (blocks.length > 0) {
-          debugState.enqueuedBlocks += blocks.length;
-          queue.enqueue(blocks.map(createQueueItem));
+        if (candidates.length > 0) {
+          debugState.enqueuedBlocks += candidates.length;
+          queue.enqueue(candidates.map(createQueueItem));
           updateDebugCounts();
         }
       },
@@ -259,12 +277,14 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     );
   }
 
-  function createQueueItem(element: HTMLElement): TranslationQueueItem<HTMLElement> {
+  function createQueueItem(candidate: BlockCandidate): TranslationQueueItem<HTMLElement> {
+    const { element } = candidate;
     const id = element.getAttribute(BLOCK_ID_ATTR) ?? `block-${nextId++}`;
     element.setAttribute(BLOCK_ID_ATTR, id);
     return {
       id,
       priority: getQueuePriority(element),
+      contentPriority: candidate.priority,
       distance: getViewportDistance(element),
       value: element
     };
@@ -304,6 +324,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   function updateDebugCounts(): void {
     debugState.queueSize = queue.size;
     debugState.runningRequests = queue.running;
+    if (!debugMode) return;
     debugState.pendingBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="pending"]`).length;
     debugState.translatedBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="done"]`).length;
     debugState.errorBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="error"]`).length;
@@ -312,6 +333,13 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   function recordError(message: string): void {
     debugState.lastError = message;
     updateDebugCounts();
+  }
+
+  function rememberCandidates(candidates: BlockCandidate[]): void {
+    for (const candidate of candidates) {
+      candidate.element.setAttribute(RENDER_STRATEGY_ATTR, candidate.renderStrategy);
+      candidateByElement.set(candidate.element, candidate);
+    }
   }
 
   return {
@@ -361,8 +389,10 @@ function isMarginManagedNode(node: Node): boolean {
     node.hasAttribute(FLOATING_HOST_ATTR) ||
     node.hasAttribute(TRANSLATED_ATTR) ||
     node.hasAttribute(BLOCK_ID_ATTR) ||
+    node.hasAttribute(RENDER_STRATEGY_ATTR) ||
     node.dataset.marginLegacyBlock === "true" ||
-    node.dataset.marginBrSeparatedBlock === "true"
+    node.dataset.marginBrSeparatedBlock === "true" ||
+    node.dataset.marginLayout === "table-cell"
   );
 }
 
@@ -375,11 +405,8 @@ function getSiblingText(element: HTMLElement, key: "previousElementSibling" | "n
   return text.length > 0 ? text.slice(0, 280) : undefined;
 }
 
-function normalizeText(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
 
-function getSampleText(blocks: HTMLElement[]): string | undefined {
-  const sample = blocks.map((block) => normalizeText(block.innerText)).find((text) => text.length > 0);
+function getSampleText(candidates: BlockCandidate[]): string | undefined {
+  const sample = candidates.map((candidate) => candidate.text).find((text) => text.length > 0);
   return sample?.slice(0, 160);
 }

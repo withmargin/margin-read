@@ -1,0 +1,39 @@
+<nav>
+  <p>Getting started</p>
+  <p>Build with Claude Code</p>
+</nav>
+<main>
+  <h1>Manage context windows</h1>
+  <blockquote class="sr-only" data-agent-docs-index="true">
+    <h2>Documentation Index</h2>
+    <p>Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt</p>
+    <p>Use this file to discover all available pages before exploring further.</p>
+  </blockquote>
+  <span data-as="p">The session walks through a realistic flow with representative token counts.</span>
+  <span data-as="p">Each turn appends new messages, tool results, and assistant output to the context window.</span>
+  <span data-as="p">When usage crosses the threshold, compaction summarizes the oldest conversation state.</span>
+  <div class="px-[var(--page-padding)] grow max-w-none table">
+    <table>
+      <thead>
+        <tr>
+          <th>Mechanism</th>
+          <th>After compaction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>System prompt and output style</td>
+          <td>Unchanged; not part of message history</td>
+        </tr>
+        <tr>
+          <td>Invoked skill bodies</td>
+          <td>Re-injected, capped at 5,000 tokens per skill and 25,000 tokens total; oldest dropped first</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<aside>
+  <p>On this page</p>
+  <p>Quick start</p>
+</aside>

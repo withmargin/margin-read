@@ -4,6 +4,7 @@ import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult }
 import {
   assertProviderResponse,
   buildTranslationPayload,
+  buildV1ModelsEndpoint,
   getTranslationSchema,
   parseTranslations,
   TRANSLATION_SYSTEM_PROMPT
@@ -61,7 +62,7 @@ async function translateWithOpenAI(
 }
 
 async function listOpenAIModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
-  const response = await fetch(buildModelsEndpoint(settings.providerEndpoint), {
+  const response = await fetch(buildV1ModelsEndpoint(settings.providerEndpoint), {
     headers: buildOpenAIHeaders(settings)
   });
   await assertProviderResponse(response);
@@ -101,11 +102,4 @@ function buildResponseFormat(
   }
 
   return {};
-}
-
-function buildModelsEndpoint(providerEndpoint: string): string {
-  const url = new URL(providerEndpoint);
-  url.pathname = "/v1/models";
-  url.search = "";
-  return url.toString();
 }

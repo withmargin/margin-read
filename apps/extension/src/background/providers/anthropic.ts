@@ -4,6 +4,7 @@ import type { ExtensionSettings, ProviderModel, TextSegment, TranslationResult }
 import {
   assertProviderResponse,
   buildTranslationPayload,
+  buildV1ModelsEndpoint,
   getTranslationSchema,
   parseTranslations,
   TRANSLATION_SYSTEM_PROMPT,
@@ -74,7 +75,7 @@ async function translateWithAnthropic(
 }
 
 async function listAnthropicModels(settings: ExtensionSettings): Promise<ProviderModel[]> {
-  const response = await fetch(buildModelsEndpoint(settings.providerEndpoint), {
+  const response = await fetch(buildV1ModelsEndpoint(settings.providerEndpoint), {
     headers: buildAnthropicHeaders(settings)
   });
   await assertProviderResponse(response);
@@ -95,11 +96,4 @@ function buildAnthropicHeaders(settings: ExtensionSettings): Record<string, stri
     "anthropic-version": ANTHROPIC_VERSION,
     "anthropic-dangerous-direct-browser-access": "true"
   };
-}
-
-function buildModelsEndpoint(providerEndpoint: string): string {
-  const url = new URL(providerEndpoint);
-  url.pathname = "/v1/models";
-  url.search = "";
-  return url.toString();
 }

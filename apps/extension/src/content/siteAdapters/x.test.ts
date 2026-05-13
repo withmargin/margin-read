@@ -82,6 +82,28 @@ describe("xAdapter.collectBlocks (tweets)", () => {
     expect(normalize(blocks[0]?.textContent ?? "")).toBe("Anthropic just leaked their agent roadmap in 22 minutes.");
   });
 
+  it("splits long X posts on paragraph boundaries", () => {
+    const document = createDocument(`
+      <article data-testid="tweet" role="article">
+        <div data-testid="tweetText" lang="en">First paragraph has enough text to translate.
+
+Second paragraph also has enough text to translate.
+
+Third paragraph keeps the translated structure readable.</div>
+      </article>
+    `);
+
+    const blocks = collect(document, withX());
+
+    expect(blocks).toHaveLength(3);
+    expect(blocks.map((block) => normalize(block.textContent ?? ""))).toEqual([
+      "First paragraph has enough text to translate.",
+      "Second paragraph also has enough text to translate.",
+      "Third paragraph keeps the translated structure readable."
+    ]);
+    expect(blocks.every((block) => block.dataset.marginXParagraphBlock === "true")).toBe(true);
+  });
+
   it("does not include quoted X post text by default", () => {
     const document = createDocument(`
       <article data-testid="tweet" role="article">

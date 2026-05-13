@@ -3,6 +3,7 @@ export type QueuePriority = 0 | 1 | 2;
 export interface TranslationQueueItem<T> {
   id: string;
   priority: QueuePriority;
+  contentPriority?: number;
   distance: number;
   value: T;
 }
@@ -84,5 +85,10 @@ export class TranslationQueue<T> {
 }
 
 export function compareQueueItems<T>(left: TranslationQueueItem<T>, right: TranslationQueueItem<T>): number {
-  return left.priority - right.priority || left.distance - right.distance || left.id.localeCompare(right.id);
+  return (
+    left.priority - right.priority ||
+    (left.contentPriority ?? 0) - (right.contentPriority ?? 0) ||
+    left.distance - right.distance ||
+    left.id.localeCompare(right.id)
+  );
 }

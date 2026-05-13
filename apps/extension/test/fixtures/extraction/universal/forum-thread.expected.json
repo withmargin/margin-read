@@ -1,0 +1,36 @@
+{
+  "expectedTexts": [
+    "How should browser extensions translate long threads?",
+    "Several people in this discussion are comparing inline translation with side-by-side translation.",
+    "Inline translation keeps context close to the original message.",
+    "Side-by-side translation can work better for long technical posts.",
+    "I prefer inline translation for support forums because each answer often references the previous sentence.",
+    "Do not translate navigation controls or hidden moderation metadata."
+  ],
+  "excludedTexts": [
+    "Home",
+    "Latest",
+    "Privacy",
+    "Terms"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "How should browser extensions",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Inline translation keeps context",
+      "role": "list",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Do not translate navigation controls",
+      "role": "quote",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

@@ -43,6 +43,13 @@ export function getTranslationSchema(): object {
   };
 }
 
+export function buildV1ModelsEndpoint(providerEndpoint: string): string {
+  const url = new URL(providerEndpoint);
+  url.pathname = "/v1/models";
+  url.search = "";
+  return url.toString();
+}
+
 export async function assertProviderResponse(response: Response): Promise<void> {
   if (!response.ok) {
     const detail = await response.text();

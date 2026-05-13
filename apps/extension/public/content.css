@@ -1,19 +1,31 @@
 .margin-translation {
   box-sizing: border-box;
   font: inherit;
+  font-synthesis-weight: auto;
   line-height: 1.55;
+  text-rendering: optimizeLegibility;
 }
 
+.margin-translation--balanced {
+  padding: 0 0 0 0.65em;
+  border-left: 2px solid color-mix(in srgb, currentColor 28%, transparent);
+  background: transparent;
+  opacity: 1;
+}
+
+.margin-translation--quiet,
 .margin-translation--integrated {
   padding: 0;
   border-left: 0;
   background: transparent;
-  opacity: 0.72;
+  opacity: 1;
 }
 
-.margin-translation--integrated:hover,
-.margin-translation--integrated:focus-within {
-  opacity: 0.92;
+.margin-translation--focus {
+  padding: 0;
+  border-left: 0;
+  background: transparent;
+  opacity: 1;
 }
 
 .margin-translation[data-margin-source="x"] {
@@ -29,11 +41,22 @@
   overflow-wrap: anywhere;
 }
 
+.margin-translation[data-margin-layout="definition-term"] {
+  display: inline;
+  margin: 0 0 0 0.45em;
+  padding: 0 0 0 0.45em;
+  border-left: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  background: transparent;
+}
+
+.margin-translation--card,
 .margin-translation--highlighted {
   margin: 0.45em 0 0.85em;
-  padding: 0.5em 0.7em;
-  background: rgba(245, 215, 110, 0.55);
-  border-radius: 3px;
+  padding: 0.55em 0.75em 0.6em;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-left: 2px solid color-mix(in srgb, currentColor 34%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, currentColor 7%, transparent);
   color: inherit;
 }
 

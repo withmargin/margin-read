@@ -1,10 +1,17 @@
-import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
+import type { BlockRenderStrategy } from "./blockCandidates";
+import {
+  applyLanguageTypography,
+  applyTranslationDisplayStyle,
+  getTranslationClassName,
+  type TranslationDisplayStyle
+} from "./displayStyle";
 import { applyTranslationLayout } from "./layoutStrategy";
 import type { TranslationResult } from "../shared/types";
 
 export const TRANSLATION_CLASS = "margin-translation";
 export const TRANSLATED_ATTR = "data-margin-translated";
 export const BLOCK_ID_ATTR = "data-margin-block-id";
+export const RENDER_STRATEGY_ATTR = "data-margin-render-strategy";
 
 type TranslationState = "pending" | "done" | "error";
 
@@ -13,37 +20,39 @@ export interface TranslationRenderer {
   insertPendingState(blocks: HTMLElement[]): void;
   insertErrorState(blocks: HTMLElement[], message: string): void;
   setDisplayStyle(style: TranslationDisplayStyle): void;
+  setTargetLanguage(language: string): void;
 }
 
 export interface TranslationRendererOptions {
   displayStyle: TranslationDisplayStyle;
+  targetLanguage: string;
   blockMap: Map<string, HTMLElement>;
   onRetry: (block: HTMLElement) => void;
 }
 
 export function createTranslationRenderer(options: TranslationRendererOptions): TranslationRenderer {
   let displayStyle = options.displayStyle;
+  let targetLanguage = options.targetLanguage;
   const { blockMap, onRetry } = options;
 
   function upsert(source: HTMLElement, text: string, state: TranslationState): void {
-    let translation = source.nextElementSibling;
-    if (!translation?.classList.contains(TRANSLATION_CLASS)) {
-      translation = createTranslationElement(source);
-      source.insertAdjacentElement("afterend", translation);
-    }
-
-    if (!(translation instanceof HTMLElement)) {
-      return;
-    }
+    const translation = getOrCreateTranslationElement(source);
 
     translation.className = getTranslationClassName(displayStyle);
     translation.dataset.marginSource = getTranslationSource(source);
     translation.dataset.state = state;
     translation.removeAttribute("style");
-    if (displayStyle === "integrated") {
-      applyIntegratedStyle(source, translation);
+    applyTranslationDisplayStyle(source, translation, displayStyle);
+    const renderStrategy = getRenderStrategy(source);
+    if (renderStrategy === "table-cell") {
+      translation.dataset.marginLayout = "table-cell";
+    } else {
       applyTranslationLayout(source, translation);
     }
+    if (renderStrategy === "inline" && source.matches("dt")) {
+      translation.dataset.marginLayout = "definition-term";
+    }
+    applyLanguageTypography(translation, targetLanguage);
     translation.replaceChildren();
 
     if (state === "error") {
@@ -79,7 +88,7 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     },
     insertPendingState(blocks) {
       for (const block of blocks) {
-        if (isLegacySplitBlock(block)) {
+        if (isLegacySplitBlock(block) || getRenderStrategy(block) === "inline") {
           continue;
         }
         upsert(block, "Translating...", "pending");
@@ -93,12 +102,39 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     },
     setDisplayStyle(style) {
       displayStyle = style;
+    },
+    setTargetLanguage(language) {
+      targetLanguage = language;
     }
   };
 }
 
 function createTranslationElement(source: HTMLElement): HTMLElement {
-  return document.createElement(isLegacySplitBlock(source) ? "span" : "div");
+  return document.createElement(isLegacySplitBlock(source) || getRenderStrategy(source) === "inline" ? "span" : "div");
+}
+
+function getOrCreateTranslationElement(source: HTMLElement): HTMLElement {
+  const renderStrategy = getRenderStrategy(source);
+  if ((renderStrategy === "inline" && source.matches("dt")) || renderStrategy === "table-cell") {
+    const existing = Array.from(source.children).find(
+      (child): child is HTMLElement => child instanceof HTMLElement && child.classList.contains(TRANSLATION_CLASS)
+    );
+    if (existing) {
+      return existing;
+    }
+    const translation = createTranslationElement(source);
+    source.append(translation);
+    return translation;
+  }
+
+  const nextElement = source.nextElementSibling;
+  if (nextElement instanceof HTMLElement && nextElement.classList.contains(TRANSLATION_CLASS)) {
+    return nextElement;
+  }
+
+  const translation = createTranslationElement(source);
+  source.insertAdjacentElement("afterend", translation);
+  return translation;
 }
 
 function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
@@ -113,4 +149,12 @@ function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
 
 export function isLegacySplitBlock(element: HTMLElement): boolean {
   return element.dataset.marginLegacyBlock === "true" || element.dataset.marginBrSeparatedBlock === "true";
+}
+
+function getRenderStrategy(source: HTMLElement): BlockRenderStrategy {
+  const value = source.getAttribute(RENDER_STRATEGY_ATTR);
+  if (value === "inline" || value === "table-cell") {
+    return value;
+  }
+  return "integrated";
 }

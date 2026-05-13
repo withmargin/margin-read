@@ -1,0 +1,48 @@
+{
+  "expectedTexts": [
+    "Manage context windows",
+    "The session walks through a realistic flow with representative token counts.",
+    "Each turn appends new messages, tool results, and assistant output to the context window.",
+    "When usage crosses the threshold, compaction summarizes the oldest conversation state.",
+    "Mechanism",
+    "After compaction",
+    "System prompt and output style",
+    "Unchanged; not part of message history",
+    "Re-injected, capped at 5,000 tokens per skill and 25,000 tokens total; oldest dropped first"
+  ],
+  "excludedTexts": [
+    "Getting started",
+    "Build with Claude Code",
+    "On this page",
+    "Quick start",
+    "Documentation Index",
+    "Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt",
+    "Use this file to discover all available pages before exploring further."
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "Manage context windows",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "The session walks through a realistic flow",
+      "role": "paragraph",
+      "source": "archetype",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Re-injected, capped at 5,000 tokens",
+      "role": "table",
+      "source": "semantic",
+      "renderStrategy": "table-cell"
+    },
+    {
+      "textIncludes": "Mechanism",
+      "role": "table",
+      "source": "semantic",
+      "renderStrategy": "table-cell"
+    }
+  ]
+}
