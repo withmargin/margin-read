@@ -1,0 +1,39 @@
+{
+  "expectedTexts": [
+    "Context windows",
+    "Claude Code keeps recent messages, tool results, and project instructions inside the active context window.",
+    "When the window grows too large, compaction summarizes older work so the session can keep moving.",
+    "What stays available",
+    "Project instructions are reloaded from disk when the session resumes.",
+    "Recent tool results stay visible until the next compaction boundary.",
+    "Input",
+    "After compaction",
+    "Recent messages",
+    "Summarized into the compacted conversation state."
+  ],
+  "excludedTexts": [
+    "Docs Blog",
+    "Introduction",
+    "On this page"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "Claude Code keeps recent messages",
+      "role": "paragraph",
+      "source": "archetype",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Project instructions are reloaded",
+      "role": "list",
+      "source": "archetype",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Input",
+      "role": "table",
+      "source": "archetype",
+      "renderStrategy": "table-cell"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<nav>
+  <a href="/docs">Docs</a>
+  <a href="/blog">Blog</a>
+</nav>
+<main>
+  <aside>
+    <a href="/docs/intro">Introduction</a>
+    <a href="/docs/context">Context windows</a>
+  </aside>
+  <article>
+    <div class="theme-doc-markdown markdown">
+      <h1>Context windows</h1>
+      <p>Claude Code keeps recent messages, tool results, and project instructions inside the active context window.</p>
+      <p>When the window grows too large, compaction summarizes older work so the session can keep moving.</p>
+      <h2>What stays available</h2>
+      <ul>
+        <li>Project instructions are reloaded from disk when the session resumes.</li>
+        <li>Recent tool results stay visible until the next compaction boundary.</li>
+      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Input</th>
+            <th>After compaction</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Recent messages</td>
+            <td>Summarized into the compacted conversation state.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </article>
+</main>
+<aside>
+  <p>On this page</p>
+  <a href="#what-stays-available">What stays available</a>
+</aside>

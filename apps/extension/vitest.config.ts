@@ -10,10 +10,13 @@ export default defineConfig({
       include: [
         "src/shared/**/*.ts",
         "src/background/**/*.ts",
+        "src/content/blockCandidates.ts",
+        "src/content/extraction/**/*.ts",
         "src/content/siteAdapters/**/*.ts",
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
         "src/content/floatingButton.ts",
+        "src/content/readingVisibility.ts",
         "src/content/textBlocks.ts",
         "src/content/translationRenderer.ts"
       ],

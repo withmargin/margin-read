@@ -1,0 +1,33 @@
+{
+  "expectedTexts": [
+    "How to build an AI team that does not quit on Friday",
+    "Your AI agent broke at 2am on Friday. You do not know yet.",
+    "The 3 rules of an AI team that survives Monday",
+    "Each human role costs $2,000-$4,500/mo."
+  ],
+  "excludedTexts": [
+    "Cover image",
+    "This media caption should stay out of article extraction.",
+    "Post your reply"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "How to build an AI team",
+      "role": "paragraph",
+      "source": "adapter",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "The 3 rules of an AI team",
+      "role": "heading",
+      "source": "adapter",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Each human role costs",
+      "role": "quote",
+      "source": "adapter",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

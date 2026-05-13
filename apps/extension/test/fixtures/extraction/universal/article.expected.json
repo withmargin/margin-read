@@ -1,0 +1,19 @@
+{
+  "expectedTexts": [
+    "Maintenance is what keeps everything going.",
+    "Every living thing spends a great deal of time and toil in maintaining its own life",
+    "Plants tend the life of the soil they grow in"
+  ],
+  "excludedTexts": [
+    "Subscribe to the newsletter",
+    "Related essays you might enjoy"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "Maintenance is what keeps everything going.",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

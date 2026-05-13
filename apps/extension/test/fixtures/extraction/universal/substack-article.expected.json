@@ -1,0 +1,29 @@
+{
+  "expectedTexts": [
+    "Notes on reading software",
+    "Reading tools should respect the original page while making the translated layer easy to scan.",
+    "Good translation UI usually fails when it treats every visible string as equal reading content.",
+    "That is why extraction quality matters as much as model quality for a browser translator."
+  ],
+  "excludedTexts": [
+    "Publication",
+    "Subscribe",
+    "A margin is useful because it sits near the thing being read.",
+    "Recommended",
+    "Archive"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "Notes on reading software",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Reading tools should respect",
+      "role": "paragraph",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

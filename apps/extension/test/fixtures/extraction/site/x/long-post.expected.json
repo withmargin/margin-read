@@ -1,0 +1,33 @@
+{
+  "expectedTexts": [
+    "First paragraph has enough text to translate cleanly.",
+    "Second paragraph keeps its link with x.com/zan2434/status/2046982383430496444",
+    "Third paragraph also has enough text to become a separate translated block."
+  ],
+  "excludedTexts": [
+    "To view keyboard shortcuts, press question mark",
+    "View keyboard shortcuts",
+    "Quoted post text should stay out of the adapter fixture by default.",
+    "31 replies"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "First paragraph has enough text",
+      "role": "paragraph",
+      "source": "adapter",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Second paragraph keeps its link",
+      "role": "paragraph",
+      "source": "adapter",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "Third paragraph also has enough text",
+      "role": "paragraph",
+      "source": "adapter",
+      "renderStrategy": "integrated"
+    }
+  ]
+}
