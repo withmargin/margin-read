@@ -6,6 +6,7 @@ import { collectSiteAdapterBlocks } from "./siteAdapters";
 import { collectBlockCandidates } from "./textBlocks";
 import {
   BLOCK_ID_ATTR,
+  RENDER_STRATEGY_ATTR,
   TRANSLATED_ATTR,
   TRANSLATION_CLASS,
   createTranslationRenderer,
@@ -147,6 +148,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     document.querySelectorAll(`[${TRANSLATED_ATTR}]`).forEach((node) => {
       node.removeAttribute(TRANSLATED_ATTR);
       node.removeAttribute(BLOCK_ID_ATTR);
+      node.removeAttribute(RENDER_STRATEGY_ATTR);
     });
     blockMap.clear();
     debugState = createDebugState();
@@ -333,6 +335,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
 
   function rememberCandidates(candidates: BlockCandidate[]): void {
     for (const candidate of candidates) {
+      candidate.element.setAttribute(RENDER_STRATEGY_ATTR, candidate.renderStrategy);
       candidateByElement.set(candidate.element, candidate);
     }
   }
@@ -384,8 +387,10 @@ function isMarginManagedNode(node: Node): boolean {
     node.hasAttribute(FLOATING_HOST_ATTR) ||
     node.hasAttribute(TRANSLATED_ATTR) ||
     node.hasAttribute(BLOCK_ID_ATTR) ||
+    node.hasAttribute(RENDER_STRATEGY_ATTR) ||
     node.dataset.marginLegacyBlock === "true" ||
-    node.dataset.marginBrSeparatedBlock === "true"
+    node.dataset.marginBrSeparatedBlock === "true" ||
+    node.dataset.marginLayout === "table-cell"
   );
 }
 
