@@ -42,12 +42,15 @@ function uniqueElements(elements: HTMLElement[]): HTMLElement[] {
   return Array.from(new Set(elements));
 }
 
-function createSemanticBlockCandidates(docsBlocks: HTMLElement[], universalBlocks: HTMLElement[]): BlockCandidate[] {
-  const docsBlockSet = new Set(docsBlocks);
-  const remainingUniversalBlocks = universalBlocks.filter((element) => !docsBlockSet.has(element));
+function createSemanticBlockCandidates(
+  archetypeBlocks: HTMLElement[],
+  universalBlocks: HTMLElement[]
+): BlockCandidate[] {
+  const archetypeBlockSet = new Set(archetypeBlocks);
+  const remainingUniversalBlocks = universalBlocks.filter((element) => !archetypeBlockSet.has(element));
 
   return removeCoveredAncestorCandidates([
-    ...createIncludedBlockCandidates(docsBlocks, "archetype"),
+    ...createIncludedBlockCandidates(archetypeBlocks, "archetype"),
     ...createIncludedBlockCandidates(remainingUniversalBlocks, "semantic")
   ]);
 }
