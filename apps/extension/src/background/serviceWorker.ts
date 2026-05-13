@@ -9,8 +9,11 @@ import type {
 } from "../shared/types";
 import { hashText } from "../shared/hash";
 import { getProvider } from "./providers";
+import { installUpgradeLifecycle } from "./upgradeLifecycle";
 
 const sessionCache = new Map<string, string>();
+
+installUpgradeLifecycle();
 
 chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
   handleMessage(message)
