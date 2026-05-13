@@ -11,6 +11,7 @@
     "check:release-version": "node scripts/check-release-version.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint src vitest.config.ts rolldown.config.ts",
+    "fixture:capture": "node scripts/capture-fixture.mjs",
     "package": "pnpm build && node scripts/package-extension.mjs",
     "test": "vitest run --coverage",
     "test:watch": "vitest"

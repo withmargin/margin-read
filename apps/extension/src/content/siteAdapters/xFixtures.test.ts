@@ -1,28 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import docsExpected from "../../test/fixtures/extraction/archetypes/docs/docs-mintlify.expected.json?raw";
-import docsHtml from "../../test/fixtures/extraction/archetypes/docs/docs-mintlify.html?raw";
-import docsDocusaurusExpected from "../../test/fixtures/extraction/archetypes/docs/docs-docusaurus.expected.json?raw";
-import docsDocusaurusHtml from "../../test/fixtures/extraction/archetypes/docs/docs-docusaurus.html?raw";
-import articleBlogExpected from "../../test/fixtures/extraction/archetypes/article/article-blog.expected.json?raw";
-import articleBlogHtml from "../../test/fixtures/extraction/archetypes/article/article-blog.html?raw";
-import articleExpected from "../../test/fixtures/extraction/universal/article.expected.json?raw";
-import articleHtml from "../../test/fixtures/extraction/universal/article.html?raw";
-import forumExpected from "../../test/fixtures/extraction/universal/forum-thread.expected.json?raw";
-import forumHtml from "../../test/fixtures/extraction/universal/forum-thread.html?raw";
-import substackExpected from "../../test/fixtures/extraction/universal/substack-article.expected.json?raw";
-import substackHtml from "../../test/fixtures/extraction/universal/substack-article.html?raw";
-import { collectBlockCandidates } from "./textBlocks";
-import type { TextBlockOptions } from "./textBlocks";
-import type { BlockCandidateRole, BlockCandidateSource, BlockRenderStrategy } from "./blockCandidates";
+import xArticleExpected from "../../../test/fixtures/extraction/site/x/article.expected.json?raw";
+import xArticleHtml from "../../../test/fixtures/extraction/site/x/article.html?raw";
+import xLongPostExpected from "../../../test/fixtures/extraction/site/x/long-post.expected.json?raw";
+import xLongPostHtml from "../../../test/fixtures/extraction/site/x/long-post.html?raw";
+import type { BlockCandidateRole, BlockCandidateSource, BlockRenderStrategy } from "../blockCandidates";
+import { createIncludedBlockCandidates } from "../extraction/shared";
+import type { TextBlockOptions } from "../textBlocks";
+import { xAdapter } from "./x";
 
-interface ExtractionFixture {
+interface AdapterFixture {
   name: string;
   html: string;
-  expected: ExtractionFixtureExpectations;
+  expected: AdapterFixtureExpectations;
   options?: Partial<TextBlockOptions>;
 }
 
-interface ExtractionFixtureExpectations {
+interface AdapterFixtureExpectations {
   expectedTexts: string[];
   excludedTexts: string[];
   blockShape?: ExpectedBlockShape[];
@@ -38,39 +31,23 @@ interface ExpectedBlockShape {
 const defaultOptions: TextBlockOptions = {
   minTextLength: 24,
   translatedAttr: "data-margin-translated",
-  translationClass: "margin-translation"
+  translationClass: "margin-translation",
+  xOptimizedTranslation: true,
+  xTranslateArticles: true,
+  xTranslateQuotedPosts: false,
+  xSkipNativeTranslatedPosts: true
 };
 
-const fixtures: ExtractionFixture[] = [
+const fixtures: AdapterFixture[] = [
   {
-    name: "universal/article",
-    html: articleHtml,
-    expected: parseExpected(articleExpected)
+    name: "x/long-post",
+    html: xLongPostHtml,
+    expected: parseExpected(xLongPostExpected)
   },
   {
-    name: "archetypes/docs/docs-mintlify",
-    html: docsHtml,
-    expected: parseExpected(docsExpected)
-  },
-  {
-    name: "archetypes/docs/docs-docusaurus",
-    html: docsDocusaurusHtml,
-    expected: parseExpected(docsDocusaurusExpected)
-  },
-  {
-    name: "archetypes/article/article-blog",
-    html: articleBlogHtml,
-    expected: parseExpected(articleBlogExpected)
-  },
-  {
-    name: "universal/forum-thread",
-    html: forumHtml,
-    expected: parseExpected(forumExpected)
-  },
-  {
-    name: "universal/substack-article",
-    html: substackHtml,
-    expected: parseExpected(substackExpected)
+    name: "x/article",
+    html: xArticleHtml,
+    expected: parseExpected(xArticleExpected)
   }
 ];
 
@@ -88,11 +65,15 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("extraction fixtures", () => {
+describe("X site adapter fixtures", () => {
   for (const fixture of fixtures) {
     it(`matches ${fixture.name}`, () => {
       const document = createFixtureDocument(fixture.html);
-      const candidates = collectBlockCandidates(document, { ...defaultOptions, ...fixture.options });
+      const options = { ...defaultOptions, ...fixture.options };
+      expect(xAdapter.matches(document, options)).toBe(true);
+
+      const blocks = xAdapter.collectBlocks(document, options);
+      const candidates = createIncludedBlockCandidates(blocks, "adapter");
       const actualBlocks = candidates.map((candidate) => ({
         text: candidate.text,
         role: candidate.role,
@@ -121,8 +102,8 @@ describe("extraction fixtures", () => {
   }
 });
 
-function parseExpected(value: string): ExtractionFixtureExpectations {
-  return JSON.parse(value) as ExtractionFixtureExpectations;
+function parseExpected(value: string): AdapterFixtureExpectations {
+  return JSON.parse(value) as AdapterFixtureExpectations;
 }
 
 function createFixtureDocument(html: string): Document {

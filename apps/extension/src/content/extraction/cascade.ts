@@ -1,5 +1,4 @@
 import type { BlockCandidate } from "../blockCandidates";
-import { collectXBlocks, shouldUseXAdapter } from "./adapters/x";
 import { collectArticleBlocks } from "./archetypes/article";
 import { collectDocsBlocks } from "./archetypes/docs";
 import { collectLegacyBlocks } from "./legacy";
@@ -11,10 +10,6 @@ const MIN_SEMANTIC_BLOCKS = 3;
 const MIN_SEMANTIC_TEXT_LENGTH = 500;
 
 export function collectBlockCandidates(document: Document, options: TextBlockOptions): BlockCandidate[] {
-  if (shouldUseXAdapter(document, options)) {
-    return createIncludedBlockCandidates(collectXBlocks(document, options), "adapter");
-  }
-
   const docsBlocks = collectDocsBlocks(document, options);
   const articleBlocks = collectArticleBlocks(document, options);
   const universalBlocks = collectUniversalBlocks(document, options);
