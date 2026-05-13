@@ -49,6 +49,19 @@ export function migrateSettings(stored: unknown): ExtensionSettingsCurrent {
   return result;
 }
 
+/**
+ * Returns the schema version recorded in stored settings, or 0 for
+ * pre-v1 storage (which had no `version` field). Exposed so upgrade
+ * orchestrators can decide whether they need to act and log the
+ * source version for diagnostics.
+ *
+ * Tolerates arbitrary input — anything that is not an object with a
+ * numeric `version` field is treated as version 0.
+ */
+export function currentStoredVersion(stored: unknown): number {
+  return detectVersion(stored);
+}
+
 function detectVersion(stored: unknown): number {
   if (typeof stored !== "object" || stored === null) {
     return 0;

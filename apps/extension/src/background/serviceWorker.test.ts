@@ -64,6 +64,15 @@ beforeEach(() => {
         addListener: vi.fn((listener: MessageListener) => {
           registeredListener = listener;
         })
+      },
+      onInstalled: {
+        addListener: vi.fn()
+      },
+      OnInstalledReason: {
+        INSTALL: "install",
+        UPDATE: "update",
+        CHROME_UPDATE: "chrome_update",
+        SHARED_MODULE_UPDATE: "shared_module_update"
       }
     },
     storage: {
