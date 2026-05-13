@@ -101,11 +101,16 @@ export function applyLanguageTypography(translation: HTMLElement, targetLanguage
   const languageCode = resolveTargetLanguageCode(targetLanguage);
   translation.lang = languageCode;
   translation.dir = "auto";
+  translation.classList.remove("margin-translation--cjk");
 
   if (!isCjkTargetLanguage(targetLanguage, languageCode)) {
     return;
   }
 
+  translation.classList.add("margin-translation--cjk");
+  translation.style.fontFamily = getCjkFontFamily(languageCode);
+  translation.style.fontWeight = getCjkFontWeight(translation.style.fontWeight);
+  translation.style.lineHeight = getCjkLineHeight(translation.style.lineHeight);
   translation.style.setProperty("text-autospace", "normal");
   translation.style.setProperty("line-break", "auto");
   translation.style.setProperty("word-break", getCjkWordBreak(languageCode));
@@ -298,6 +303,70 @@ function getCjkWordBreak(languageCode: string): string {
     return "auto-phrase";
   }
   return "normal";
+}
+
+function getCjkFontFamily(languageCode: string): string {
+  if (/^ja(?:-|$)/i.test(languageCode)) {
+    return [
+      "system-ui",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "\"Hiragino Sans\"",
+      "\"Yu Gothic\"",
+      "\"Noto Sans JP\"",
+      "sans-serif"
+    ].join(", ");
+  }
+  if (/^ko(?:-|$)/i.test(languageCode)) {
+    return [
+      "system-ui",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "\"Apple SD Gothic Neo\"",
+      "\"Noto Sans KR\"",
+      "\"Malgun Gothic\"",
+      "sans-serif"
+    ].join(", ");
+  }
+  if (/^zh-cn(?:-|$)|^zh-sg(?:-|$)|^zh-hans(?:-|$)/i.test(languageCode)) {
+    return [
+      "system-ui",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "\"PingFang SC\"",
+      "\"Noto Sans SC\"",
+      "\"Microsoft YaHei\"",
+      "sans-serif"
+    ].join(", ");
+  }
+  return [
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "\"PingFang TC\"",
+    "\"Noto Sans TC\"",
+    "\"Microsoft JhengHei\"",
+    "sans-serif"
+  ].join(", ");
+}
+
+function getCjkFontWeight(fontWeight: string): string {
+  const numeric = Number.parseInt(fontWeight, 10);
+  if (!Number.isFinite(numeric)) {
+    return "450";
+  }
+  return String(clamp(numeric, 430, 580));
+}
+
+function getCjkLineHeight(lineHeight: string): string {
+  const numeric = Number.parseFloat(lineHeight);
+  if (!Number.isFinite(numeric)) {
+    return "1.58";
+  }
+  if (numeric <= 1.32) {
+    return "1.34";
+  }
+  return String(roundCssNumber(clamp(numeric, 1.58, 1.82)));
 }
 
 function normalizeLanguageKey(value: string): string {

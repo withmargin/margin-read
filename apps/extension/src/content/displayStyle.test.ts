@@ -39,6 +39,10 @@ describe("applyLanguageTypography", () => {
 
     expect(translation.lang).toBe("zh-TW");
     expect(translation.dir).toBe("auto");
+    expect(translation.classList.contains("margin-translation--cjk")).toBe(true);
+    expect(translation.style.fontFamily).toContain("PingFang TC");
+    expect(translation.style.fontWeight).toBe("450");
+    expect(translation.style.lineHeight).toBe("1.58");
     expect(translation.style.getPropertyValue("text-autospace")).toBe("normal");
     expect(translation.style.getPropertyValue("line-break")).toBe("auto");
     expect(translation.style.getPropertyValue("word-break")).toBe("normal");
@@ -53,6 +57,7 @@ describe("applyLanguageTypography", () => {
     applyLanguageTypography(translation, "Korean");
 
     expect(translation.lang).toBe("ko");
+    expect(translation.style.fontFamily).toContain("Apple SD Gothic Neo");
     expect(translation.style.getPropertyValue("word-break")).toBe("keep-all");
   });
 
@@ -65,6 +70,7 @@ describe("applyLanguageTypography", () => {
     applyLanguageTypography(translation, "Japanese");
 
     expect(translation.lang).toBe("ja");
+    expect(translation.style.fontFamily).toContain("Hiragino Sans");
     expect(translation.style.getPropertyValue("word-break")).toBe("auto-phrase");
   });
 
@@ -133,8 +139,31 @@ describe("applyLanguageTypography", () => {
 
     expect(translation.lang).toBe("fr");
     expect(translation.dir).toBe("auto");
+    expect(translation.classList.contains("margin-translation--cjk")).toBe(false);
     expect(translation.style.getPropertyValue("text-autospace")).toBe("");
     expect(translation.style.letterSpacing).toBe("");
+  });
+
+  it("keeps CJK text readable when the source style is very light or tight", () => {
+    const translation = document.createElement("div");
+    translation.style.fontWeight = "100";
+    translation.style.lineHeight = "1.2";
+
+    applyLanguageTypography(translation, "Traditional Chinese");
+
+    expect(translation.style.fontWeight).toBe("430");
+    expect(translation.style.lineHeight).toBe("1.34");
+  });
+
+  it("does not allow CJK paragraph line height to become too loose", () => {
+    const translation = document.createElement("div");
+    translation.style.fontWeight = "800";
+    translation.style.lineHeight = "2.4";
+
+    applyLanguageTypography(translation, "Korean");
+
+    expect(translation.style.fontWeight).toBe("580");
+    expect(translation.style.lineHeight).toBe("1.82");
   });
 });
 

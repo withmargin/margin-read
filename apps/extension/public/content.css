@@ -3,7 +3,16 @@
   font: inherit;
   font-synthesis-weight: auto;
   line-height: 1.55;
+  font-kerning: normal;
   text-rendering: optimizeLegibility;
+}
+
+.margin-translation--cjk {
+  font-synthesis-weight: none;
+  text-autospace: normal;
+  text-spacing-trim: normal;
+  line-break: auto;
+  overflow-wrap: anywhere;
 }
 
 .margin-translation--balanced {
