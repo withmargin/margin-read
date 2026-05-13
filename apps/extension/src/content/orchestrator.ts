@@ -1,3 +1,4 @@
+import { normalizeText } from "../shared/text";
 import type { ExtensionSettings, PageDebugState, TranslationProviderId, TranslationResult } from "../shared/types";
 import type { BlockCandidate } from "./blockCandidates";
 import { type TranslationDisplayStyle } from "./displayStyle";
@@ -323,6 +324,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   function updateDebugCounts(): void {
     debugState.queueSize = queue.size;
     debugState.runningRequests = queue.running;
+    if (!debugMode) return;
     debugState.pendingBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="pending"]`).length;
     debugState.translatedBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="done"]`).length;
     debugState.errorBlocks = document.querySelectorAll(`[${TRANSLATED_ATTR}="error"]`).length;
@@ -403,9 +405,6 @@ function getSiblingText(element: HTMLElement, key: "previousElementSibling" | "n
   return text.length > 0 ? text.slice(0, 280) : undefined;
 }
 
-function normalizeText(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
 
 function getSampleText(candidates: BlockCandidate[]): string | undefined {
   const sample = candidates.map((candidate) => candidate.text).find((text) => text.length > 0);
