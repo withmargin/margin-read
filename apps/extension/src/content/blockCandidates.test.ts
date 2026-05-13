@@ -84,6 +84,17 @@ describe("createBlockCandidate", () => {
     expect(candidate.skipReason).toBe("decorative-caption");
   });
 
+  it("marks empty content before scoring-based decisions", () => {
+    const document = createDocument("<main><p>   </p></main>");
+    const element = document.querySelector("p");
+
+    expect(element).not.toBeNull();
+    const candidate = createBlockCandidate(element as HTMLElement, "semantic");
+
+    expect(candidate.text).toBe("");
+    expect(candidate.skipReason).toBe("empty-text");
+  });
+
   it("ranks short list items in main content as medium priority", () => {
     const document = createDocument("<main><ul><li>Compact setup notes</li></ul></main>");
     const element = document.querySelector("li");
@@ -113,6 +124,25 @@ describe("createBlockCandidate", () => {
     expect(candidate.skipReason).toBe("page-chrome");
   });
 
+  it("marks interactive content with a skip reason", () => {
+    const document = createDocument(`
+      <main>
+        <p>
+          This paragraph has a readable explanation but also includes a
+          <button>settings button</button>
+          that makes it interactive UI content.
+        </p>
+      </main>
+    `);
+    const element = document.querySelector("p");
+
+    expect(element).not.toBeNull();
+    const candidate = createBlockCandidate(element as HTMLElement, "semantic");
+
+    expect(candidate.role).toBe("ui");
+    expect(candidate.skipReason).toBe("interactive-content");
+  });
+
   it("penalizes high-link-density content below the high-priority tier", () => {
     const document = createDocument(`
       <main>
@@ -130,6 +160,58 @@ describe("createBlockCandidate", () => {
     expect(candidate.role).toBe("paragraph");
     expect(candidate.score).toBeLessThan(BLOCK_CANDIDATE_THRESHOLDS.highPriorityScore);
     expect(candidate.priority).not.toBe(1);
+  });
+
+  it("skips low-scoring legacy link clusters", () => {
+    const document = createDocument(`
+      <ul>
+        <li>
+          <a href="/one">Primary linked navigation label with most of the readable text</a>
+          note
+        </li>
+      </ul>
+    `);
+    const element = document.querySelector("li");
+
+    expect(element).not.toBeNull();
+    const candidate = createBlockCandidate(element as HTMLElement, "legacy");
+
+    expect(candidate.score).toBeLessThan(BLOCK_CANDIDATE_THRESHOLDS.skipBelowScore);
+    expect(candidate.skipReason).toBe("low-content-score");
+  });
+
+  it("classifies blockquotes as quote content", () => {
+    const document = createDocument(`
+      <main>
+        <blockquote>This quoted paragraph has enough readable text to be translated as a quote.</blockquote>
+      </main>
+    `);
+    const element = document.querySelector("blockquote");
+
+    expect(element).not.toBeNull();
+    const candidate = createBlockCandidate(element as HTMLElement, "semantic");
+
+    expect(candidate.role).toBe("quote");
+    expect(candidate.skipReason).toBeUndefined();
+  });
+
+  it("classifies descendants inside tables as table content", () => {
+    const document = createDocument(`
+      <table>
+        <tbody>
+          <tr>
+            <td><span>Nested table text that should still render inside the source cell.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    `);
+    const element = document.querySelector("span");
+
+    expect(element).not.toBeNull();
+    const candidate = createBlockCandidate(element as HTMLElement, "semantic");
+
+    expect(candidate.role).toBe("table");
+    expect(candidate.renderStrategy).toBe("table-cell");
   });
 
   it("marks accessibility-only content with a skip reason", () => {

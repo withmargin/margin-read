@@ -1,5 +1,4 @@
 import { collectBlockCandidates } from "./extraction/cascade";
-import { isTranslatableElement } from "./extraction/shared";
 import type { TextBlockOptions } from "./extraction/types";
 
 export type { TextBlockOptions } from "./extraction/types";
