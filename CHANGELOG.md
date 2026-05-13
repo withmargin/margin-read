@@ -43,6 +43,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`src/shared/migrations/`). Existing user settings are upgraded
   automatically — preferences are preserved, no manual reconfigure.
 
+- **Settings migration now runs eagerly on install / update.** A
+  `chrome.runtime.onInstalled` handler in the service worker runs
+  the migration chain once per install or update event and writes
+  the migrated shape back to storage. Previously migration was
+  lazy (in-memory only) and old flat keys lingered in storage
+  until the user saved settings; now storage converges to the
+  current schema immediately after the upgrade ships. The lazy
+  in-memory path remains as a safety net for edge cases where
+  the install event was missed.
+
 ### Reliability
 
 - Added 22 new unit tests covering the floating button install
