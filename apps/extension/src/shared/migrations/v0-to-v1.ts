@@ -1,6 +1,20 @@
-import { DEFAULT_SETTINGS } from "../defaults";
+import { cloneDefaults, pickDefined } from "./helpers";
 import type { ExtensionSettingsV0 } from "./versions/v0";
 import type { ExtensionSettingsCurrent } from "./versions/current";
+
+const CARRIED_V0_FIELDS = [
+  "provider",
+  "providerEndpoint",
+  "apiKey",
+  "model",
+  "sourceLanguage",
+  "targetLanguage",
+  "displayStyle",
+  "cacheMode",
+  "debugMode",
+  "openAICompatibleJsonMode",
+  "showFloatingButton"
+] as const satisfies readonly (keyof ExtensionSettingsV0)[];
 
 /**
  * Single-step migration: pre-v1 flat shape → v1 nested shape.
@@ -19,19 +33,7 @@ export function migrateV0ToV1(v0: ExtensionSettingsV0): ExtensionSettingsCurrent
 
   return {
     ...defaults,
-    ...(v0.provider !== undefined ? { provider: v0.provider } : {}),
-    ...(v0.providerEndpoint !== undefined ? { providerEndpoint: v0.providerEndpoint } : {}),
-    ...(v0.apiKey !== undefined ? { apiKey: v0.apiKey } : {}),
-    ...(v0.model !== undefined ? { model: v0.model } : {}),
-    ...(v0.sourceLanguage !== undefined ? { sourceLanguage: v0.sourceLanguage } : {}),
-    ...(v0.targetLanguage !== undefined ? { targetLanguage: v0.targetLanguage } : {}),
-    ...(v0.displayStyle !== undefined ? { displayStyle: v0.displayStyle } : {}),
-    ...(v0.cacheMode !== undefined ? { cacheMode: v0.cacheMode } : {}),
-    ...(v0.debugMode !== undefined ? { debugMode: v0.debugMode } : {}),
-    ...(v0.openAICompatibleJsonMode !== undefined
-      ? { openAICompatibleJsonMode: v0.openAICompatibleJsonMode }
-      : {}),
-    ...(v0.showFloatingButton !== undefined ? { showFloatingButton: v0.showFloatingButton } : {}),
+    ...pickDefined(v0, CARRIED_V0_FIELDS),
     siteAdapters: {
       x: {
         enabled: v0.xOptimizedTranslation ?? defaults.siteAdapters.x.enabled,
@@ -42,14 +44,5 @@ export function migrateV0ToV1(v0: ExtensionSettingsV0): ExtensionSettingsCurrent
       }
     },
     version: 1
-  };
-}
-
-function cloneDefaults(): ExtensionSettingsCurrent {
-  return {
-    ...DEFAULT_SETTINGS,
-    siteAdapters: {
-      x: { ...DEFAULT_SETTINGS.siteAdapters.x }
-    }
   };
 }
