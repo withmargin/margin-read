@@ -13,23 +13,27 @@ const DOCS_ARCHETYPE_SELECTOR = [
 export const DOCS_ARCHETYPE_CONFIDENCE_THRESHOLD = 0.7;
 
 export function collectDocsBlocks(document: Document, options: TextBlockOptions): HTMLElement[] {
-  if (detectDocsArchetypeConfidence(document) < DOCS_ARCHETYPE_CONFIDENCE_THRESHOLD) {
+  const candidates = document.querySelectorAll<HTMLElement>(DOCS_ARCHETYPE_SELECTOR);
+  if (computeDocsArchetypeConfidence(document, candidates.length) < DOCS_ARCHETYPE_CONFIDENCE_THRESHOLD) {
     return [];
   }
 
-  return Array.from(document.querySelectorAll<HTMLElement>(DOCS_ARCHETYPE_SELECTOR)).filter(
+  return Array.from(candidates).filter(
     (element) => isTranslatableElement(element, options) && shouldIncludeCandidate(element, "archetype")
   );
 }
 
 export function detectDocsArchetypeConfidence(document: Document): number {
-  const docsBlocks = document.querySelectorAll(DOCS_ARCHETYPE_SELECTOR).length;
-  if (docsBlocks === 0) {
+  return computeDocsArchetypeConfidence(document, document.querySelectorAll(DOCS_ARCHETYPE_SELECTOR).length);
+}
+
+function computeDocsArchetypeConfidence(document: Document, archetypeBlockCount: number): number {
+  if (archetypeBlockCount === 0) {
     return 0;
   }
 
   let confidence = 0.35;
-  confidence += Math.min(docsBlocks, 3) * 0.1;
+  confidence += Math.min(archetypeBlockCount, 3) * 0.1;
 
   if (document.querySelector(".prose, .markdown-body, .theme-doc-markdown")) {
     confidence += 0.15;
