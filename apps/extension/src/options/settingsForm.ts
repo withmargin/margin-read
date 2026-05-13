@@ -10,6 +10,7 @@ export function fillForm(settings: ExtensionSettings): void {
   setInputValue("sourceLanguage", settings.sourceLanguage);
   setInputValue("targetLanguage", settings.targetLanguage);
   setInputValue("displayStyle", normalizeDisplayStyle(settings.displayStyle));
+  setCheckboxValue("showTranslationLabel", settings.showTranslationLabel);
   setInputValue("cacheMode", settings.cacheMode);
   setCheckboxValue("debugMode", settings.debugMode);
   setCheckboxValue("xOptimizedTranslation", settings.siteAdapters.x.enabled);
@@ -30,6 +31,7 @@ export function readForm(): ExtensionSettings {
     sourceLanguage: getInputValue("sourceLanguage"),
     targetLanguage: getInputValue("targetLanguage"),
     displayStyle: normalizeDisplayStyle(getInputValue("displayStyle")),
+    showTranslationLabel: getCheckboxValue("showTranslationLabel"),
     cacheMode: getInputValue("cacheMode") as CacheMode,
     debugMode: getCheckboxValue("debugMode"),
     siteAdapters: {

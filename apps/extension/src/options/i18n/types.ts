@@ -47,6 +47,8 @@ export const MESSAGE_KEYS = [
   "targetLanguage",
   "targetLanguageHint",
   "title",
+  "translationMarker",
+  "translationMarkerHint",
   "translateQuotedPosts",
   "translateQuotedPostsHint",
   "translateXArticles",

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS } from "../shared/defaults";
-import { fillForm } from "./settingsForm";
+import { fillForm, readForm } from "./settingsForm";
 
 describe("settings form", () => {
   beforeEach(() => {
@@ -11,6 +11,7 @@ describe("settings form", () => {
         <option value="focus">Focus translation</option>
         <option value="card">Card</option>
       </select>
+      <input name="showTranslationLabel" type="checkbox" />
     `;
   });
 
@@ -24,5 +25,12 @@ describe("settings form", () => {
     fillForm({ ...DEFAULT_SETTINGS, displayStyle: "highlighted" });
 
     expect(document.querySelector<HTMLSelectElement>('[name="displayStyle"]')?.value).toBe("card");
+  });
+
+  it("fills and reads the independent translation marker setting", () => {
+    fillForm({ ...DEFAULT_SETTINGS, showTranslationLabel: true });
+
+    expect(document.querySelector<HTMLInputElement>('[name="showTranslationLabel"]')?.checked).toBe(true);
+    expect(readForm().showTranslationLabel).toBe(true);
   });
 });

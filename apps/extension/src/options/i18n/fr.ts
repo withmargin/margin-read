@@ -49,6 +49,8 @@ export const fr = {
   targetLanguage: "Langue cible",
   targetLanguageHint: "Recherchez par nom anglais, nom natif, code de langue ou alias.",
   title: "Options de Margin",
+  translationMarker: "Marqueur de traduction",
+  translationMarkerHint: "Ajoute un petit marqueur localise avant les passages traduits.",
   translateQuotedPosts: "Traduire les quoted posts",
   translateQuotedPostsHint: "Traduit aussi le texte des posts cites imbriques dans les cartes X.",
   translateXArticles: "Traduire les X articles",

@@ -20,11 +20,14 @@ export interface TranslationRenderer {
   insertPendingState(blocks: HTMLElement[]): void;
   insertErrorState(blocks: HTMLElement[], message: string): void;
   setDisplayStyle(style: TranslationDisplayStyle): void;
+  setTranslationLabel(show: boolean, label: string): void;
   setTargetLanguage(language: string): void;
 }
 
 export interface TranslationRendererOptions {
   displayStyle: TranslationDisplayStyle;
+  showTranslationLabel: boolean;
+  translationLabel: string;
   targetLanguage: string;
   blockMap: Map<string, HTMLElement>;
   onRetry: (block: HTMLElement) => void;
@@ -32,6 +35,8 @@ export interface TranslationRendererOptions {
 
 export function createTranslationRenderer(options: TranslationRendererOptions): TranslationRenderer {
   let displayStyle = options.displayStyle;
+  let showTranslationLabel = options.showTranslationLabel;
+  let translationLabel = options.translationLabel;
   let targetLanguage = options.targetLanguage;
   const { blockMap, onRetry } = options;
 
@@ -41,6 +46,7 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     translation.className = getTranslationClassName(displayStyle);
     translation.dataset.marginSource = getTranslationSource(source);
     translation.dataset.state = state;
+    applyTranslationLabel(translation, state, showTranslationLabel, translationLabel);
     translation.removeAttribute("style");
     applyTranslationDisplayStyle(source, translation, displayStyle);
     const renderStrategy = getRenderStrategy(source);
@@ -103,10 +109,29 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     setDisplayStyle(style) {
       displayStyle = style;
     },
+    setTranslationLabel(show, label) {
+      showTranslationLabel = show;
+      translationLabel = label;
+    },
     setTargetLanguage(language) {
       targetLanguage = language;
     }
   };
+}
+
+function applyTranslationLabel(
+  translation: HTMLElement,
+  state: TranslationState,
+  showTranslationLabel: boolean,
+  translationLabel: string
+): void {
+  const shouldShow = showTranslationLabel && state === "done";
+  translation.classList.toggle("margin-translation--labeled", shouldShow);
+  if (shouldShow) {
+    translation.dataset.marginLabel = translationLabel;
+  } else {
+    delete translation.dataset.marginLabel;
+  }
 }
 
 function createTranslationElement(source: HTMLElement): HTMLElement {

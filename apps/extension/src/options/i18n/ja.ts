@@ -49,6 +49,8 @@ export const ja = {
   targetLanguage: "翻訳先言語",
   targetLanguageHint: "英語名、現地名、言語コード、別名で検索できます。",
   title: "Margin 設定",
+  translationMarker: "翻訳マーカー",
+  translationMarkerHint: "翻訳文の前に小さなローカライズ済みマーカーを表示します。",
   translateQuotedPosts: "Quoted posts を翻訳",
   translateQuotedPostsHint: "X card 内の引用投稿テキストも翻訳します。",
   translateXArticles: "X articles を翻訳",

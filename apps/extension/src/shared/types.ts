@@ -28,6 +28,7 @@ export interface ExtensionSettings {
   sourceLanguage: string;
   targetLanguage: string;
   displayStyle: DisplayStyle;
+  showTranslationLabel: boolean;
   cacheMode: CacheMode;
   debugMode: boolean;
   siteAdapters: SiteAdapterSettings;

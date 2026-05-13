@@ -31,6 +31,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   sourceLanguage: "auto",
   targetLanguage: "English",
   displayStyle: "balanced",
+  showTranslationLabel: false,
   cacheMode: "persistent",
   debugMode: false,
   siteAdapters: {

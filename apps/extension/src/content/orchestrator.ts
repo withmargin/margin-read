@@ -5,6 +5,7 @@ import { type TranslationDisplayStyle } from "./displayStyle";
 import { createIncludedBlockCandidates } from "./extraction/shared";
 import { collectSiteAdapterBlocks } from "./siteAdapters";
 import { collectBlockCandidates } from "./textBlocks";
+import { getBrowserTranslationLabel } from "./translationLabel";
 import {
   BLOCK_ID_ATTR,
   RENDER_STRATEGY_ATTR,
@@ -55,6 +56,8 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let nextId = 1;
   let runId = 0;
   let displayStyle: TranslationDisplayStyle = "balanced";
+  let showTranslationLabel = false;
+  let translationLabel = getBrowserTranslationLabel();
   let targetLanguage = "English";
   let debugMode = false;
   let xOptimizedTranslation = true;
@@ -72,6 +75,8 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   });
   const renderer: TranslationRenderer = createTranslationRenderer({
     displayStyle,
+    showTranslationLabel,
+    translationLabel,
     targetLanguage,
     blockMap,
     onRetry: (block) => {
@@ -101,8 +106,11 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     try {
       const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
       displayStyle = response.settings?.displayStyle ?? "balanced";
+      showTranslationLabel = response.settings?.showTranslationLabel ?? false;
+      translationLabel = getBrowserTranslationLabel();
       targetLanguage = response.settings?.targetLanguage ?? targetLanguage;
       renderer.setDisplayStyle(displayStyle);
+      renderer.setTranslationLabel(showTranslationLabel, translationLabel);
       renderer.setTargetLanguage(targetLanguage);
       debugMode = response.settings?.debugMode ?? false;
       const selectedProvider = response.settings?.provider ?? "openai";

@@ -41,7 +41,14 @@ beforeEach(() => {
   document.body.innerHTML = "";
   blockMap = new Map();
   onRetry = vi.fn<(block: HTMLElement) => void>();
-  renderer = createTranslationRenderer({ displayStyle: "balanced", targetLanguage: "English", blockMap, onRetry });
+  renderer = createTranslationRenderer({
+    displayStyle: "balanced",
+    showTranslationLabel: false,
+    translationLabel: "Translation",
+    targetLanguage: "English",
+    blockMap,
+    onRetry
+  });
 });
 
 describe("applyTranslations", () => {
@@ -200,6 +207,32 @@ describe("display style handling", () => {
     expect(translation?.lang).toBe("zh-TW");
     expect(translation?.dir).toBe("auto");
     expect(translation?.style.getPropertyValue("line-break")).toBe("auto");
+  });
+
+  it("can prefix done translations with a localized marker", () => {
+    const block = appendBlock("a");
+
+    renderer.setTranslationLabel(true, "譯");
+    renderer.applyTranslations([{ id: "a", text: "你好" }]);
+
+    const translation = getTranslation(block);
+    expect(translation?.classList.contains("margin-translation--labeled")).toBe(true);
+    expect(translation?.dataset.marginLabel).toBe("譯");
+    expect(translation?.textContent).toBe("你好");
+  });
+
+  it("does not label pending or error states", () => {
+    const pendingBlock = appendBlock("pending");
+    const errorBlock = appendBlock("error");
+
+    renderer.setTranslationLabel(true, "Translation");
+    renderer.insertPendingState([pendingBlock]);
+    renderer.insertErrorState([errorBlock], "Provider request failed.");
+
+    expect(getTranslation(pendingBlock)?.classList.contains("margin-translation--labeled")).toBe(false);
+    expect(getTranslation(pendingBlock)?.dataset.marginLabel).toBeUndefined();
+    expect(getTranslation(errorBlock)?.classList.contains("margin-translation--labeled")).toBe(false);
+    expect(getTranslation(errorBlock)?.dataset.marginLabel).toBeUndefined();
   });
 });
 

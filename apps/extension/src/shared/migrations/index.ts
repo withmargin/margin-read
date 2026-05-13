@@ -11,6 +11,7 @@ const CARRIED_V1_FIELDS = [
   "sourceLanguage",
   "targetLanguage",
   "displayStyle",
+  "showTranslationLabel",
   "cacheMode",
   "debugMode",
   "openAICompatibleJsonMode",

@@ -29,6 +29,7 @@ describe("migrateSettings — guard: every historical fixture migrates to curren
       expect(typeof result.siteAdapters.x.translateArticles).toBe("boolean");
       expect(typeof result.siteAdapters.x.quotedPosts).toBe("boolean");
       expect(typeof result.siteAdapters.x.skipNativeTranslated).toBe("boolean");
+      expect(typeof result.showTranslationLabel).toBe("boolean");
     });
   }
 });
