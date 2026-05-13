@@ -1,4 +1,9 @@
-import { applyIntegratedStyle, getTranslationClassName, type TranslationDisplayStyle } from "./displayStyle";
+import {
+  applyLanguageTypography,
+  applyTranslationDisplayStyle,
+  getTranslationClassName,
+  type TranslationDisplayStyle
+} from "./displayStyle";
 import { applyTranslationLayout } from "./layoutStrategy";
 import type { TranslationResult } from "../shared/types";
 
@@ -13,16 +18,19 @@ export interface TranslationRenderer {
   insertPendingState(blocks: HTMLElement[]): void;
   insertErrorState(blocks: HTMLElement[], message: string): void;
   setDisplayStyle(style: TranslationDisplayStyle): void;
+  setTargetLanguage(language: string): void;
 }
 
 export interface TranslationRendererOptions {
   displayStyle: TranslationDisplayStyle;
+  targetLanguage: string;
   blockMap: Map<string, HTMLElement>;
   onRetry: (block: HTMLElement) => void;
 }
 
 export function createTranslationRenderer(options: TranslationRendererOptions): TranslationRenderer {
   let displayStyle = options.displayStyle;
+  let targetLanguage = options.targetLanguage;
   const { blockMap, onRetry } = options;
 
   function upsert(source: HTMLElement, text: string, state: TranslationState): void {
@@ -40,10 +48,9 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     translation.dataset.marginSource = getTranslationSource(source);
     translation.dataset.state = state;
     translation.removeAttribute("style");
-    if (displayStyle === "integrated") {
-      applyIntegratedStyle(source, translation);
-      applyTranslationLayout(source, translation);
-    }
+    applyTranslationDisplayStyle(source, translation, displayStyle);
+    applyTranslationLayout(source, translation);
+    applyLanguageTypography(translation, targetLanguage);
     translation.replaceChildren();
 
     if (state === "error") {
@@ -93,6 +100,9 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     },
     setDisplayStyle(style) {
       displayStyle = style;
+    },
+    setTargetLanguage(language) {
+      targetLanguage = language;
     }
   };
 }

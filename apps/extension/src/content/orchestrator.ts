@@ -52,7 +52,8 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let pending = false;
   let nextId = 1;
   let runId = 0;
-  let displayStyle: TranslationDisplayStyle = "integrated";
+  let displayStyle: TranslationDisplayStyle = "balanced";
+  let targetLanguage = "English";
   let debugMode = false;
   let xOptimizedTranslation = true;
   let xTranslateArticles = true;
@@ -69,6 +70,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   });
   const renderer: TranslationRenderer = createTranslationRenderer({
     displayStyle,
+    targetLanguage,
     blockMap,
     onRetry: (block) => {
       void translateBlocks([block]);
@@ -96,8 +98,10 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     observer = undefined;
     try {
       const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
-      displayStyle = response.settings?.displayStyle ?? "integrated";
+      displayStyle = response.settings?.displayStyle ?? "balanced";
+      targetLanguage = response.settings?.targetLanguage ?? targetLanguage;
       renderer.setDisplayStyle(displayStyle);
+      renderer.setTargetLanguage(targetLanguage);
       debugMode = response.settings?.debugMode ?? false;
       const selectedProvider = response.settings?.provider ?? "openai";
       const xConfig = response.settings?.siteAdapters?.x;

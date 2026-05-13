@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   applyIntegratedStyle,
+  applyLanguageTypography,
+  applyTranslationDisplayStyle,
   deriveIntegratedStyleTokens,
+  getFocusFontSize,
+  getFocusFontWeight,
   getIntegratedFontSize,
   getIntegratedFontWeight,
   getIntegratedLineHeight,
@@ -17,7 +21,120 @@ afterEach(() => {
 
 describe("getTranslationClassName", () => {
   it("adds the base class and style modifier", () => {
-    expect(getTranslationClassName("integrated")).toBe("margin-translation margin-translation--integrated");
+    expect(getTranslationClassName("balanced")).toBe("margin-translation margin-translation--balanced");
+  });
+
+  it("maps legacy display styles to their modern equivalents", () => {
+    expect(getTranslationClassName("integrated")).toBe("margin-translation margin-translation--quiet");
+    expect(getTranslationClassName("highlighted")).toBe("margin-translation margin-translation--card");
+  });
+});
+
+describe("applyLanguageTypography", () => {
+  it("adds CJK inter-script spacing for Chinese translations", () => {
+    const translation = document.createElement("div");
+    translation.style.letterSpacing = "0.08em";
+
+    applyLanguageTypography(translation, "Traditional Chinese");
+
+    expect(translation.lang).toBe("zh-TW");
+    expect(translation.dir).toBe("auto");
+    expect(translation.style.getPropertyValue("text-autospace")).toBe("normal");
+    expect(translation.style.getPropertyValue("line-break")).toBe("auto");
+    expect(translation.style.getPropertyValue("word-break")).toBe("normal");
+    expect(translation.style.getPropertyValue("overflow-wrap")).toBe("anywhere");
+    expect(translation.style.getPropertyValue("font-kerning")).toBe("normal");
+    expect(translation.style.letterSpacing).toBe("0px");
+  });
+
+  it("keeps Korean words together", () => {
+    const translation = document.createElement("div");
+
+    applyLanguageTypography(translation, "Korean");
+
+    expect(translation.lang).toBe("ko");
+    expect(translation.style.getPropertyValue("word-break")).toBe("keep-all");
+  });
+
+  it("uses Japanese phrase breaking when supported", () => {
+    const translation = document.createElement("div");
+    vi.stubGlobal("CSS", {
+      supports: (declaration: string) => declaration === "word-break: auto-phrase"
+    });
+
+    applyLanguageTypography(translation, "Japanese");
+
+    expect(translation.lang).toBe("ja");
+    expect(translation.style.getPropertyValue("word-break")).toBe("auto-phrase");
+  });
+
+  it("uses normal Japanese line breaking when phrase breaking is unavailable", () => {
+    const translation = document.createElement("div");
+    vi.stubGlobal("CSS", {
+      supports: () => false
+    });
+
+    applyLanguageTypography(translation, "Japanese translation");
+
+    expect(translation.lang).toBe("ja");
+    expect(translation.style.getPropertyValue("word-break")).toBe("normal");
+  });
+
+  it("enables CJK punctuation trimming when supported", () => {
+    const translation = document.createElement("div");
+    vi.stubGlobal("CSS", {
+      supports: (declaration: string) => declaration === "text-spacing-trim: normal"
+    });
+
+    applyLanguageTypography(translation, "zh-hant");
+
+    expect(translation.lang).toBe("zh-HANT");
+    expect(translation.style.getPropertyValue("text-spacing-trim")).toBe("normal");
+  });
+
+  it("detects native CJK language labels", () => {
+    const chinese = document.createElement("div");
+    const japanese = document.createElement("div");
+    const korean = document.createElement("div");
+
+    applyLanguageTypography(chinese, "简体中文");
+    applyLanguageTypography(japanese, "日本語");
+    applyLanguageTypography(korean, "한국어");
+
+    expect(chinese.lang).toBe("zh-CN");
+    expect(japanese.lang).toBe("ja");
+    expect(korean.lang).toBe("ko");
+  });
+
+  it("falls back to broad CJK language names", () => {
+    const chinese = document.createElement("div");
+    const korean = document.createElement("div");
+
+    applyLanguageTypography(chinese, "Chinese translation");
+    applyLanguageTypography(korean, "Korean translation");
+
+    expect(chinese.lang).toBe("zh");
+    expect(korean.lang).toBe("ko");
+  });
+
+  it("marks unknown empty target languages as undetermined", () => {
+    const translation = document.createElement("div");
+
+    applyLanguageTypography(translation, "");
+
+    expect(translation.lang).toBe("und");
+    expect(translation.style.getPropertyValue("text-autospace")).toBe("");
+  });
+
+  it("does not apply CJK spacing to non-CJK translations", () => {
+    const translation = document.createElement("div");
+
+    applyLanguageTypography(translation, "French");
+
+    expect(translation.lang).toBe("fr");
+    expect(translation.dir).toBe("auto");
+    expect(translation.style.getPropertyValue("text-autospace")).toBe("");
+    expect(translation.style.letterSpacing).toBe("");
   });
 });
 
@@ -59,7 +176,7 @@ describe("getIntegratedLineHeight", () => {
   });
 
   it("clamps paragraph line height ratios", () => {
-    expect(getIntegratedLineHeight("80px", 20, false)).toBe("1.58");
+    expect(getIntegratedLineHeight("80px", 20, false)).toBe("1.78");
     expect(getIntegratedLineHeight("20px", 20, false)).toBe("1.42");
   });
 
@@ -127,12 +244,30 @@ describe("getIntegratedFontWeight", () => {
     expect(getIntegratedFontWeight("800")).toBe("500");
   });
 
-  it("keeps lighter font weights unchanged", () => {
+  it("keeps normal font weights unchanged", () => {
     expect(getIntegratedFontWeight("400")).toBe("400");
+  });
+
+  it("raises ultra-light source weights to a readable translation weight", () => {
+    expect(getIntegratedFontWeight("100")).toBe("400");
   });
 
   it("returns non-numeric font weights unchanged", () => {
     expect(getIntegratedFontWeight("bold")).toBe("bold");
+  });
+});
+
+describe("focus display typography", () => {
+  it("keeps focus paragraph translations closer to the source size", () => {
+    expect(getFocusFontSize(20, "P")).toBe(18);
+  });
+
+  it("keeps focus heading translations larger than integrated headings", () => {
+    expect(getFocusFontSize(60, "H2")).toBe(34);
+  });
+
+  it("raises very light source weights for focused translations", () => {
+    expect(getFocusFontWeight("100")).toBe("450");
   });
 });
 
@@ -188,5 +323,32 @@ describe("applyIntegratedStyle", () => {
 
     expect(translation.style.fontSize).toBe("30px");
     expect(translation.style.maxWidth).toBe("");
+  });
+});
+
+describe("applyTranslationDisplayStyle", () => {
+  it("applies focus typography when requested", () => {
+    const source = { tagName: "P" } as HTMLElement;
+    const translation = { style: {} } as HTMLElement;
+
+    vi.stubGlobal("window", {
+      getComputedStyle: () => ({
+        fontFamily: "Inter",
+        fontSize: "20px",
+        fontWeight: "100",
+        lineHeight: "30px",
+        letterSpacing: "0px",
+        textAlign: "start",
+        color: "rgb(20, 20, 20)",
+        maxWidth: "640px",
+        marginBottom: "24px"
+      })
+    });
+
+    applyTranslationDisplayStyle(source, translation, "focus");
+
+    expect(translation.style.fontFamily).toBe("Inter");
+    expect(translation.style.fontSize).toBe("18px");
+    expect(translation.style.fontWeight).toBe("450");
   });
 });

@@ -33,7 +33,7 @@ beforeEach(() => {
   document.body.innerHTML = "";
   blockMap = new Map();
   onRetry = vi.fn<(block: HTMLElement) => void>();
-  renderer = createTranslationRenderer({ displayStyle: "integrated", blockMap, onRetry });
+  renderer = createTranslationRenderer({ displayStyle: "balanced", targetLanguage: "English", blockMap, onRetry });
 });
 
 describe("applyTranslations", () => {
@@ -143,6 +143,18 @@ describe("display style handling", () => {
     renderer.applyTranslations([{ id: "a", text: "second" }]);
 
     expect(getTranslation(block)?.className).not.toBe(initialClass);
+  });
+
+  it("applies target language typography on render", () => {
+    const block = appendBlock("a");
+
+    renderer.setTargetLanguage("Traditional Chinese");
+    renderer.applyTranslations([{ id: "a", text: "你好 Margin" }]);
+
+    const translation = getTranslation(block);
+    expect(translation?.lang).toBe("zh-TW");
+    expect(translation?.dir).toBe("auto");
+    expect(translation?.style.getPropertyValue("line-break")).toBe("auto");
   });
 });
 
