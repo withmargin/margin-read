@@ -1,51 +1,49 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SETTINGS } from "../shared/defaults";
-import type { ExtensionSettings, TextSegment, TranslationResult } from "../shared/types";
+import type { ExtensionSettings, RuntimeMessage, TextSegment, TranslationResult } from "../shared/types";
 import { createOrchestrator, type ContentOrchestrator } from "./orchestrator";
 import { TRANSLATION_CLASS, TRANSLATED_ATTR } from "./translationRenderer";
 
-interface SendMessageRequest {
-  type: string;
-  segments?: TextSegment[];
-  settings?: ExtensionSettings;
-}
-
-type SendMessageImpl = (message: SendMessageRequest) => Promise<unknown>;
-
-let sendMessageMock: ReturnType<typeof vi.fn<SendMessageImpl>>;
-let onEnabledChange: ReturnType<typeof vi.fn<(enabled: boolean) => void>>;
-let orchestrator: ContentOrchestrator | undefined;
+type SendMessageImpl = (message: RuntimeMessage) => Promise<unknown>;
 
 const SAMPLE_PARAGRAPH =
   "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna.";
 
+const TRANSLATION_PREFIX = "[T] ";
+const VIEWPORT_HEIGHT = 800;
+const NEAR_VIEWPORT_TOP = 1200;
+const FAR_VIEWPORT_TOP = 5000;
+// Slightly longer than orchestrator.ts's 600ms debounce so a spurious
+// rescan would have fired by the time we sample.
+const DEBOUNCE_QUIESCE_MS = 700;
+
+let sendMessageMock: ReturnType<typeof vi.fn<SendMessageImpl>>;
+let onEnabledChange: ReturnType<typeof vi.fn<(enabled: boolean) => void>>;
+let activeOrchestrator: ContentOrchestrator | undefined;
+
+function makeElementVisible(element: HTMLElement): void {
+  Object.defineProperty(element, "innerText", {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.textContent ?? "";
+    }
+  });
+  Object.defineProperty(element, "offsetParent", {
+    configurable: true,
+    get() {
+      return document.body;
+    }
+  });
+}
+
 function seedDocument(html: string): void {
   document.body.innerHTML = html;
-  // happy-dom doesn't compute innerText from CSS layout; replicate the
-  // simple case where innerText equals textContent so detection works.
   for (const element of Array.from(document.querySelectorAll<HTMLElement>("*"))) {
-    Object.defineProperty(element, "innerText", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.textContent ?? "";
-      }
-    });
-    Object.defineProperty(element, "offsetParent", {
-      configurable: true,
-      get() {
-        return document.body;
-      }
-    });
+    makeElementVisible(element);
   }
 }
 
 function stubComputedStyle(): CSSStyleDeclaration {
-  // Return a Proxy that yields safe default strings for every CSS
-  // property the production code reads. Layout/visibility paths
-  // touch boxSizing, width, maxWidth, margin*, alignSelf, position,
-  // overflow, clip, clipPath, font-size, etc. — returning "" or "0px"
-  // keeps assignments to translation.style.* and parseCssPixels()
-  // from crashing or producing NaN.
   return new Proxy(
     {
       display: "block",
@@ -76,42 +74,68 @@ function stubComputedStyle(): CSSStyleDeclaration {
   ) as unknown as CSSStyleDeclaration;
 }
 
-function defaultRouter(message: SendMessageRequest): unknown {
-  if (message.type === "GET_SETTINGS") {
-    return { ok: true, settings: DEFAULT_SETTINGS };
-  }
-  if (message.type === "TRANSLATE_BATCH") {
-    const segments = message.segments ?? [];
-    const results: TranslationResult[] = segments.map((segment) => ({
-      id: segment.id,
-      text: `[T] ${segment.text}`
-    }));
-    return { ok: true, results };
-  }
-  return { ok: false, error: `Unexpected message type ${message.type}` };
+interface RouterOverrides {
+  settings?: Partial<ExtensionSettings> | null;
+  translateBatch?: (segments: TextSegment[]) => unknown;
+}
+
+function makeRouter(overrides: RouterOverrides = {}): SendMessageImpl {
+  return (message) => {
+    if (message.type === "GET_SETTINGS") {
+      if (overrides.settings === null) {
+        return Promise.resolve({ ok: true });
+      }
+      const settings = overrides.settings ?? DEFAULT_SETTINGS;
+      return Promise.resolve({ ok: true, settings });
+    }
+    if (message.type === "TRANSLATE_BATCH") {
+      if (overrides.translateBatch) {
+        return Promise.resolve(overrides.translateBatch(message.segments));
+      }
+      const results: TranslationResult[] = message.segments.map((segment) => ({
+        id: segment.id,
+        text: `${TRANSLATION_PREFIX}${segment.text}`
+      }));
+      return Promise.resolve({ ok: true, results });
+    }
+    return Promise.resolve({ ok: false, error: `Unexpected message type ${message.type}` });
+  };
+}
+
+function useRouter(overrides: RouterOverrides = {}): void {
+  sendMessageMock.mockImplementation(makeRouter(overrides));
+}
+
+function createTestOrchestrator(): ContentOrchestrator {
+  const orchestrator = createOrchestrator({ onEnabledChange });
+  activeOrchestrator = orchestrator;
+  return orchestrator;
 }
 
 beforeEach(() => {
   document.documentElement.innerHTML = "<head></head><body></body>";
   onEnabledChange = vi.fn<(enabled: boolean) => void>();
-  sendMessageMock = vi.fn<SendMessageImpl>((message) => Promise.resolve(defaultRouter(message)));
+  sendMessageMock = vi.fn<SendMessageImpl>(makeRouter());
 
   vi.stubGlobal("chrome", { runtime: { sendMessage: sendMessageMock } });
   vi.stubGlobal("window", {
     getComputedStyle: stubComputedStyle,
-    innerHeight: 800,
+    innerHeight: VIEWPORT_HEIGHT,
     setTimeout: globalThis.setTimeout.bind(globalThis)
   });
 });
 
-afterEach(() => {
-  orchestrator = undefined;
+afterEach(async () => {
+  if (activeOrchestrator && activeOrchestrator.isEnabled()) {
+    await activeOrchestrator.setEnabled(false);
+  }
+  activeOrchestrator = undefined;
   vi.unstubAllGlobals();
 });
 
 describe("createOrchestrator — initial state", () => {
   it("starts disabled and exposes empty debug state", () => {
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     expect(orchestrator.isEnabled()).toBe(false);
     const debug = orchestrator.getDebugState();
@@ -124,7 +148,7 @@ describe("createOrchestrator — initial state", () => {
 describe("createOrchestrator — happy path", () => {
   it("setEnabled(true) fetches settings, detects blocks, translates, and renders", async () => {
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
@@ -139,12 +163,12 @@ describe("createOrchestrator — happy path", () => {
     expect(onEnabledChange).toHaveBeenCalledWith(true);
 
     const translation = document.querySelector(`.${TRANSLATION_CLASS}`);
-    expect(translation?.textContent).toBe(`[T] ${SAMPLE_PARAGRAPH}`);
+    expect(translation?.textContent).toBe(`${TRANSLATION_PREFIX}${SAMPLE_PARAGRAPH}`);
   });
 
   it("tags source paragraphs with the translated attribute after translation", async () => {
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
@@ -157,7 +181,7 @@ describe("createOrchestrator — happy path", () => {
 describe("createOrchestrator — toggle lifecycle", () => {
   it("setEnabled(false) clears translation nodes and the translated attribute", async () => {
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
     await vi.waitFor(() => {
@@ -174,7 +198,7 @@ describe("createOrchestrator — toggle lifecycle", () => {
 
   it("setEnabled(true) when already enabled re-fires onEnabledChange without re-fetching settings", async () => {
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
     await vi.waitFor(() => {
@@ -193,7 +217,7 @@ describe("createOrchestrator — toggle lifecycle", () => {
 describe("createOrchestrator — empty page", () => {
   it("records a debug error when no readable blocks are detected", async () => {
     seedDocument(`<main></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
@@ -208,27 +232,18 @@ describe("createOrchestrator — error paths", () => {
     sendMessageMock.mockImplementationOnce(() => Promise.reject(new Error("network down")));
 
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
-    const debug = orchestrator.getDebugState();
-    expect(debug.lastError).toMatch(/network down/);
+    expect(orchestrator.getDebugState().lastError).toMatch(/network down/);
   });
 
   it("inserts error states when TRANSLATE_BATCH responds with ok: false", async () => {
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
-      if (message.type === "GET_SETTINGS") {
-        return Promise.resolve({ ok: true, settings: DEFAULT_SETTINGS });
-      }
-      if (message.type === "TRANSLATE_BATCH") {
-        return Promise.resolve({ ok: false, error: "Provider quota exceeded" });
-      }
-      return Promise.resolve({ ok: false });
-    });
+    useRouter({ translateBatch: () => ({ ok: false, error: "Provider quota exceeded" }) });
 
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
@@ -236,12 +251,11 @@ describe("createOrchestrator — error paths", () => {
       expect(document.querySelector(`p[${TRANSLATED_ATTR}="error"]`)).not.toBeNull();
     });
 
-    const debug = orchestrator.getDebugState();
-    expect(debug.lastError).toBe("Provider quota exceeded");
+    expect(orchestrator.getDebugState().lastError).toBe("Provider quota exceeded");
   });
 
   it("inserts error states when TRANSLATE_BATCH itself rejects (network failure)", async () => {
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
+    sendMessageMock.mockImplementation((message) => {
       if (message.type === "GET_SETTINGS") {
         return Promise.resolve({ ok: true, settings: DEFAULT_SETTINGS });
       }
@@ -252,13 +266,12 @@ describe("createOrchestrator — error paths", () => {
     });
 
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
     await vi.waitFor(() => {
-      const debug = orchestrator?.getDebugState();
-      expect(debug?.lastError).toBe("connection refused");
+      expect(orchestrator.getDebugState().lastError).toBe("connection refused");
     });
   });
 
@@ -266,25 +279,17 @@ describe("createOrchestrator — error paths", () => {
     const paragraphs = Array.from({ length: 3 }, (_, i) => `${SAMPLE_PARAGRAPH} (paragraph ${i + 1})`);
     seedDocument(`<main>${paragraphs.map((text) => `<p>${text}</p>`).join("")}</main>`);
 
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
-      if (message.type === "GET_SETTINGS") {
-        return Promise.resolve({ ok: true, settings: DEFAULT_SETTINGS });
-      }
-      if (message.type === "TRANSLATE_BATCH") {
-        const segments = message.segments ?? [];
-        // Return translation only for the first segment, drop the rest.
-        return Promise.resolve({
-          ok: true,
-          results: segments.slice(0, 1).map((segment) => ({
-            id: segment.id,
-            text: `[T] ${segment.text}`
-          }))
-        });
-      }
-      return Promise.resolve({ ok: false });
+    useRouter({
+      translateBatch: (segments) => ({
+        ok: true,
+        results: segments.slice(0, 1).map((segment) => ({
+          id: segment.id,
+          text: `${TRANSLATION_PREFIX}${segment.text}`
+        }))
+      })
     });
 
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
     await orchestrator.setEnabled(true);
 
     await vi.waitFor(() => {
@@ -296,19 +301,11 @@ describe("createOrchestrator — error paths", () => {
 
 describe("createOrchestrator — provider-specific queue", () => {
   it("uses smaller batch/concurrency for openai-compatible runtimes", async () => {
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
-      if (message.type === "GET_SETTINGS") {
-        return Promise.resolve({
-          ok: true,
-          settings: { ...DEFAULT_SETTINGS, provider: "openai-compatible" }
-        });
-      }
-      return Promise.resolve(defaultRouter(message));
-    });
+    useRouter({ settings: { ...DEFAULT_SETTINGS, provider: "openai-compatible" } });
 
     const paragraphs = Array.from({ length: 5 }, (_, i) => `${SAMPLE_PARAGRAPH} extra ${i}`);
     seedDocument(`<main>${paragraphs.map((text) => `<p>${text}</p>`).join("")}</main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
     await vi.waitFor(() => {
@@ -317,10 +314,8 @@ describe("createOrchestrator — provider-specific queue", () => {
 
     const batches = sendMessageMock.mock.calls
       .map(([msg]) => msg)
-      .filter((msg) => msg.type === "TRANSLATE_BATCH")
-      .map((msg) => msg.segments?.length ?? 0);
-    // Local LLM batch size is 3, so 5 paragraphs split into batches no
-    // larger than 3 each.
+      .filter((msg): msg is Extract<RuntimeMessage, { type: "TRANSLATE_BATCH" }> => msg.type === "TRANSLATE_BATCH")
+      .map((msg) => msg.segments.length);
     expect(batches.length).toBeGreaterThanOrEqual(2);
     expect(Math.max(...batches)).toBeLessThanOrEqual(3);
   });
@@ -329,29 +324,16 @@ describe("createOrchestrator — provider-specific queue", () => {
 describe("createOrchestrator — DOM observers", () => {
   it("rescans when DOM mutations add new translatable content", async () => {
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
     await vi.waitFor(() => {
       expect(document.querySelectorAll(`p[${TRANSLATED_ATTR}="done"]`).length).toBe(1);
     });
 
-    // Add a new paragraph dynamically — should trigger MutationObserver
-    // → debounced rescan → TRANSLATE_BATCH for the new block.
     const newP = document.createElement("p");
     newP.textContent = `${SAMPLE_PARAGRAPH} added dynamically.`;
-    Object.defineProperty(newP, "innerText", {
-      configurable: true,
-      get(this: HTMLElement) {
-        return this.textContent ?? "";
-      }
-    });
-    Object.defineProperty(newP, "offsetParent", {
-      configurable: true,
-      get() {
-        return document.body;
-      }
-    });
+    makeElementVisible(newP);
     document.querySelector("main")?.append(newP);
 
     await vi.waitFor(
@@ -364,38 +346,29 @@ describe("createOrchestrator — DOM observers", () => {
 
   it("ignores mutations caused by Margin's own translation node inserts", async () => {
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
     await vi.waitFor(() => {
       expect(document.querySelectorAll(`.${TRANSLATION_CLASS}`).length).toBe(1);
     });
 
-    const batchCallsBefore = sendMessageMock.mock.calls.filter(([msg]) => msg.type === "TRANSLATE_BATCH").length;
+    const isTranslateBatch = ([msg]: [RuntimeMessage]): boolean => msg.type === "TRANSLATE_BATCH";
+    const batchCallsBefore = sendMessageMock.mock.calls.filter(isTranslateBatch).length;
 
-    // Wait through the 600ms debounce window — no extra TRANSLATE_BATCH
-    // should fire just because the renderer inserted its own translation
-    // nodes.
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, DEBOUNCE_QUIESCE_MS));
 
-    const batchCallsAfter = sendMessageMock.mock.calls.filter(([msg]) => msg.type === "TRANSLATE_BATCH").length;
+    const batchCallsAfter = sendMessageMock.mock.calls.filter(isTranslateBatch).length;
     expect(batchCallsAfter).toBe(batchCallsBefore);
   });
 });
 
 describe("createOrchestrator — settings fallbacks", () => {
   it("falls back to defaults when settings response omits fields", async () => {
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
-      if (message.type === "GET_SETTINGS") {
-        // Settings response with literally no settings keys — every
-        // field should fall back to its hardcoded default.
-        return Promise.resolve({ ok: true, settings: {} });
-      }
-      return Promise.resolve(defaultRouter(message));
-    });
+    useRouter({ settings: {} });
 
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
@@ -405,15 +378,10 @@ describe("createOrchestrator — settings fallbacks", () => {
   });
 
   it("falls back to defaults when settings response has no settings property at all", async () => {
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
-      if (message.type === "GET_SETTINGS") {
-        return Promise.resolve({ ok: true });
-      }
-      return Promise.resolve(defaultRouter(message));
-    });
+    useRouter({ settings: null });
 
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
 
@@ -451,14 +419,11 @@ describe("createOrchestrator — viewport prioritisation", () => {
       </main>`
     );
 
-    // viewport = 800px tall (from window.innerHeight stub)
     setRect(document.getElementById("inview") as HTMLElement, { top: 100, bottom: 200 });
-    // near band: between 1x and 2.5x viewport away
-    setRect(document.getElementById("near") as HTMLElement, { top: 1200, bottom: 1300 });
-    // far band: beyond 2.5x viewport
-    setRect(document.getElementById("far") as HTMLElement, { top: 5000, bottom: 5100 });
+    setRect(document.getElementById("near") as HTMLElement, { top: NEAR_VIEWPORT_TOP, bottom: NEAR_VIEWPORT_TOP + 100 });
+    setRect(document.getElementById("far") as HTMLElement, { top: FAR_VIEWPORT_TOP, bottom: FAR_VIEWPORT_TOP + 100 });
 
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
     await orchestrator.setEnabled(true);
 
     await vi.waitFor(() => {
@@ -469,18 +434,10 @@ describe("createOrchestrator — viewport prioritisation", () => {
 
 describe("createOrchestrator — debug state plumbing", () => {
   it("reflects detected and translated counts after a scan in debug mode", async () => {
-    sendMessageMock.mockImplementation((message: SendMessageRequest) => {
-      if (message.type === "GET_SETTINGS") {
-        return Promise.resolve({
-          ok: true,
-          settings: { ...DEFAULT_SETTINGS, debugMode: true }
-        });
-      }
-      return Promise.resolve(defaultRouter(message));
-    });
+    useRouter({ settings: { ...DEFAULT_SETTINGS, debugMode: true } });
 
     seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p><p>${SAMPLE_PARAGRAPH} extra</p></main>`);
-    orchestrator = createOrchestrator({ onEnabledChange });
+    const orchestrator = createTestOrchestrator();
 
     await orchestrator.setEnabled(true);
     await vi.waitFor(() => {
