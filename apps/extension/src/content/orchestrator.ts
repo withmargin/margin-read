@@ -1,7 +1,9 @@
 import type { ExtensionSettings, PageDebugState, TranslationProviderId, TranslationResult } from "../shared/types";
+import type { BlockCandidate } from "./blockCandidates";
 import { type TranslationDisplayStyle } from "./displayStyle";
+import { createIncludedBlockCandidates } from "./extraction/shared";
 import { collectSiteAdapterBlocks } from "./siteAdapters";
-import { collectTextBlocks } from "./textBlocks";
+import { collectBlockCandidates } from "./textBlocks";
 import {
   BLOCK_ID_ATTR,
   TRANSLATED_ATTR,
@@ -9,13 +11,14 @@ import {
   createTranslationRenderer,
   type TranslationRenderer
 } from "./translationRenderer";
-import { TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
+import { compareQueueItems, TranslationQueue, type QueuePriority, type TranslationQueueItem } from "./translationQueue";
 
 const MIN_TEXT_LENGTH = 24;
 const BATCH_SIZE = 6;
 const CONCURRENCY = 2;
 const LOCAL_BATCH_SIZE = 3;
 const LOCAL_CONCURRENCY = 1;
+const INITIAL_QUEUE_LIMIT = 80;
 const NEAR_VIEWPORT_MULTIPLIER = 1.5;
 const FLOATING_HOST_ATTR = "data-margin-floating-controls";
 
@@ -58,6 +61,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let debugState: PageDebugState = createDebugState();
 
   const blockMap = new Map<string, HTMLElement>();
+  const candidateByElement = new WeakMap<HTMLElement, BlockCandidate>();
   const queue = new TranslationQueue<HTMLElement>({
     batchSize: BATCH_SIZE,
     concurrency: CONCURRENCY,
@@ -161,17 +165,22 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       xSkipNativeTranslatedPosts
     };
     const adapterBlocks = collectSiteAdapterBlocks(document, textBlockOptions);
-    const blocks = (adapterBlocks.length > 0 ? adapterBlocks : collectTextBlocks(document, textBlockOptions)).slice(0, 80);
+    const candidates =
+      adapterBlocks.length > 0
+        ? createIncludedBlockCandidates(adapterBlocks, "adapter")
+        : collectBlockCandidates(document, textBlockOptions);
+    rememberCandidates(candidates);
+    const initialQueueItems = candidates.map(createQueueItem).sort(compareQueueItems).slice(0, INITIAL_QUEUE_LIMIT);
     debugState.lastScanAt = Date.now();
-    debugState.detectedBlocks = blocks.length;
-    debugState.enqueuedBlocks += blocks.length;
-    debugState.sampleText = getSampleText(blocks);
-    if (blocks.length === 0) {
+    debugState.detectedBlocks = candidates.length;
+    debugState.enqueuedBlocks += initialQueueItems.length;
+    debugState.sampleText = getSampleText(candidates);
+    if (candidates.length === 0) {
       debugState.lastError = "No readable text blocks were detected on this page.";
     }
-    queue.enqueue(blocks.map(createQueueItem));
-    for (const block of blocks) {
-      viewportObserver?.observe(block);
+    queue.enqueue(initialQueueItems);
+    for (const candidate of candidates) {
+      viewportObserver?.observe(candidate.element);
     }
     updateDebugCounts();
   }
@@ -239,16 +248,18 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     viewportObserver?.disconnect();
     viewportObserver = new IntersectionObserver(
       (entries) => {
-        const blocks = entries
+        const candidates = entries
           .filter((entry) => entry.isIntersecting)
           .map((entry) => entry.target)
           .filter(
             (target): target is HTMLElement => target instanceof HTMLElement && !target.hasAttribute(TRANSLATED_ATTR)
-          );
+          )
+          .map((element) => candidateByElement.get(element))
+          .filter((candidate): candidate is BlockCandidate => Boolean(candidate));
 
-        if (blocks.length > 0) {
-          debugState.enqueuedBlocks += blocks.length;
-          queue.enqueue(blocks.map(createQueueItem));
+        if (candidates.length > 0) {
+          debugState.enqueuedBlocks += candidates.length;
+          queue.enqueue(candidates.map(createQueueItem));
           updateDebugCounts();
         }
       },
@@ -259,12 +270,14 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     );
   }
 
-  function createQueueItem(element: HTMLElement): TranslationQueueItem<HTMLElement> {
+  function createQueueItem(candidate: BlockCandidate): TranslationQueueItem<HTMLElement> {
+    const { element } = candidate;
     const id = element.getAttribute(BLOCK_ID_ATTR) ?? `block-${nextId++}`;
     element.setAttribute(BLOCK_ID_ATTR, id);
     return {
       id,
       priority: getQueuePriority(element),
+      contentPriority: candidate.priority,
       distance: getViewportDistance(element),
       value: element
     };
@@ -312,6 +325,12 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   function recordError(message: string): void {
     debugState.lastError = message;
     updateDebugCounts();
+  }
+
+  function rememberCandidates(candidates: BlockCandidate[]): void {
+    for (const candidate of candidates) {
+      candidateByElement.set(candidate.element, candidate);
+    }
   }
 
   return {
@@ -379,7 +398,7 @@ function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-function getSampleText(blocks: HTMLElement[]): string | undefined {
-  const sample = blocks.map((block) => normalizeText(block.innerText)).find((text) => text.length > 0);
+function getSampleText(candidates: BlockCandidate[]): string | undefined {
+  const sample = candidates.map((candidate) => candidate.text).find((text) => text.length > 0);
   return sample?.slice(0, 160);
 }
