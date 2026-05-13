@@ -16,6 +16,7 @@ export default defineConfig({
         "src/content/translationQueue.ts",
         "src/content/displayStyle.ts",
         "src/content/floatingButton.ts",
+        "src/content/orchestrator.ts",
         "src/content/readingVisibility.ts",
         "src/content/textBlocks.ts",
         "src/content/translationRenderer.ts"
