@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getTranslationLabel } from "../shared/translationLabel";
+import { getTranslationLabel } from "./translationLabel";
 
 describe("getTranslationLabel", () => {
   it("uses compact CJK labels", () => {

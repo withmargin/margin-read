@@ -1,6 +1,7 @@
 import { DEFAULT_SETTINGS } from "../shared/defaults";
 import { getSettings, getStoredSettings, saveSettings } from "../shared/storage";
 import { applyOptionsI18n, detectOptionsLocale, t } from "./i18n";
+import { initializeDisplayPreview } from "./displayPreview";
 import { initializeLanguageSelect } from "./languageSelect";
 import { getPreferredLanguageOption } from "./languages";
 import { initializeProviderSettings } from "./providerSettings";
@@ -30,6 +31,7 @@ async function initialize(): Promise<void> {
   initializeTargetLanguage(initialSettings.targetLanguage);
   initializeSourceLanguage(initialSettings.sourceLanguage);
   initializeProviderSettings({ locale, readForm, setStatus });
+  initializeDisplayPreview(locale);
 
   form?.addEventListener("submit", (event) => {
     event.preventDefault();

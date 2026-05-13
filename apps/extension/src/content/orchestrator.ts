@@ -5,7 +5,7 @@ import { type TranslationDisplayStyle } from "./displayStyle";
 import { createIncludedBlockCandidates } from "./extraction/shared";
 import { collectSiteAdapterBlocks } from "./siteAdapters";
 import { collectBlockCandidates } from "./textBlocks";
-import { getBrowserTranslationLabel } from "./translationLabel";
+import { getBrowserTranslationLabel } from "../shared/translationLabel";
 import {
   BLOCK_ID_ATTR,
   RENDER_STRATEGY_ATTR,

@@ -106,7 +106,8 @@ legend {
   }
 
   .section-grid > fieldset,
-  .section-grid > label:has(#model-select) {
+  .section-grid > label:has(#model-select),
+  .section-grid > .display-preview {
     grid-column: 1 / -1;
   }
 
@@ -213,6 +214,75 @@ button:focus-visible {
 .language-option[aria-selected="true"],
 .language-option:hover {
   background: color-mix(in srgb, var(--color-primary) 10%, #ffffff);
+}
+
+.display-preview {
+  display: grid;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  background: #fbfcfe;
+}
+
+.display-preview__label {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.display-preview__original,
+.display-preview__translation {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 450;
+  line-height: 1.58;
+}
+
+.display-preview__translation {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.62;
+  text-autospace: normal;
+  line-break: auto;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  text-spacing-trim: normal;
+}
+
+.display-preview__marker {
+  display: inline-block;
+  margin-right: 0.58em;
+  color: #a5483c;
+  font-size: 0.72em;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  vertical-align: 0.08em;
+}
+
+.display-preview[data-preview-style="balanced"] .display-preview__translation {
+  border-left: 2px solid color-mix(in srgb, var(--color-text) 28%, transparent);
+  padding-left: 0.65em;
+}
+
+.display-preview[data-preview-style="quiet"] .display-preview__translation {
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+}
+
+.display-preview[data-preview-style="focus"] .display-preview__translation {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 560;
+}
+
+.display-preview[data-preview-style="card"] .display-preview__translation {
+  border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--color-text) 34%, transparent);
+  border-radius: 5px;
+  padding: 0.55em 0.75em 0.6em;
+  background: color-mix(in srgb, var(--color-text) 6%, #ffffff);
 }
 
 .actions {

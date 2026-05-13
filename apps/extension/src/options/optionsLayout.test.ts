@@ -50,6 +50,20 @@ describe("options layout", () => {
     expect(document.querySelector('[data-i18n="youtubeSpeechToTextHint"]')).not.toBeNull();
     expect(youtubeHeading!.compareDocumentPosition(displayHeading!) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
   });
+
+  it("keeps display style and translation marker controls next to a shared preview", () => {
+    const document = createDocument(optionsHtml);
+    const displaySelect = document.querySelector<HTMLSelectElement>('select[name="displayStyle"]');
+    const markerInput = document.querySelector<HTMLInputElement>('input[name="showTranslationLabel"]');
+    const preview = document.querySelector("#display-style-preview");
+
+    expect(displaySelect).not.toBeNull();
+    expect(markerInput).not.toBeNull();
+    expect(preview).not.toBeNull();
+    expect(preview?.querySelector("#display-style-preview-marker")).not.toBeNull();
+    expect(preview?.closest(".settings-section")).toBe(displaySelect?.closest(".settings-section"));
+    expect(markerInput?.closest(".settings-section")).toBe(displaySelect?.closest(".settings-section"));
+  });
 });
 
 function createDocument(html: string): Document {
