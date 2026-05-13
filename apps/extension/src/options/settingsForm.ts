@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS } from "../shared/defaults";
-import type { CacheMode, DisplayStyle, ExtensionSettings, TranslationProviderId } from "../shared/types";
+import { normalizeDisplayStyle } from "../shared/displayStyle";
+import type { CacheMode, ExtensionSettings, TranslationProviderId } from "../shared/types";
 
 export function fillForm(settings: ExtensionSettings): void {
   setInputValue("provider", settings.provider);
@@ -8,7 +9,7 @@ export function fillForm(settings: ExtensionSettings): void {
   setInputValue("model", settings.model);
   setInputValue("sourceLanguage", settings.sourceLanguage);
   setInputValue("targetLanguage", settings.targetLanguage);
-  setInputValue("displayStyle", settings.displayStyle);
+  setInputValue("displayStyle", normalizeDisplayStyle(settings.displayStyle));
   setInputValue("cacheMode", settings.cacheMode);
   setCheckboxValue("debugMode", settings.debugMode);
   setCheckboxValue("xOptimizedTranslation", settings.siteAdapters.x.enabled);
@@ -28,7 +29,7 @@ export function readForm(): ExtensionSettings {
     model: getInputValue("model"),
     sourceLanguage: getInputValue("sourceLanguage"),
     targetLanguage: getInputValue("targetLanguage"),
-    displayStyle: getInputValue("displayStyle") as DisplayStyle,
+    displayStyle: normalizeDisplayStyle(getInputValue("displayStyle")),
     cacheMode: getInputValue("cacheMode") as CacheMode,
     debugMode: getCheckboxValue("debugMode"),
     siteAdapters: {
