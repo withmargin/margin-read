@@ -1,3 +1,5 @@
+import { isLegacySplitBlock } from "./translationRenderer";
+
 export type TranslationLayoutStrategy = "inherit-text" | "mirror-block" | "legacy-inline";
 
 export interface LayoutSnapshot {
@@ -78,10 +80,6 @@ function getLayoutSnapshot(source: HTMLElement): LayoutSnapshot {
     sourceStyle: window.getComputedStyle(source),
     parentStyle: source.parentElement ? window.getComputedStyle(source.parentElement) : undefined
   };
-}
-
-function isLegacySplitBlock(source: HTMLElement): boolean {
-  return source.dataset.marginLegacyBlock === "true" || source.dataset.marginBrSeparatedBlock === "true";
 }
 
 function parseCssPixels(value: string): number {

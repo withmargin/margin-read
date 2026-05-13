@@ -1,3 +1,4 @@
+import { normalizeText } from "../../shared/text";
 import { createBlockCandidate, type BlockCandidate, type BlockCandidateSource } from "../blockCandidates";
 import { isNonReadingElement, isVisibleForReading } from "../readingVisibility";
 import type { TextBlockOptions } from "./types";
@@ -179,9 +180,7 @@ export function getNormalizedText(element: HTMLElement): string {
   return normalizeText(element.innerText ?? element.textContent ?? "");
 }
 
-export function normalizeText(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
+export { normalizeText };
 
 export function toKebabCase(value: string): string {
   return value.replace(/[A-Z]/g, (character) => `-${character.toLowerCase()}`);

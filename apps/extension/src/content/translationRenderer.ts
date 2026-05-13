@@ -1,3 +1,4 @@
+import type { BlockRenderStrategy } from "./blockCandidates";
 import {
   applyLanguageTypography,
   applyTranslationDisplayStyle,
@@ -13,7 +14,6 @@ export const BLOCK_ID_ATTR = "data-margin-block-id";
 export const RENDER_STRATEGY_ATTR = "data-margin-render-strategy";
 
 type TranslationState = "pending" | "done" | "error";
-type TranslationRenderStrategy = "integrated" | "inline" | "table-cell";
 
 export interface TranslationRenderer {
   applyTranslations(results: TranslationResult[]): void;
@@ -151,7 +151,7 @@ export function isLegacySplitBlock(element: HTMLElement): boolean {
   return element.dataset.marginLegacyBlock === "true" || element.dataset.marginBrSeparatedBlock === "true";
 }
 
-function getRenderStrategy(source: HTMLElement): TranslationRenderStrategy {
+function getRenderStrategy(source: HTMLElement): BlockRenderStrategy {
   const value = source.getAttribute(RENDER_STRATEGY_ATTR);
   if (value === "inline" || value === "table-cell") {
     return value;

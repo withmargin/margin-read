@@ -1,3 +1,4 @@
+import { normalizeText } from "../shared/text";
 import { isAccessibilityOnlyElement, isPageChromeElement } from "./readingVisibility";
 
 export type BlockCandidateSource = "semantic" | "archetype" | "adapter" | "legacy";
@@ -12,6 +13,13 @@ export type BlockCandidateRole =
   | "navigation"
   | "ui";
 export type BlockRenderStrategy = "integrated" | "inline" | "table-cell";
+export type BlockCandidateSkipReason =
+  | "empty-text"
+  | "page-chrome"
+  | "hidden-content"
+  | "decorative-caption"
+  | "interactive-content"
+  | "low-content-score";
 
 export const BLOCK_CANDIDATE_SCORES = {
   base: {
@@ -52,7 +60,7 @@ export interface BlockCandidate {
   score: number;
   priority: number;
   renderStrategy: BlockRenderStrategy;
-  skipReason?: string;
+  skipReason?: BlockCandidateSkipReason;
 }
 
 export function createBlockCandidate(element: HTMLElement, source: BlockCandidateSource): BlockCandidate {
@@ -135,7 +143,7 @@ export function getCandidateSkipReason(
   text: string,
   score: number,
   role: BlockCandidateRole
-): string | undefined {
+): BlockCandidateSkipReason | undefined {
   if (text.length === 0) {
     return "empty-text";
   }
@@ -209,6 +217,3 @@ function hasHighLinkDensity(element: HTMLElement, text: string): boolean {
   return linkTextLength / text.length > 0.55;
 }
 
-function normalizeText(value: string): string {
-  return value.replace(/\s+/g, " ").trim();
-}
