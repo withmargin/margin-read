@@ -4,6 +4,8 @@ export const ja = {
   apiKey: "API キー",
   apiKeyHint: "Provider の生 API key を貼り付けます。Local OpenAI-compatible endpoint では空欄にできます。",
   cacheBehavior: "キャッシュ動作",
+  cacheBehaviorHint:
+    "「セッションのみ」がプライバシー優先の既定値です。「永続」は、消去するまで翻訳文をこのブラウザ profile に保存します。",
   cacheDisabled: "無効",
   cachePersistent: "永続",
   cacheSession: "セッションのみ",

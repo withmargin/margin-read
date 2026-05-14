@@ -64,6 +64,16 @@ describe("options layout", () => {
     expect(preview?.closest(".settings-section")).toBe(displaySelect?.closest(".settings-section"));
     expect(markerInput?.closest(".settings-section")).toBe(displaySelect?.closest(".settings-section"));
   });
+
+  it("explains cache behavior near the cache mode selector", () => {
+    const document = createDocument(optionsHtml);
+    const cacheModeSelect = document.querySelector<HTMLSelectElement>('select[name="cacheMode"]');
+    const cacheHint = document.querySelector('[data-i18n="cacheBehaviorHint"]');
+
+    expect(cacheModeSelect).not.toBeNull();
+    expect(cacheHint).not.toBeNull();
+    expect(cacheHint?.closest("label")).toBe(cacheModeSelect?.closest("label"));
+  });
 });
 
 function createDocument(html: string): Document {

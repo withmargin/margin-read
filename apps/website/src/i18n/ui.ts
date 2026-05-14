@@ -112,7 +112,7 @@ export const ui = {
       "A dedicated detector for timeline cards and longform articles. Translates the post body, skips profile names, counts, and media controls.",
     "f6.t": "Cache, your way",
     "f6.b":
-      "Three modes: persistent, session, off. Don't pay twice for the same paragraph — or leave no trace at all.",
+      "Three modes: session by default, persistent by choice, or off. Reduce repeat calls without giving up control.",
 
     "prov.eye": "Supported AI providers",
     "prov.t1": "Three frontier models,",
@@ -244,7 +244,7 @@ export const ui = {
     "price.n1":
       "A typical research paper (≈10k words) translated end-to-end with GPT-4o mini comes in under one cent.",
     "price.n2":
-      "Cached pages cost zero. Margin's persistent cache means re-reading a translated page never re-bills you.",
+      "Session cache avoids repeat calls while you read. Persistent cache is optional for pages you revisit later.",
     "price.n3":
       "Bring your own key. The endpoint is editable — plug in any compatible gateway, self-hosted router, or routed proxy.",
     "price.n4":
@@ -392,7 +392,7 @@ export const ui = {
       "時間軸卡片與長文章專用偵測器，只翻譯貼文本體，跳過個人名稱、互動數字、媒體控制項。",
     "f6.t": "快取彈性",
     "f6.b":
-      "三段式快取：persistent、session、disabled。重複造訪不重打 API，也可選擇完全不留下任何紀錄。",
+      "三段式快取：預設 session、可選 persistent，或完全關閉。減少重複請求，同時保留控制權。",
 
     "prov.eye": "支援的 AI 引擎",
     "prov.t1": "三個",
@@ -522,7 +522,7 @@ export const ui = {
     "price.n1":
       "一篇 ≈10k 字的研究論文用 GPT-4o mini 整篇翻完，成本不到 1 美分。",
     "price.n2":
-      "Cached pages 成本為 0。Margin 的 persistent cache 讓你重讀已翻譯頁面不會重複扣款。",
+      "Session cache 會避免同一次閱讀中的重複請求；若常重讀同頁，也可以自行開啟 persistent cache。",
     "price.n3":
       "自帶金鑰。Endpoint 可編輯——支援相容 gateway、自架 router、proxy 路由。",
     "price.n4":

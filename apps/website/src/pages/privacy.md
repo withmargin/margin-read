@@ -67,7 +67,7 @@ The extension persists data in `chrome.storage.local`, which is per-device and p
 
 - Your preferences (provider, model, target language, display options).
 - Your API key for each provider you have configured.
-- Optionally, a translation cache so the same paragraph is not re-translated when you revisit a page. The cache is on by default, can be turned off at any time in Settings, and can be cleared with a single button in the same panel.
+- A session-only translation cache by default, so repeated text in the same browsing session does not need to be re-translated. You can also opt into persistent cache, which stores translated text in this browser profile until you clear it, or disable caching entirely. Persistent cache can be cleared with a single button in Settings.
 
 The extension does **not** use `chrome.storage.sync` — the variant of Chrome storage that synchronizes across the devices where you are signed in to Chrome. Settings and API keys stay on the device they were entered on.
 

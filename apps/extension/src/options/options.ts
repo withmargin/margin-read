@@ -5,6 +5,7 @@ import { initializeDisplayPreview } from "./displayPreview";
 import { initializeLanguageSelect } from "./languageSelect";
 import { getPreferredLanguageOption } from "./languages";
 import { initializeProviderSettings } from "./providerSettings";
+import { saveSettingsWithCachePrivacy } from "./cachePrivacy";
 import { fillForm, readForm } from "./settingsForm";
 
 const form = document.querySelector<HTMLFormElement>("#settings-form");
@@ -33,9 +34,15 @@ async function initialize(): Promise<void> {
   initializeProviderSettings({ locale, readForm, setStatus });
   initializeDisplayPreview(locale);
 
+  let currentCacheMode = initialSettings.cacheMode;
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
-    void saveSettings(readForm()).then(() => {
+    const nextSettings = readForm();
+    void saveSettingsWithCachePrivacy(currentCacheMode, nextSettings, {
+      saveSettings,
+      clearPersistentCache: () => chrome.runtime.sendMessage({ type: "CLEAR_CACHE" })
+    }).then((cacheMode) => {
+      currentCacheMode = cacheMode;
       setStatus(t(locale, "statusSettingsSaved"));
     });
   });

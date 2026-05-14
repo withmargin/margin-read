@@ -32,7 +32,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
   targetLanguage: "English",
   displayStyle: "balanced",
   showTranslationLabel: false,
-  cacheMode: "persistent",
+  cacheMode: "session",
   debugMode: false,
   siteAdapters: {
     x: {

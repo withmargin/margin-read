@@ -10,7 +10,7 @@ Status: implemented in the initial scaffold.
 - OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 - Readable block detection.
 - Below-source translation display.
-- Persistent, session, and disabled cache modes.
+- Session-only default cache mode, with persistent and disabled cache options.
 - Basic provider error states.
 - Dynamic content observation.
 - Build and local loading instructions.
@@ -41,7 +41,7 @@ Status: implemented in the initial scaffold.
 - Add a release checklist.
 - Add reproducible build notes.
 - Add package integrity documentation.
-- Decide whether persistent cache should remain the default.
+- Review whether persistent cache needs additional safeguards before recommending it broadly.
 
 ## Milestone 5: Cross-Browser Support
 

@@ -4,6 +4,8 @@ export const ko = {
   apiKey: "API 키",
   apiKeyHint: "Provider 원본 API key 를 붙여 넣으세요. Local OpenAI-compatible endpoint 는 비워 둘 수 있습니다.",
   cacheBehavior: "캐시 방식",
+  cacheBehaviorHint:
+    "세션만이 개인정보 우선 기본값입니다. 영구 저장은 지울 때까지 번역문을 이 브라우저 profile 에 저장합니다.",
   cacheDisabled: "사용 안 함",
   cachePersistent: "영구 저장",
   cacheSession: "세션만",

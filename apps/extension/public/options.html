@@ -167,10 +167,13 @@
             <label>
               <span data-i18n="cacheBehavior">Cache behavior</span>
               <select name="cacheMode">
-                <option value="persistent" data-i18n="cachePersistent">Persistent</option>
                 <option value="session" data-i18n="cacheSession">Session only</option>
+                <option value="persistent" data-i18n="cachePersistent">Persistent</option>
                 <option value="disabled" data-i18n="cacheDisabled">Disabled</option>
               </select>
+              <span class="hint" data-i18n="cacheBehaviorHint">
+                Session only is the privacy-first default. Persistent stores translated text in this browser profile until cleared.
+              </span>
             </label>
             <label class="checkbox">
               <input name="showFloatingButton" type="checkbox" />

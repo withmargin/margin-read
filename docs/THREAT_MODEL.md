@@ -122,15 +122,17 @@ Risk: Persistent cache stores translated text in the browser profile.
 
 Mitigations:
 
-- Provide cache mode options: persistent, session only, disabled.
+- Use session-only cache as the default.
+- Make persistent cache an explicit user choice.
 - Provide a clear cache action.
-- Consider disabling persistent cache by default in a later privacy review.
+- Clear persistent cache entries when the user switches from persistent cache to session-only or disabled cache.
 
 ## Residual Risks
 
 - A malicious webpage could observe DOM changes after translations are inserted.
 - Provider endpoints may log text according to their own policies.
 - Browser extension storage is not a secure vault.
+- Users who opt into persistent cache store translated text in their local browser profile until they clear it.
 - Some webpage structures may cause accidental translation of non-reading text.
 
 ## Security Review Checklist

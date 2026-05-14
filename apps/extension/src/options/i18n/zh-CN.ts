@@ -4,6 +4,8 @@ export const zhCN = {
   apiKey: "API 密钥",
   apiKeyHint: "粘贴原始 provider API key。Local OpenAI-compatible endpoint 可以留空。",
   cacheBehavior: "缓存行为",
+  cacheBehaviorHint:
+    "“仅本次浏览会话”是隐私优先的默认值。“持久保存”会把译文存在此浏览器 profile，直到你清除缓存。",
   cacheDisabled: "停用",
   cachePersistent: "持久保存",
   cacheSession: "仅本次浏览会话",

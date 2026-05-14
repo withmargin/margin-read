@@ -4,6 +4,8 @@ export const es = {
   apiKey: "Clave de API",
   apiKeyHint: "Pega la API key sin procesar del provider. Los endpoints locales OpenAI-compatible pueden dejarlo vacío.",
   cacheBehavior: "Comportamiento de caché",
+  cacheBehaviorHint:
+    "Solo sesion es el valor predeterminado privacy-first. La cache persistente guarda traducciones en este perfil del navegador hasta que la borres.",
   cacheDisabled: "Desactivada",
   cachePersistent: "Persistente",
   cacheSession: "Solo sesión",

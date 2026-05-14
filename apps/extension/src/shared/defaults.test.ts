@@ -12,6 +12,7 @@ describe("provider defaults", () => {
     expect(DEFAULT_SETTINGS.model).toBe(PROVIDER_DEFAULTS.openai.model);
     expect(DEFAULT_SETTINGS.showFloatingButton).toBe(false);
     expect(DEFAULT_SETTINGS.showTranslationLabel).toBe(false);
+    expect(DEFAULT_SETTINGS.cacheMode).toBe("session");
   });
 
   it("keeps provider endpoints editable but initialized to official APIs", () => {

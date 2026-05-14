@@ -57,7 +57,7 @@ The MVP display style is below-source translation. Side-by-side layout is a late
 - OpenAI, Anthropic Claude, and Google Gemini provider adapters.
 - Options page for endpoint, API key, model, source language, target language, and cache behavior.
 - Options page support for fetching provider model lists.
-- Basic persistent, session, or disabled cache modes.
+- Session-only default cache mode, plus persistent and disabled cache options.
 - Basic error state inserted near affected text blocks.
 - MutationObserver support for dynamically inserted content.
 - Documentation for local install, build, and extension loading.
@@ -212,7 +212,7 @@ Later:
 
 - Popup: sends page-level enable or disable messages to the active tab.
 - Content script: detects readable text blocks, manages page state, inserts translation blocks, observes dynamic content.
-- Service worker: owns provider requests, settings reads, persistent cache reads and writes, and runtime message handling.
+- Service worker: owns provider requests, settings reads, session and optional persistent cache handling, and runtime message handling.
 - Options page: manages provider and cache settings.
 - Shared modules: define settings, storage helpers, hashing, and runtime message types.
 
@@ -306,7 +306,7 @@ Milestone 4: Browser Expansion
 ## 26. Open Questions
 
 - Which open-source license should govern the project?
-- Should persistent cache be encrypted or disabled by default?
+- Should persistent cache be encrypted before recommending it broadly?
 - Should the extension eventually support per-site provider settings?
 - What is the minimum acceptable permission set for store distribution?
 - How should reproducible release artifacts be verified?

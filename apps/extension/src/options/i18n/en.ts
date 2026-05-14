@@ -4,6 +4,8 @@ export const en = {
   apiKey: "API key",
   apiKeyHint: "Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.",
   cacheBehavior: "Cache behavior",
+  cacheBehaviorHint:
+    "Session only is the privacy-first default. Persistent stores translated text in this browser profile until cleared.",
   cacheDisabled: "Disabled",
   cachePersistent: "Persistent",
   cacheSession: "Session only",

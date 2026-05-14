@@ -12,6 +12,11 @@ describe("settings form", () => {
         <option value="card">Card</option>
       </select>
       <input name="showTranslationLabel" type="checkbox" />
+      <select name="cacheMode">
+        <option value="session">Session only</option>
+        <option value="persistent">Persistent</option>
+        <option value="disabled">Disabled</option>
+      </select>
     `;
   });
 
@@ -32,5 +37,12 @@ describe("settings form", () => {
 
     expect(document.querySelector<HTMLInputElement>('[name="showTranslationLabel"]')?.checked).toBe(true);
     expect(readForm().showTranslationLabel).toBe(true);
+  });
+
+  it("fills and reads the cache mode setting", () => {
+    fillForm({ ...DEFAULT_SETTINGS, cacheMode: "disabled" });
+
+    expect(document.querySelector<HTMLSelectElement>('[name="cacheMode"]')?.value).toBe("disabled");
+    expect(readForm().cacheMode).toBe("disabled");
   });
 });

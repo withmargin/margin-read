@@ -4,6 +4,8 @@ export const de = {
   apiKey: "API key",
   apiKeyHint: "Fuege den rohen provider API key ein. Lokale OpenAI-compatible endpoints koennen leer bleiben.",
   cacheBehavior: "Cache-Verhalten",
+  cacheBehaviorHint:
+    "Nur Sitzung ist der privacy-first Standard. Persistenter Cache speichert Uebersetzungen in diesem Browserprofil, bis du den Cache leerst.",
   cacheDisabled: "Deaktiviert",
   cachePersistent: "Persistenter Cache",
   cacheSession: "Nur Sitzung",

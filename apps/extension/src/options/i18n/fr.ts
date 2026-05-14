@@ -4,6 +4,8 @@ export const fr = {
   apiKey: "Cle API",
   apiKeyHint: "Collez l'API key brute du provider. Les endpoints locaux OpenAI-compatible peuvent rester vides.",
   cacheBehavior: "Comportement du cache",
+  cacheBehaviorHint:
+    "Session uniquement est le choix privacy-first par defaut. Le cache persistant conserve les traductions dans ce profil de navigateur jusqu'a ce que vous le vidiez.",
   cacheDisabled: "Desactive",
   cachePersistent: "Persistant",
   cacheSession: "Session uniquement",

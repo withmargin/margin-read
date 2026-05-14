@@ -2,6 +2,7 @@ export const MESSAGE_KEYS = [
   "apiKey",
   "apiKeyHint",
   "cacheBehavior",
+  "cacheBehaviorHint",
   "cacheDisabled",
   "cachePersistent",
   "cacheSession",

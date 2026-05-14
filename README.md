@@ -29,7 +29,7 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Fetch provider model lists from the options page.
 - Choose integrated or highlighted translation display styles.
 - Optionally show a floating page button that starts translation only after the user clicks it.
-- Use persistent, session, or disabled translation cache behavior.
+- Use session-only translation caching by default, with persistent and disabled cache options.
 - Show popup diagnostics for text detection, queue state, and provider errors.
 - Observe dynamically inserted content.
 - Optimize X timeline cards and longform article pages by targeting readable content and avoiding profile names, action counts, media, and controls.

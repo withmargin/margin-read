@@ -4,6 +4,8 @@ export const zhTW = {
   apiKey: "API 金鑰",
   apiKeyHint: "貼上原始 provider API key。Local OpenAI-compatible endpoint 可以留空。",
   cacheBehavior: "快取行為",
+  cacheBehaviorHint:
+    "「僅本次瀏覽階段」是隱私優先的預設值。「持久保存」會把譯文存在此瀏覽器 profile，直到你清除快取。",
   cacheDisabled: "停用",
   cachePersistent: "持久保存",
   cacheSession: "僅本次瀏覽階段",
