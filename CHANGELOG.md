@@ -7,7 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-14
+
+### Added
+
+- **Floating page translation button.** Margin can now show a small
+  page-level button that starts translation only after the user clicks
+  it. The control uses an isolated shadow DOM, keeps its own close and
+  enabled states, and stays out of the source page until explicitly
+  enabled from options.
+
+- **YouTube caption translation.** YouTube watch pages now get a
+  player-level Margin control for bilingual captions. The extension
+  translates existing creator-provided or auto-generated caption
+  tracks, renders its own caption overlay, and does not require
+  YouTube's native caption button to stay enabled after subtitles are
+  loaded.
+
+- **Display style preview and translation marker setting.** The
+  options page now previews translation visual styles and keeps
+  display style separate from the optional localized translation
+  marker. This makes it easier to choose a reading style without
+  conflating typography, emphasis, and marker visibility.
+
 ### Changed
+
+- **Session-only cache is now the privacy-first default.** Persistent
+  cache remains available as an explicit option, but new installs now
+  keep repeated translations in the current session by default. When
+  users switch away from persistent cache, Margin clears persistent
+  translation cache entries.
+
+- **Readable-block extraction now uses a layered cascade.** Generic
+  semantic detection, content archetypes, and site adapters now run
+  through explicit extraction boundaries with fixture-based regression
+  tests. This improves docs, article, X, and forum-style pages without
+  forcing every website into a one-off adapter.
+
+- **CJK translation typography was tuned for reading.** Translation
+  blocks now use stronger CJK-friendly text rendering, more consistent
+  line-height behavior, and modern spacing properties such as
+  `text-autospace` where supported.
 
 - **Content script split into focused modules.** The 763-line
   `contentScript.ts` is now a 70-line entry that wires three single-
@@ -136,5 +176,6 @@ below-source translation insertion, persistent / session / disabled
 cache modes, X timeline and article optimization, and YouTube
 subtitle translation. See the git history for the full scaffold.
 
-[Unreleased]: https://github.com/withmargin/margin-read/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/withmargin/margin-read/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/withmargin/margin-read/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/withmargin/margin-read/releases/tag/v0.2.0
