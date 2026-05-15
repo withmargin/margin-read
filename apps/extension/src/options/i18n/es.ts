@@ -55,7 +55,7 @@ export const es = {
   targetLanguageHint: "Busca por nombre en inglés, nombre nativo, código de idioma o alias.",
   title: "Opciones de Margin",
   translationMarker: "Marcador de traduccion",
-  translationMarkerHint: "Anteponer a los pasajes traducidos un pequeno marcador localizado.",
+  translationMarkerHint: "Anteponer a los pasajes traducidos un pequeno marcador en el idioma de destino.",
   translateQuotedPosts: "Traducir quoted posts",
   translateQuotedPostsHint: "También traduce el texto de posts citados anidados dentro de tarjetas de X.",
   translateXArticles: "Traducir X articles",

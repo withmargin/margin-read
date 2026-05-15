@@ -55,7 +55,7 @@ export const zhCN = {
   targetLanguageHint: "可用英文名称、原生名称、语言代码或别名搜索。",
   title: "Margin 设置",
   translationMarker: "译文标记",
-  translationMarkerHint: "在译文段落前显示小型本地化标记。",
+  translationMarkerHint: "在译文段落前显示目标语言的小型标记。",
   translateQuotedPosts: "翻译 quoted posts",
   translateQuotedPostsHint: "同时翻译 X card 里嵌套引用帖文的文字。",
   translateXArticles: "翻译 X articles",

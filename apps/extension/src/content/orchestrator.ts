@@ -5,7 +5,7 @@ import { type TranslationDisplayStyle } from "./displayStyle";
 import { createIncludedBlockCandidates } from "./extraction/shared";
 import { collectSiteAdapterBlocks } from "./siteAdapters";
 import { collectBlockCandidates } from "./textBlocks";
-import { getBrowserTranslationLabel } from "../shared/translationLabel";
+import { getTranslationLabel } from "../shared/translationLabel";
 import {
   BLOCK_ID_ATTR,
   RENDER_STRATEGY_ATTR,
@@ -57,8 +57,8 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let runId = 0;
   let displayStyle: TranslationDisplayStyle = "balanced";
   let showTranslationLabel = false;
-  let translationLabel = getBrowserTranslationLabel();
   let targetLanguage = "English";
+  let translationLabel = getTranslationLabel(targetLanguage);
   let debugMode = false;
   let xOptimizedTranslation = true;
   let xTranslateArticles = true;
@@ -107,8 +107,8 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       const response: SettingsResponse = await chrome.runtime.sendMessage({ type: "GET_SETTINGS" });
       displayStyle = response.settings?.displayStyle ?? "balanced";
       showTranslationLabel = response.settings?.showTranslationLabel ?? false;
-      translationLabel = getBrowserTranslationLabel();
       targetLanguage = response.settings?.targetLanguage ?? targetLanguage;
+      translationLabel = getTranslationLabel(targetLanguage);
       renderer.setDisplayStyle(displayStyle);
       renderer.setTranslationLabel(showTranslationLabel, translationLabel);
       renderer.setTargetLanguage(targetLanguage);

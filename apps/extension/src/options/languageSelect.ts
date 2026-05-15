@@ -25,7 +25,7 @@ export function initializeLanguageSelect(elements: LanguageSelectElements, initi
   const optionIdPrefix = elements.optionIdPrefix ?? elements.listbox.id;
 
   const selectOption = (option: LanguageOption): void => {
-    elements.hiddenInput.value = option.promptName;
+    setHiddenValue(option.promptName);
     elements.input.value = formatLanguageOption(option);
     query = "";
     closeListbox();
@@ -121,10 +121,18 @@ export function initializeLanguageSelect(elements: LanguageSelectElements, initi
       selectOption(option);
       return;
     }
-    elements.hiddenInput.value = value;
+    setHiddenValue(value);
     elements.input.value = value;
     query = "";
   };
+
+  function setHiddenValue(value: string): void {
+    const changed = elements.hiddenInput.value !== value;
+    elements.hiddenInput.value = value;
+    if (changed) {
+      elements.hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  }
 
   setValue(initialValue);
 

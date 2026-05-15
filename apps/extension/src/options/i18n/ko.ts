@@ -55,7 +55,7 @@ export const ko = {
   targetLanguageHint: "영어 이름, 현지 이름, 언어 코드, 별칭으로 검색할 수 있습니다.",
   title: "Margin 설정",
   translationMarker: "번역 표시",
-  translationMarkerHint: "번역 문단 앞에 작은 현지화 표시를 붙입니다.",
+  translationMarkerHint: "번역 문단 앞에 대상 언어의 작은 표시를 붙입니다.",
   translateQuotedPosts: "Quoted posts 번역",
   translateQuotedPostsHint: "X card 안의 인용 게시물 텍스트도 번역합니다.",
   translateXArticles: "X articles 번역",

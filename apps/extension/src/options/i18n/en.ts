@@ -55,7 +55,7 @@ export const en = {
   targetLanguageHint: "Search by English name, native name, language code, or alias.",
   title: "Margin Options",
   translationMarker: "Translation marker",
-  translationMarkerHint: "Prefix translated passages with a small localized marker.",
+  translationMarkerHint: "Prefix translated passages with a small marker in the target language.",
   translateQuotedPosts: "Translate quoted posts",
   translateQuotedPostsHint: "Also translate nested quoted post text inside X cards.",
   translateXArticles: "Translate X articles",
