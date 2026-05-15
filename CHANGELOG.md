@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-05-15
+
+### Changed
+
+- Translation markers now follow the selected target language instead
+  of the browser UI language. For example, a Traditional Chinese target
+  shows `譯`, Japanese shows `翻訳`, and English shows `Translation`,
+  making the marker match the language of the inserted translation.
+
 ## [0.3.0] - 2026-05-14
 
 ### Added
@@ -176,6 +185,7 @@ below-source translation insertion, persistent / session / disabled
 cache modes, X timeline and article optimization, and YouTube
 subtitle translation. See the git history for the full scaffold.
 
-[Unreleased]: https://github.com/withmargin/margin-read/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/withmargin/margin-read/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/withmargin/margin-read/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/withmargin/margin-read/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/withmargin/margin-read/releases/tag/v0.2.0
