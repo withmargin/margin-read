@@ -65,3 +65,152 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/SHA256SUMS
+
+  chrome-web-store:
+    name: Submit Chrome Web Store release
+    runs-on: ubuntu-latest
+    needs: release
+    environment: chrome-web-store
+
+    env:
+      CWS_ITEM_ID: ${{ vars.CWS_ITEM_ID }}
+      CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+      CWS_SERVICE_ACCOUNT_JSON: ${{ secrets.CWS_SERVICE_ACCOUNT_JSON }}
+      RELEASE_VERSION: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate configuration
+        run: |
+          test -n "$CWS_ITEM_ID"
+          test -n "$CWS_PUBLISHER_ID"
+          test -n "$CWS_SERVICE_ACCOUNT_JSON"
+          case "$RELEASE_VERSION" in
+            v*) ;;
+            *) echo "Release ref must be a v-prefixed tag. Got $RELEASE_VERSION"; exit 1 ;;
+          esac
+
+      - name: Create Chrome Web Store access token
+        run: node .github/scripts/create-cws-access-token.mjs
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: margin-read-release
+          path: artifacts
+
+      - name: Resolve package path
+        id: package
+        run: |
+          VERSION="${RELEASE_VERSION#v}"
+          PACKAGE_PATH="artifacts/margin-read-v${VERSION}.zip"
+          test -f "$PACKAGE_PATH"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "path=$PACKAGE_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch Chrome Web Store status before upload
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:fetchStatus" \
+            | tee cws-status-before.json
+
+      - name: Decide whether to submit
+        id: cws
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from "node:fs";
+
+          const version = process.env.RELEASE_VERSION?.replace(/^v/, "");
+          const status = JSON.parse(readFileSync("cws-status-before.json", "utf8"));
+          const revisions = [
+            ["published", status.publishedItemRevisionStatus],
+            ["submitted", status.submittedItemRevisionStatus]
+          ];
+
+          for (const [name, revision] of revisions) {
+            const channel = revision?.distributionChannels?.find((candidate) => candidate.crxVersion === version);
+            if (channel) {
+              appendFileSync(process.env.GITHUB_OUTPUT, "should_submit=false\n");
+              appendFileSync(process.env.GITHUB_OUTPUT, `reason=${name} revision already has version ${version} in state ${revision.state}\n`);
+              process.exit(0);
+            }
+          }
+
+          appendFileSync(process.env.GITHUB_OUTPUT, "should_submit=true\n");
+          appendFileSync(process.env.GITHUB_OUTPUT, `reason=No existing published or submitted revision for version ${version}\n`);
+          NODE
+
+      - name: Upload package draft
+        if: steps.cws.outputs.should_submit == 'true'
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
+            -X POST \
+            -T "${{ steps.package.outputs.path }}" \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:upload" \
+            | tee cws-upload.json
+
+      - name: Submit for review
+        if: steps.cws.outputs.should_submit == 'true'
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d '{"publishType":"DEFAULT_PUBLISH"}' \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:publish" \
+            | tee cws-submit.json
+
+      - name: Fetch Chrome Web Store status after submission
+        if: always()
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:fetchStatus" \
+            | tee cws-status-after.json
+
+      - name: Write Chrome Web Store summary
+        if: always()
+        run: |
+          {
+            echo "## Chrome Web Store"
+            echo
+            echo "- Version: \`${{ steps.package.outputs.version }}\`"
+            echo "- Package: \`${{ steps.package.outputs.path }}\`"
+            echo "- Decision: \`${{ steps.cws.outputs.reason }}\`"
+            echo
+            echo "### Status before"
+            echo
+            echo "\`\`\`json"
+            cat cws-status-before.json
+            echo
+            echo "\`\`\`"
+            if [ -f cws-upload.json ]; then
+              echo
+              echo "### Upload"
+              echo
+              echo "\`\`\`json"
+              cat cws-upload.json
+              echo
+              echo "\`\`\`"
+            fi
+            if [ -f cws-submit.json ]; then
+              echo
+              echo "### Submission"
+              echo
+              echo "\`\`\`json"
+              cat cws-submit.json
+              echo
+              echo "\`\`\`"
+            fi
+            echo
+            echo "### Status after"
+            echo
+            echo "\`\`\`json"
+            cat cws-status-after.json
+            echo
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"

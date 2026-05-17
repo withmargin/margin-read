@@ -2,25 +2,14 @@ name: Chrome Web Store
 
 on:
   workflow_dispatch:
-    inputs:
-      action:
-        description: "Chrome Web Store action to run"
-        required: true
-        default: status
-        type: choice
-        options:
-          - status
-          - upload
-          - submit
 
 permissions:
   contents: read
 
 jobs:
   chrome-web-store:
-    name: Chrome Web Store ${{ inputs.action }}
+    name: Chrome Web Store status
     runs-on: ubuntu-latest
-    environment: chrome-web-store
 
     env:
       CWS_ITEM_ID: ${{ vars.CWS_ITEM_ID }}
@@ -28,6 +17,9 @@ jobs:
       CWS_SERVICE_ACCOUNT_JSON: ${{ secrets.CWS_SERVICE_ACCOUNT_JSON }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Validate configuration
         run: |
           test -n "$CWS_ITEM_ID"
@@ -35,58 +27,7 @@ jobs:
           test -n "$CWS_SERVICE_ACCOUNT_JSON"
 
       - name: Create Chrome Web Store access token
-        run: |
-          node --input-type=module <<'NODE'
-          import { appendFileSync } from "node:fs";
-          import { createSign } from "node:crypto";
-
-          const credentials = JSON.parse(process.env.CWS_SERVICE_ACCOUNT_JSON ?? "{}");
-          const tokenUri = credentials.token_uri ?? "https://oauth2.googleapis.com/token";
-
-          if (!credentials.client_email || !credentials.private_key) {
-            throw new Error("CWS_SERVICE_ACCOUNT_JSON must include client_email and private_key.");
-          }
-
-          const now = Math.floor(Date.now() / 1000);
-          const header = { alg: "RS256", typ: "JWT" };
-          const claim = {
-            iss: credentials.client_email,
-            scope: "https://www.googleapis.com/auth/chromewebstore",
-            aud: tokenUri,
-            iat: now,
-            exp: now + 3600
-          };
-
-          const encodedHeader = base64Url(JSON.stringify(header));
-          const encodedClaim = base64Url(JSON.stringify(claim));
-          const signingInput = `${encodedHeader}.${encodedClaim}`;
-          const signature = createSign("RSA-SHA256").update(signingInput).end().sign(credentials.private_key);
-          const assertion = `${signingInput}.${base64Url(signature)}`;
-          const response = await fetch(tokenUri, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-              assertion
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`Failed to create access token: ${response.status} ${await response.text()}`);
-          }
-
-          const token = (await response.json()).access_token;
-          if (!token) {
-            throw new Error("Token response did not include access_token.");
-          }
-
-          console.log(`::add-mask::${token}`);
-          appendFileSync(process.env.GITHUB_ENV, `CWS_ACCESS_TOKEN=${token}\n`);
-
-          function base64Url(value) {
-            return Buffer.from(value).toString("base64url");
-          }
-          NODE
+        run: node .github/scripts/create-cws-access-token.mjs
 
       - name: Fetch Chrome Web Store status
         run: |
@@ -102,95 +43,6 @@ jobs:
             echo
             echo "\`\`\`json"
             cat cws-status.json
-            echo
-            echo "\`\`\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Checkout
-        if: inputs.action != 'status'
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        if: inputs.action != 'status'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.15.0
-          run_install: false
-
-      - name: Setup Node
-        if: inputs.action != 'status'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        if: inputs.action != 'status'
-        run: pnpm install --frozen-lockfile
-
-      - name: Validate extension
-        if: inputs.action != 'status'
-        run: |
-          pnpm check
-          pnpm lint
-          pnpm test
-          pnpm package:extension
-          pnpm check:extension
-
-      - name: Resolve package path
-        if: inputs.action != 'status'
-        id: package
-        run: |
-          VERSION="$(node -p "require('./apps/extension/manifest.json').version")"
-          PACKAGE_PATH="artifacts/margin-read-v${VERSION}.zip"
-          test -f "$PACKAGE_PATH"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "path=$PACKAGE_PATH" >> "$GITHUB_OUTPUT"
-
-      - name: Upload package draft
-        if: inputs.action == 'upload' || inputs.action == 'submit'
-        run: |
-          curl --fail-with-body --show-error --silent \
-            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
-            -X POST \
-            -T "${{ steps.package.outputs.path }}" \
-            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:upload" \
-            | tee cws-upload.json
-
-      - name: Write upload summary
-        if: inputs.action == 'upload' || inputs.action == 'submit'
-        run: |
-          {
-            echo "## Chrome Web Store upload"
-            echo
-            echo "- Version: \`${{ steps.package.outputs.version }}\`"
-            echo "- Package: \`${{ steps.package.outputs.path }}\`"
-            echo
-            echo "\`\`\`json"
-            cat cws-upload.json
-            echo
-            echo "\`\`\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Submit for review
-        if: inputs.action == 'submit'
-        run: |
-          curl --fail-with-body --show-error --silent \
-            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
-            -H "Content-Type: application/json" \
-            -X POST \
-            -d '{}' \
-            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:publish" \
-            | tee cws-submit.json
-
-      - name: Write submission summary
-        if: inputs.action == 'submit'
-        run: |
-          {
-            echo "## Chrome Web Store submission"
-            echo
-            echo "\`\`\`json"
-            cat cws-submit.json
             echo
             echo "\`\`\`"
           } >> "$GITHUB_STEP_SUMMARY"
