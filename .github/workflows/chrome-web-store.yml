@@ -34,18 +34,64 @@ jobs:
           test -n "$CWS_PUBLISHER_ID"
           test -n "$CWS_SERVICE_ACCOUNT_JSON"
 
-      - name: Authenticate to Google Cloud
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.CWS_SERVICE_ACCOUNT_JSON }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+      - name: Create Chrome Web Store access token
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync } from "node:fs";
+          import { createSign } from "node:crypto";
+
+          const credentials = JSON.parse(process.env.CWS_SERVICE_ACCOUNT_JSON ?? "{}");
+          const tokenUri = credentials.token_uri ?? "https://oauth2.googleapis.com/token";
+
+          if (!credentials.client_email || !credentials.private_key) {
+            throw new Error("CWS_SERVICE_ACCOUNT_JSON must include client_email and private_key.");
+          }
+
+          const now = Math.floor(Date.now() / 1000);
+          const header = { alg: "RS256", typ: "JWT" };
+          const claim = {
+            iss: credentials.client_email,
+            scope: "https://www.googleapis.com/auth/chromewebstore",
+            aud: tokenUri,
+            iat: now,
+            exp: now + 3600
+          };
+
+          const encodedHeader = base64Url(JSON.stringify(header));
+          const encodedClaim = base64Url(JSON.stringify(claim));
+          const signingInput = `${encodedHeader}.${encodedClaim}`;
+          const signature = createSign("RSA-SHA256").update(signingInput).end().sign(credentials.private_key);
+          const assertion = `${signingInput}.${base64Url(signature)}`;
+          const response = await fetch(tokenUri, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+              assertion
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to create access token: ${response.status} ${await response.text()}`);
+          }
+
+          const token = (await response.json()).access_token;
+          if (!token) {
+            throw new Error("Token response did not include access_token.");
+          }
+
+          console.log(`::add-mask::${token}`);
+          appendFileSync(process.env.GITHUB_ENV, `CWS_ACCESS_TOKEN=${token}\n`);
+
+          function base64Url(value) {
+            return Buffer.from(value).toString("base64url");
+          }
+          NODE
 
       - name: Fetch Chrome Web Store status
         run: |
           curl --fail-with-body --show-error --silent \
-            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
             "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:fetchStatus" \
             | tee cws-status.json
 
@@ -105,7 +151,7 @@ jobs:
         if: inputs.action == 'upload' || inputs.action == 'submit'
         run: |
           curl --fail-with-body --show-error --silent \
-            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
             -X POST \
             -T "${{ steps.package.outputs.path }}" \
             "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:upload" \
@@ -130,7 +176,7 @@ jobs:
         if: inputs.action == 'submit'
         run: |
           curl --fail-with-body --show-error --silent \
-            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
             -H "Content-Type: application/json" \
             -X POST \
             -d '{}' \
