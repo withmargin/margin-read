@@ -38,7 +38,9 @@ Status: implemented in the initial scaffold.
 
 - Review extension permissions.
 - Evaluate optional host permissions.
-- Add a release checklist.
+- Add a release checklist. (done)
+- Add beta tester installation and feedback documentation. (done)
+- Add beta feedback issue templates. (done)
 - Add reproducible build notes.
 - Add package integrity documentation.
 - Review whether persistent cache needs additional safeguards before recommending it broadly.

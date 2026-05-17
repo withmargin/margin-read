@@ -36,9 +36,16 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 
 Margin does not include PDF translation, EPUB translation, subtitle translation, OCR, input box translation, cloud sync, accounts, social features, default telemetry, or an official paid translation quota system.
 
+## Beta Testing
+
+Beta testers can install Margin from the Chrome Web Store beta listing when
+invited, from a GitHub Release ZIP, or from a local source build. See the
+[Beta Testing Guide](docs/BETA_TESTING.md) for the full setup and feedback
+workflow.
+
 ## Install From Source
 
-Margin is not packaged in a browser extension store yet. Load it as an unpacked extension:
+For local development, load Margin as an unpacked extension:
 
 ```sh
 corepack enable
@@ -202,6 +209,8 @@ Use those values to separate the main failure modes:
 - [Project Principles](docs/PRINCIPLES.md)
 - [Threat Model](docs/THREAT_MODEL.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Beta Testing Guide](docs/BETA_TESTING.md)
+- [Release Checklist](docs/RELEASE_CHECKLIST.md)
 
 ## License
 

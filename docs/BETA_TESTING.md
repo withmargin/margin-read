@@ -1,0 +1,105 @@
+# Beta Testing Guide
+
+Margin Read is in beta. The goal of the beta is to find real pages where
+translation is missing, inserted in the wrong place, visually hard to read, or
+blocked by provider setup.
+
+## What to Test
+
+- Normal article pages, blogs, docs, and legacy text-heavy pages.
+- Dynamic pages such as X posts, X articles, and documentation sites.
+- YouTube pages with creator-provided or auto-generated captions.
+- Light and dark websites.
+- CJK source pages, especially Japanese or Chinese pages translated into
+  Traditional Chinese.
+- Different display styles and the optional translation marker.
+- Provider setup with OpenAI, Anthropic Claude, Google Gemini, or a local
+  OpenAI-compatible runtime.
+
+## Install Options
+
+### Chrome Web Store Beta
+
+If you received a Chrome Web Store beta link or tester invitation, install
+Margin from that listing. Store builds update automatically after review and
+rollout.
+
+### GitHub Release Package
+
+Use this when the Chrome Web Store build is still under review or when a tester
+is comfortable installing manually.
+
+1. Open the latest GitHub Release.
+2. Download `margin-read-vX.Y.Z.zip`.
+3. Optionally verify the file with the release `SHA256SUMS`.
+4. Unzip the package locally.
+5. Open `chrome://extensions`.
+6. Enable Developer mode.
+7. Click Load unpacked.
+8. Select the unzipped extension directory.
+
+Chrome and Chromium browsers do not auto-update manually loaded release ZIPs.
+Repeat the steps above when testing a newer GitHub Release.
+
+### Source Build
+
+Use this for contributors who want to test local changes:
+
+```sh
+corepack enable
+pnpm install
+pnpm build
+```
+
+Then load `apps/extension/dist/` from `chrome://extensions`.
+
+## Setup Checklist
+
+1. Open Margin options.
+2. Choose a provider.
+3. Add an API key when the provider requires one.
+4. Fetch or select a model.
+5. Choose the target language.
+6. Confirm cache mode. Session-only is the privacy-first default.
+7. Choose a translation display style.
+8. Decide whether to show the translation marker.
+9. Open a page and run translation from the popup or floating page button.
+
+## Good Feedback Includes
+
+- Page URL.
+- Browser and browser version.
+- Margin version from `chrome://extensions`.
+- Provider and model name.
+- Source language and target language.
+- Display style and whether the translation marker is enabled.
+- What happened.
+- What you expected instead.
+- Screenshot or short screen recording when layout is involved.
+- Popup diagnostics if the issue is missing translation or provider failure.
+
+Do not share API keys, private documents, private page contents, or account
+tokens in public issues.
+
+## Issue Types
+
+Use the GitHub issue templates when possible:
+
+- Website translation issue: wrong position, duplicate translation, skipped
+  text, poor extraction, or visual layout problems.
+- YouTube captions issue: missing bilingual captions, timing problems, wrong
+  language, or player control issues.
+- Provider or options issue: API key, model fetching, endpoint, cache, or
+  options UI problems.
+- General beta feedback: quality, wording, onboarding, or beta usability.
+
+## Known Beta Limits
+
+- PDF, EPUB, OCR, image translation, and ASR are not part of the current beta.
+- YouTube translation currently depends on existing caption tracks.
+- Highly interactive web apps may rewrite DOM nodes and move or remove inserted
+  translations.
+- Provider rate limits and output quality depend on the configured provider.
+- Local LLM quality depends heavily on the served model, runtime, and JSON
+  support.
+
