@@ -1,0 +1,34 @@
+{
+  "expectedTexts": [
+    "Compaction behavior",
+    "Mechanism",
+    "After compaction",
+    "Hooks",
+    "Not applicable; hooks run as code, not context",
+    "Auto memory",
+    "Re-injected from disk before the next prompt",
+    "Nested rules",
+    "Lost until a file in that subdirectory is read again."
+  ],
+  "excludedTexts": [],
+  "blockShape": [
+    {
+      "textIncludes": "Mechanism",
+      "role": "table",
+      "source": "semantic",
+      "renderStrategy": "table-cell"
+    },
+    {
+      "textIncludes": "Hooks",
+      "role": "table",
+      "source": "semantic",
+      "renderStrategy": "table-cell"
+    },
+    {
+      "textIncludes": "Nested rules",
+      "role": "definition",
+      "source": "semantic",
+      "renderStrategy": "inline"
+    }
+  ]
+}

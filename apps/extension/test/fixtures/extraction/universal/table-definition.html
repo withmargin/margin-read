@@ -1,0 +1,29 @@
+<main>
+  <article>
+    <h1>Compaction behavior</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Mechanism</th>
+          <th>After compaction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hooks</td>
+          <td>Not applicable; hooks run as code, not context</td>
+        </tr>
+        <tr>
+          <td>Auto memory</td>
+          <td>Re-injected from disk before the next prompt</td>
+        </tr>
+      </tbody>
+    </table>
+    <dl>
+      <dt>Auto memory</dt>
+      <dd>Re-injected from disk before the next prompt.</dd>
+      <dt>Nested rules</dt>
+      <dd>Lost until a file in that subdirectory is read again.</dd>
+    </dl>
+  </article>
+</main>

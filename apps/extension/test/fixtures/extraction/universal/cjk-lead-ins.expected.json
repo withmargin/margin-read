@@ -1,0 +1,35 @@
+{
+  "expectedTexts": [
+    "AIデザイナーが伸びる理由",
+    "「フォロワー4万人のAIデザイナー」と聞くと、つい「センスが良いから」「実績があるから」で片付けたくなりませんか？",
+    "横展開（応用）:",
+    "【】で囲むのは:",
+    "視覚的に目立つ（黒い枠が出来る）",
+    "「これはカテゴリ的にこういう情報ですよ」と一発で伝わる",
+    "「自分は今これが必要だ」と思ってる人だけが止まる",
+    "注:"
+  ],
+  "excludedTexts": [
+    "短い普通文"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "AIデザイナーが伸びる理由",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "横展開（応用）:",
+      "role": "paragraph",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "視覚的に目立つ",
+      "role": "list",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

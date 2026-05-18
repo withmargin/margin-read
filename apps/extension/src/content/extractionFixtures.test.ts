@@ -11,6 +11,14 @@ import forumExpected from "../../test/fixtures/extraction/universal/forum-thread
 import forumHtml from "../../test/fixtures/extraction/universal/forum-thread.html?raw";
 import substackExpected from "../../test/fixtures/extraction/universal/substack-article.expected.json?raw";
 import substackHtml from "../../test/fixtures/extraction/universal/substack-article.html?raw";
+import cjkLeadInsExpected from "../../test/fixtures/extraction/universal/cjk-lead-ins.expected.json?raw";
+import cjkLeadInsHtml from "../../test/fixtures/extraction/universal/cjk-lead-ins.html?raw";
+import hiddenAccessibilityExpected from "../../test/fixtures/extraction/universal/hidden-accessibility.expected.json?raw";
+import hiddenAccessibilityHtml from "../../test/fixtures/extraction/universal/hidden-accessibility.html?raw";
+import nestedQuoteExpected from "../../test/fixtures/extraction/universal/nested-quote.expected.json?raw";
+import nestedQuoteHtml from "../../test/fixtures/extraction/universal/nested-quote.html?raw";
+import tableDefinitionExpected from "../../test/fixtures/extraction/universal/table-definition.expected.json?raw";
+import tableDefinitionHtml from "../../test/fixtures/extraction/universal/table-definition.html?raw";
 import { collectBlockCandidates } from "./textBlocks";
 import type { TextBlockOptions } from "./textBlocks";
 import type { BlockCandidateRole, BlockCandidateSource, BlockRenderStrategy } from "./blockCandidates";
@@ -26,6 +34,7 @@ interface ExtractionFixtureExpectations {
   expectedTexts: string[];
   excludedTexts: string[];
   blockShape?: ExpectedBlockShape[];
+  expectedOccurrences?: ExpectedOccurrence[];
 }
 
 interface ExpectedBlockShape {
@@ -33,6 +42,11 @@ interface ExpectedBlockShape {
   role?: BlockCandidateRole;
   source?: BlockCandidateSource;
   renderStrategy?: BlockRenderStrategy;
+}
+
+interface ExpectedOccurrence {
+  textIncludes: string;
+  count: number;
 }
 
 const defaultOptions: TextBlockOptions = {
@@ -71,6 +85,26 @@ const fixtures: ExtractionFixture[] = [
     name: "universal/substack-article",
     html: substackHtml,
     expected: parseExpected(substackExpected)
+  },
+  {
+    name: "universal/cjk-lead-ins",
+    html: cjkLeadInsHtml,
+    expected: parseExpected(cjkLeadInsExpected)
+  },
+  {
+    name: "universal/hidden-accessibility",
+    html: hiddenAccessibilityHtml,
+    expected: parseExpected(hiddenAccessibilityExpected)
+  },
+  {
+    name: "universal/nested-quote",
+    html: nestedQuoteHtml,
+    expected: parseExpected(nestedQuoteExpected)
+  },
+  {
+    name: "universal/table-definition",
+    html: tableDefinitionHtml,
+    expected: parseExpected(tableDefinitionExpected)
   }
 ];
 
@@ -116,6 +150,14 @@ describe("extraction fixtures", () => {
           `blockShape selector "${shape.textIncludes}" matched no extracted block in ${fixture.name}`
         ).toBeDefined();
         expect(matchingBlock).toMatchObject(omitUndefinedProperties(shape));
+      }
+
+      for (const occurrence of fixture.expected.expectedOccurrences ?? []) {
+        const count = actualBlocks.filter((block) => normalize(block.text).includes(occurrence.textIncludes)).length;
+        expect(
+          count,
+          `expected "${occurrence.textIncludes}" to appear ${occurrence.count} time(s) in ${fixture.name}, got ${count}`
+        ).toBe(occurrence.count);
       }
     });
   }

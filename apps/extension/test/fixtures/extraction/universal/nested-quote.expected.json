@@ -1,0 +1,15 @@
+{
+  "expectedTexts": [
+    "Margin keeps the original one glance away while the translation sits nearby for comparison.",
+    "A margin note helps readers verify translated phrases without losing the original sentence."
+  ],
+  "excludedTexts": [
+    "Photo by Example Studio"
+  ],
+  "expectedOccurrences": [
+    {
+      "textIncludes": "A margin note helps readers verify translated phrases",
+      "count": 1
+    }
+  ]
+}
