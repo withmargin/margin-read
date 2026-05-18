@@ -91,6 +91,34 @@ are likely to report:
 - Tables, table headers, and definition lists.
 - Nested quote structures that should not produce duplicate translations.
 
+When a beta report exposes a new extraction failure, capture a fixture before
+changing extraction rules. Prefer rendered capture for SPA or documentation
+sites:
+
+```sh
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+  --remote-debugging-port=9222 \
+  --user-data-dir=/tmp/margin-fixture-chrome
+
+pnpm fixture:capture -- \
+  --url https://example.com/problem-page \
+  --cdp http://127.0.0.1:9222 \
+  --wait-selector main \
+  --out apps/extension/test/fixtures/extraction/universal/example-page
+```
+
+For static pages or saved DevTools output:
+
+```sh
+pnpm fixture:capture -- \
+  --input page.html \
+  --out apps/extension/test/fixtures/extraction/universal/example-page
+```
+
+Always review captured fixtures before committing. Remove account data, private
+content, tokens, and irrelevant page chrome, then fill `expectedTexts`,
+`excludedTexts`, and any `blockShape` or `expectedOccurrences` assertions.
+
 ## Manual QA Matrix
 
 Before a wider beta invite, test at least one page from each row:

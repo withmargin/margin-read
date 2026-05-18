@@ -14,6 +14,7 @@
     "check:release-readiness": "pnpm --filter @margin/extension run check:release-readiness",
     "check:release-version": "pnpm --filter @margin/extension run check:release-version",
     "clean": "pnpm -r clean",
+    "fixture:capture": "pnpm --filter @margin/extension run fixture:capture",
     "lint": "pnpm --filter @margin/extension lint",
     "package:extension": "pnpm --filter @margin/extension run package",
     "test": "pnpm --filter @margin/extension test",
