@@ -9,7 +9,7 @@ job.
 - Confirm the version is updated consistently:
   - root `package.json`
   - `apps/extension/package.json`
-  - `apps/extension/public/manifest.json`
+  - `apps/extension/manifest.json`
 - Update `CHANGELOG.md`.
 - Confirm the release notes describe user-visible changes, privacy changes, and
   known risks.
@@ -20,6 +20,8 @@ pnpm --filter @margin/extension lint
 pnpm --filter @margin/extension test
 pnpm --filter @margin/extension build
 pnpm --filter @margin/extension check:extension
+pnpm package:extension
+pnpm check:release-readiness
 ```
 
 - Confirm Chrome Web Store secrets and variables exist:
@@ -49,6 +51,8 @@ The release workflow:
 - checks that the release version matches the tag
 - runs type checks, lint, tests, and extension validation
 - packages the extension ZIP
+- verifies release readiness, including version consistency, manifest
+  permissions, changelog coverage, artifact contents, and zip hygiene
 - writes `SHA256SUMS`
 - uploads the release artifact
 - creates the GitHub Release
@@ -105,4 +109,3 @@ For critical issues:
 - prepare a hotfix release
 - submit the hotfix for review
 - document the issue in the GitHub Release notes when relevant
-

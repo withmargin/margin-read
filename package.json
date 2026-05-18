@@ -11,6 +11,7 @@
     "build:website": "pnpm --filter @margin/website build",
     "check": "pnpm --filter @margin/extension check",
     "check:extension": "pnpm --filter @margin/extension check:extension",
+    "check:release-readiness": "pnpm --filter @margin/extension run check:release-readiness",
     "check:release-version": "pnpm --filter @margin/extension run check:release-version",
     "clean": "pnpm -r clean",
     "lint": "pnpm --filter @margin/extension lint",

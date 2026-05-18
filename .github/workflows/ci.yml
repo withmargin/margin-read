@@ -51,6 +51,9 @@ jobs:
       - name: Package extension
         run: pnpm package:extension
 
+      - name: Release readiness checks
+        run: pnpm check:release-readiness
+
       - name: Upload extension package
         uses: actions/upload-artifact@v4
         with:

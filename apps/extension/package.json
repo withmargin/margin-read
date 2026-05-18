@@ -8,6 +8,7 @@
     "build": "pnpm clean && rolldown -c && node scripts/copy-assets.mjs",
     "check": "tsc --noEmit",
     "check:extension": "node scripts/check-extension.mjs",
+    "check:release-readiness": "node scripts/check-release-readiness.mjs",
     "check:release-version": "node scripts/check-release-version.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint src vitest.config.ts rolldown.config.ts",
