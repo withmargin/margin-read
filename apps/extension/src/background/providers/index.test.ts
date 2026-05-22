@@ -3,7 +3,7 @@ import type { TranslationProviderId } from "../../shared/types";
 import { getProvider } from "./index";
 
 describe("getProvider", () => {
-  it.each<TranslationProviderId>(["openai", "openai-compatible", "anthropic", "google"])(
+  it.each<TranslationProviderId>(["openai", "openai-compatible", "anthropic", "anthropic-compatible", "google"])(
     "returns a provider whose id matches the requested id (%s)",
     (id) => {
       const provider = getProvider(id);

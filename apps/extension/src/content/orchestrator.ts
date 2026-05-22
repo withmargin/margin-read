@@ -1,3 +1,4 @@
+import { isLocalTranslationProvider } from "../shared/localProviders";
 import { normalizeText } from "../shared/text";
 import type { ExtensionSettings, PageDebugState, TranslationProviderId, TranslationResult } from "../shared/types";
 import type { BlockCandidate } from "./blockCandidates";
@@ -312,7 +313,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
 
   function configureTranslationQueue(provider: TranslationProviderId): void {
     queue.configure(
-      provider === "openai-compatible"
+      isLocalTranslationProvider(provider)
         ? { batchSize: LOCAL_BATCH_SIZE, concurrency: LOCAL_CONCURRENCY }
         : { batchSize: BATCH_SIZE, concurrency: CONCURRENCY }
     );

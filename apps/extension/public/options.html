@@ -22,6 +22,7 @@
                 <option value="anthropic">Anthropic Claude</option>
                 <option value="google">Google Gemini</option>
                 <option value="openai-compatible">OpenAI Compatible</option>
+                <option value="anthropic-compatible">Anthropic Compatible</option>
               </select>
             </label>
             <fieldset data-provider-section="openai-compatible">
@@ -37,10 +38,6 @@
                 </select>
                 <span class="hint" data-i18n="endpointPresetHint">Presets switch the provider to OpenAI Compatible and fill the endpoint.</span>
               </label>
-              <label>
-                <span data-i18n="providerEndpoint">Endpoint URL</span>
-                <input name="providerEndpoint" type="url" required />
-              </label>
               <label class="checkbox">
                 <input name="openAICompatibleJsonMode" type="checkbox" />
                 <span>
@@ -49,10 +46,22 @@
                 </span>
               </label>
             </fieldset>
+            <fieldset data-provider-section="anthropic-compatible">
+              <legend data-i18n="localAnthropicPresets">Local Anthropic-compatible endpoint</legend>
+              <p class="hint" data-i18n="localAnthropicEndpointHint">
+                Use an Anthropic Messages API endpoint such as http://localhost:8000/v1/messages.
+              </p>
+            </fieldset>
+            <label data-provider-section="openai-compatible anthropic-compatible">
+              <span data-i18n="providerEndpoint">Endpoint URL</span>
+              <input name="providerEndpoint" type="url" required />
+            </label>
             <label data-field="api-key">
               <span data-i18n="apiKey">API key</span>
               <input name="apiKey" type="password" autocomplete="off" />
-              <span class="hint" data-i18n="apiKeyHint">Paste the raw provider API key. Local OpenAI-compatible endpoints can leave this empty.</span>
+              <span class="hint" data-i18n="apiKeyHint">
+                Paste the raw provider API key. Local OpenAI-compatible and Anthropic-compatible endpoints can leave this empty.
+              </span>
             </label>
             <label>
               <span data-i18n="model">Model</span>

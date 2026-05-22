@@ -2,7 +2,7 @@ import type { MessageDictionary } from "./types";
 
 export const zhCN = {
   apiKey: "API 密钥",
-  apiKeyHint: "粘贴原始 provider API key。Local OpenAI-compatible endpoint 可以留空。",
+  apiKeyHint: "粘贴原始 provider API key。Local OpenAI-compatible 与 Anthropic-compatible endpoint 可以留空。",
   cacheBehavior: "缓存行为",
   cacheBehaviorHint:
     "“仅本次浏览会话”是隐私优先的默认值。“持久保存”会把译文存在此浏览器 profile，直到你清除缓存。",
@@ -28,6 +28,8 @@ export const zhCN = {
   fetchModelsBusy: "获取中...",
   floatingButton: "浮动翻译按钮",
   floatingButtonHint: "在网页上显示小型按钮，只有点击后才会开始翻译。",
+  localAnthropicEndpointHint: "请使用 Anthropic Messages API endpoint，例如 http://localhost:8000/v1/messages。",
+  localAnthropicPresets: "本地 Anthropic-compatible endpoint",
   localJsonHint: "如果 local runtime 拒绝 OpenAI response_format 字段，请关闭此选项。",
   localJsonMode: "要求 JSON mode",
   localPresetDefault: "选择 local runtime",

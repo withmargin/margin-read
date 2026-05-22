@@ -15,13 +15,13 @@ describe("options layout", () => {
     expect(fetchButton?.closest("label")).toBe(modelSelect?.closest("label"));
   });
 
-  it("scopes the provider endpoint to the OpenAI Compatible section", () => {
+  it("scopes the provider endpoint to local compatible provider sections", () => {
     const document = createDocument(optionsHtml);
     const endpointInput = document.querySelector<HTMLInputElement>('[name="providerEndpoint"]');
 
     expect(endpointInput).not.toBeNull();
     expect(endpointInput?.closest("[data-provider-section]")?.getAttribute("data-provider-section")).toBe(
-      "openai-compatible"
+      "openai-compatible anthropic-compatible"
     );
   });
 

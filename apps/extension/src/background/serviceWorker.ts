@@ -8,6 +8,7 @@ import type {
   TranslationResult
 } from "../shared/types";
 import { hashText } from "../shared/hash";
+import { isLocalTranslationProvider } from "../shared/localProviders";
 import { getProvider } from "./providers";
 import { installUpgradeLifecycle } from "./upgradeLifecycle";
 
@@ -53,7 +54,7 @@ async function translateBatch(segments: TextSegment[]): Promise<TranslateBatchRe
   const settings = await getSettings();
   const apiKey = normalizeApiKey(settings.apiKey);
 
-  if (!apiKey && settings.provider !== "openai-compatible") {
+  if (!apiKey && !isLocalTranslationProvider(settings.provider)) {
     return { ok: false, error: "Configure an API key in Margin options before translating." };
   }
 
@@ -124,7 +125,7 @@ function getRuntimeMessageType(message: unknown): string {
 async function listProviderModels(
   settings: ExtensionSettings
 ): Promise<{ ok: boolean; models?: ProviderModel[]; error?: string }> {
-  if (!settings.apiKey && settings.provider !== "openai-compatible") {
+  if (!settings.apiKey && !isLocalTranslationProvider(settings.provider)) {
     return { ok: false, error: "Configure an API key before fetching models." };
   }
 

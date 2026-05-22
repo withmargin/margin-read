@@ -25,6 +25,12 @@ export const anthropicProvider: TranslationProvider = {
   listModels: listAnthropicModels
 };
 
+export const anthropicCompatibleProvider: TranslationProvider = {
+  id: "anthropic-compatible",
+  translate: translateWithAnthropic,
+  listModels: listAnthropicModels
+};
+
 async function translateWithAnthropic(
   segments: TextSegment[],
   settings: ExtensionSettings
@@ -86,14 +92,22 @@ async function listAnthropicModels(settings: ExtensionSettings): Promise<Provide
       (model): model is { id: string; display_name?: string } =>
         typeof model.id === "string" && model.id.length > 0
     )
-    .map((model) => ({ id: model.id, displayName: model.display_name }));
+    .map((model) => ({ id: model.id, ...(model.display_name ? { displayName: model.display_name } : {}) }));
 }
 
 function buildAnthropicHeaders(settings: ExtensionSettings): Record<string, string> {
+  if (settings.provider === "anthropic") {
+    return {
+      "Content-Type": "application/json",
+      "anthropic-version": ANTHROPIC_VERSION,
+      "x-api-key": settings.apiKey,
+      "anthropic-dangerous-direct-browser-access": "true"
+    };
+  }
+
   return {
     "Content-Type": "application/json",
-    "x-api-key": settings.apiKey,
     "anthropic-version": ANTHROPIC_VERSION,
-    "anthropic-dangerous-direct-browser-access": "true"
+    ...(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {})
   };
 }

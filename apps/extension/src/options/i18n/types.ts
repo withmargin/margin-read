@@ -25,6 +25,8 @@ export const MESSAGE_KEYS = [
   "fetchModelsBusy",
   "floatingButton",
   "floatingButtonHint",
+  "localAnthropicEndpointHint",
+  "localAnthropicPresets",
   "localJsonHint",
   "localJsonMode",
   "localPresetDefault",

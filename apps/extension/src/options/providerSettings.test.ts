@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_SETTINGS } from "../shared/defaults";
+import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "../shared/defaults";
 import { initializeProviderSettings } from "./providerSettings";
 import { readForm } from "./settingsForm";
 
@@ -8,6 +8,7 @@ function setupOptionsDom(): void {
     <select name="provider">
       <option value="openai">OpenAI</option>
       <option value="openai-compatible">OpenAI Compatible</option>
+      <option value="anthropic-compatible">Anthropic Compatible</option>
     </select>
     <fieldset data-provider-section="openai-compatible">
       <select id="local-endpoint-preset">
@@ -16,8 +17,11 @@ function setupOptionsDom(): void {
         <option value="http://localhost:8000/v1/chat/completions">omlx</option>
       </select>
       <input name="openAICompatibleJsonMode" type="checkbox" />
-      <input name="providerEndpoint" type="url" />
     </fieldset>
+    <fieldset data-provider-section="anthropic-compatible"></fieldset>
+    <label data-provider-section="openai-compatible anthropic-compatible">
+      <input name="providerEndpoint" type="url" />
+    </label>
     <input name="apiKey" />
     <select id="model-select" name="model"></select>
     <button id="fetch-models" type="button">Fetch models</button>
@@ -38,14 +42,39 @@ describe("provider settings", () => {
     initializeProviderSettings({ locale: "en", readForm, setStatus: vi.fn() });
 
     expect(document.querySelector<HTMLElement>("[data-provider-section='openai-compatible']")?.hidden).toBe(true);
+    expect(document.querySelector<HTMLElement>("[data-provider-section='anthropic-compatible']")?.hidden).toBe(true);
+    expect(
+      document.querySelector<HTMLElement>("[data-provider-section='openai-compatible anthropic-compatible']")?.hidden
+    ).toBe(true);
 
     const providerInput = document.querySelector<HTMLSelectElement>('[name="provider"]')!;
     providerInput.value = "openai-compatible";
     providerInput.dispatchEvent(new Event("change"));
 
     expect(document.querySelector<HTMLElement>("[data-provider-section='openai-compatible']")?.hidden).toBe(false);
+    expect(document.querySelector<HTMLElement>("[data-provider-section='anthropic-compatible']")?.hidden).toBe(true);
+    expect(
+      document.querySelector<HTMLElement>("[data-provider-section='openai-compatible anthropic-compatible']")?.hidden
+    ).toBe(false);
     expect(document.querySelector<HTMLInputElement>('[name="providerEndpoint"]')?.value).toBe(
-      "http://localhost:1234/v1/chat/completions"
+      PROVIDER_DEFAULTS["openai-compatible"].providerEndpoint
+    );
+  });
+
+  it("keeps provider endpoints scoped to Anthropic Compatible", () => {
+    initializeProviderSettings({ locale: "en", readForm, setStatus: vi.fn() });
+
+    const providerInput = document.querySelector<HTMLSelectElement>('[name="provider"]')!;
+    providerInput.value = "anthropic-compatible";
+    providerInput.dispatchEvent(new Event("change"));
+
+    expect(document.querySelector<HTMLElement>("[data-provider-section='openai-compatible']")?.hidden).toBe(true);
+    expect(document.querySelector<HTMLElement>("[data-provider-section='anthropic-compatible']")?.hidden).toBe(false);
+    expect(
+      document.querySelector<HTMLElement>("[data-provider-section='openai-compatible anthropic-compatible']")?.hidden
+    ).toBe(false);
+    expect(document.querySelector<HTMLInputElement>('[name="providerEndpoint"]')?.value).toBe(
+      PROVIDER_DEFAULTS["anthropic-compatible"].providerEndpoint
     );
   });
 

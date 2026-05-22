@@ -2,7 +2,7 @@ import type { MessageDictionary } from "./types";
 
 export const ko = {
   apiKey: "API 키",
-  apiKeyHint: "Provider 원본 API key 를 붙여 넣으세요. Local OpenAI-compatible endpoint 는 비워 둘 수 있습니다.",
+  apiKeyHint: "Provider 원본 API key 를 붙여 넣으세요. Local OpenAI-compatible 및 Anthropic-compatible endpoint 는 비워 둘 수 있습니다.",
   cacheBehavior: "캐시 방식",
   cacheBehaviorHint:
     "세션만이 개인정보 우선 기본값입니다. 영구 저장은 지울 때까지 번역문을 이 브라우저 profile 에 저장합니다.",
@@ -28,6 +28,9 @@ export const ko = {
   fetchModelsBusy: "가져오는 중...",
   floatingButton: "플로팅 번역 버튼",
   floatingButtonHint: "웹페이지에 작은 버튼을 표시하고, 클릭한 뒤에만 번역합니다.",
+  localAnthropicEndpointHint:
+    "Anthropic Messages API endpoint(예: http://localhost:8000/v1/messages)를 사용하세요.",
+  localAnthropicPresets: "로컬 Anthropic-compatible endpoint",
   localJsonHint: "Local runtime 이 OpenAI response_format 필드를 거부하면 이 옵션을 끄세요.",
   localJsonMode: "JSON mode 요청",
   localPresetDefault: "Local runtime 선택",

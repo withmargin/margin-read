@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CACHE_KEY_PREFIX, DEFAULT_SETTINGS, SETTINGS_KEY } from "../shared/defaults";
+import { CACHE_KEY_PREFIX, DEFAULT_SETTINGS, PROVIDER_DEFAULTS, SETTINGS_KEY } from "../shared/defaults";
+import type { LocalTranslationProviderId } from "../shared/localProviders";
 import type { ExtensionSettings, RuntimeMessage, TextSegment, TranslationResult } from "../shared/types";
 import type * as ServiceWorkerModuleType from "./serviceWorker";
 
@@ -158,6 +159,19 @@ describe("handleMessage TRANSLATE_BATCH", () => {
       });
   }
 
+  function stubAnthropicResponse(translations: TranslationResult[]): void {
+    fetchResponder = () =>
+      jsonResponse({
+        content: [
+          {
+            type: "tool_use",
+            name: "return_translations",
+            input: { translations }
+          }
+        ]
+      });
+  }
+
   it("returns an error when api key is missing for a non-local provider", async () => {
     saveSettings({ provider: "openai", apiKey: "" });
     const { handleMessage } = await loadModule();
@@ -169,16 +183,28 @@ describe("handleMessage TRANSLATE_BATCH", () => {
     expect(fetchCalls).toHaveLength(0);
   });
 
-  it("allows openai-compatible without an api key", async () => {
-    saveSettings({ provider: "openai-compatible", apiKey: "" });
-    stubOpenAIResponse([{ id: "s1", text: "你好" }]);
-    const { handleMessage } = await loadModule();
+  it.each<LocalTranslationProviderId>(["openai-compatible", "anthropic-compatible"])(
+    "allows %s without an api key",
+    async (provider) => {
+      saveSettings({
+        provider,
+        apiKey: "",
+        providerEndpoint: PROVIDER_DEFAULTS[provider].providerEndpoint,
+        model: PROVIDER_DEFAULTS[provider].model
+      });
+      if (provider === "openai-compatible") {
+        stubOpenAIResponse([{ id: "s1", text: "你好" }]);
+      } else {
+        stubAnthropicResponse([{ id: "s1", text: "你好" }]);
+      }
+      const { handleMessage } = await loadModule();
 
-    const result = (await handleMessage({ type: "TRANSLATE_BATCH", segments })) as TranslateBatchResult;
+      const result = (await handleMessage({ type: "TRANSLATE_BATCH", segments })) as TranslateBatchResult;
 
-    expect(result.ok).toBe(true);
-    expect(result.results).toEqual([{ id: "s1", text: "你好" }]);
-  });
+      expect(result.ok).toBe(true);
+      expect(result.results).toEqual([{ id: "s1", text: "你好" }]);
+    }
+  );
 
   it("dispatches through the registry and caches results in session and persistent stores", async () => {
     saveSettings({ provider: "openai", apiKey: "sk-test", cacheMode: "persistent", targetLanguage: "繁體中文" });
@@ -253,6 +279,35 @@ describe("handleMessage LIST_MODELS", () => {
     expect(result.ok).toBe(false);
     expect(result.error).toMatch(/Configure an API key/);
   });
+
+  it.each<LocalTranslationProviderId>(["openai-compatible", "anthropic-compatible"])(
+    "allows %s to list models without an api key",
+    async (provider) => {
+      fetchResponder = (url) => {
+        if (provider === "anthropic-compatible") {
+          expect(url).toBe("http://localhost:8000/v1/models");
+          return jsonResponse({ data: [{ id: "local-model" }] });
+        }
+        return jsonResponse({ data: [{ id: "gpt-4o-mini" }] });
+      };
+      const { handleMessage } = await loadModule();
+
+      const result = (await handleMessage({
+        type: "LIST_MODELS",
+        settings: makeSettings({
+          provider,
+          apiKey: "",
+          providerEndpoint: PROVIDER_DEFAULTS[provider].providerEndpoint,
+          model: PROVIDER_DEFAULTS[provider].model
+        })
+      })) as ListModelsResult;
+
+      expect(result.ok).toBe(true);
+      expect(result.models).toEqual([
+        { id: provider === "anthropic-compatible" ? "local-model" : "gpt-4o-mini" }
+      ]);
+    }
+  );
 
   it("dispatches to the registered provider", async () => {
     fetchResponder = () => jsonResponse({ data: [{ id: "gpt-4o" }, { id: "gpt-4o-mini" }] });

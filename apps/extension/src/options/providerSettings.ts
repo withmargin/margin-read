@@ -53,7 +53,8 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
 
 function updateProviderSections(provider: TranslationProviderId): void {
   document.querySelectorAll<HTMLElement>("[data-provider-section]").forEach((section) => {
-    section.hidden = section.dataset.providerSection !== provider;
+    const sections = (section.dataset.providerSection ?? "").split(/\s+/).filter(Boolean);
+    section.hidden = sections.length > 0 && !sections.includes(provider);
   });
 }
 

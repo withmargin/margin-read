@@ -1,5 +1,5 @@
 import type { TranslationProviderId } from "../../shared/types";
-import { anthropicProvider } from "./anthropic";
+import { anthropicCompatibleProvider, anthropicProvider } from "./anthropic";
 import { googleProvider } from "./google";
 import { openaiCompatibleProvider, openaiProvider } from "./openai";
 import type { TranslationProvider } from "./types";
@@ -10,6 +10,7 @@ const REGISTRY: Record<TranslationProviderId, TranslationProvider> = {
   openai: openaiProvider,
   "openai-compatible": openaiCompatibleProvider,
   anthropic: anthropicProvider,
+  "anthropic-compatible": anthropicCompatibleProvider,
   google: googleProvider
 };
 

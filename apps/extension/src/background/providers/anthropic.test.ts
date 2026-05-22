@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SETTINGS } from "../../shared/defaults";
 import type { ExtensionSettings, TextSegment } from "../../shared/types";
-import { anthropicProvider } from "./anthropic";
+import { anthropicCompatibleProvider, anthropicProvider } from "./anthropic";
 
 const segments: TextSegment[] = [
   { id: "a", text: "Hello" },
@@ -116,6 +116,107 @@ describe("anthropicProvider.translate", () => {
 
     const results = await anthropicProvider.translate(segments, makeSettings());
     expect(results).toEqual([{ id: "a", text: "fallback" }]);
+  });
+});
+
+describe("anthropicCompatibleProvider.translate", () => {
+  it("uses Bearer auth and omits browser-access header when api key is provided", async () => {
+    const body = JSON.stringify({
+      content: [
+        {
+          type: "tool_use",
+          name: "return_translations",
+          input: { translations: [{ id: "a", text: "你好" }] }
+        }
+      ]
+    });
+    const { fetch: stub, calls } = stubFetch(new Response(body, { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
+    const results = await anthropicCompatibleProvider.translate(
+      segments,
+      makeSettings({
+        provider: "anthropic-compatible",
+        apiKey: "test-key",
+        providerEndpoint: "http://localhost:8000/v1/messages"
+      })
+    );
+
+    expect(results).toEqual([{ id: "a", text: "你好" }]);
+    const headers = calls[0].init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer test-key");
+    expect(headers["x-api-key"]).toBeUndefined();
+    expect(headers["anthropic-dangerous-direct-browser-access"]).toBeUndefined();
+    expect(headers["anthropic-version"]).toBe("2023-06-01");
+  });
+
+  it("omits Authorization header when api key is empty", async () => {
+    const body = JSON.stringify({
+      content: [
+        {
+          type: "tool_use",
+          name: "return_translations",
+          input: { translations: [{ id: "a", text: "你好" }] }
+        }
+      ]
+    });
+    const { fetch: stub, calls } = stubFetch(new Response(body, { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
+    const results = await anthropicCompatibleProvider.translate(
+      segments,
+      makeSettings({
+        provider: "anthropic-compatible",
+        apiKey: "",
+        providerEndpoint: "http://localhost:8000/v1/messages"
+      })
+    );
+
+    expect(results).toEqual([{ id: "a", text: "你好" }]);
+    const headers = calls[0].init.headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
+    expect(headers["x-api-key"]).toBeUndefined();
+  });
+});
+
+describe("anthropicCompatibleProvider.listModels", () => {
+  it("uses Bearer auth when api key is provided", async () => {
+    const body = JSON.stringify({ data: [{ id: "local-model" }] });
+    const { fetch: stub, calls } = stubFetch(new Response(body, { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
+    const models = await anthropicCompatibleProvider.listModels(
+      makeSettings({
+        provider: "anthropic-compatible",
+        apiKey: "cloud-key",
+        providerEndpoint: "http://localhost:8000/v1/messages"
+      })
+    );
+
+    expect(models).toEqual([{ id: "local-model" }]);
+    expect(calls[0].url).toBe("http://localhost:8000/v1/models");
+    const headers = calls[0].init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer cloud-key");
+    expect(headers["x-api-key"]).toBeUndefined();
+  });
+
+  it("omits Authorization header when api key is empty", async () => {
+    const body = JSON.stringify({ data: [{ id: "local-model" }] });
+    const { fetch: stub, calls } = stubFetch(new Response(body, { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
+    const models = await anthropicCompatibleProvider.listModels(
+      makeSettings({
+        provider: "anthropic-compatible",
+        apiKey: "",
+        providerEndpoint: "http://localhost:8000/v1/messages"
+      })
+    );
+
+    expect(models).toEqual([{ id: "local-model" }]);
+    const headers = calls[0].init.headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
+    expect(headers["x-api-key"]).toBeUndefined();
   });
 });
 
