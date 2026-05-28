@@ -23,7 +23,7 @@ Margin 目前仍是早期 MVP，支援 Chrome 與其他 Chromium 系瀏覽器，
 - 避開常見的非閱讀區域，例如導覽列、表單、按鈕、程式碼區塊、隱藏文字與頁面介面。
 - 使用你自行設定的 provider endpoint 與 API key。
 - 支援 OpenAI、Anthropic Claude 與 Google Gemini provider adapter。
-- 支援本機 OpenAI-compatible runtime，例如 LM Studio、Ollama 與 llama.cpp server。
+- 支援本機 OpenAI-compatible runtime，例如 LM Studio、Ollama、llama.cpp server 與 omlx（Apple Silicon）。
 - 可從 options 頁面取得 provider 的模型列表。
 - 可選擇融入原文或醒目提示的譯文顯示樣式。
 - 可選擇在頁面顯示浮動翻譯按鈕，且只有使用者點擊後才開始翻譯。
@@ -100,6 +100,7 @@ Margin 透過 OpenAI Compatible provider 支援本機 LLM runtime。這個 provi
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
+omlx: http://localhost:8000/v1/chat/completions
 ```
 
 使用本機 runtime：
@@ -117,6 +118,7 @@ Runtime 注意事項：
 - LM Studio 通常在 `http://localhost:1234/v1/chat/completions` 提供 OpenAI-compatible request。
 - Ollama 需要 OpenAI-compatible API 可在 `http://localhost:11434/v1/chat/completions` 使用。
 - llama.cpp server 必須啟動 OpenAI-compatible HTTP server，常見位址為 `http://localhost:8080/v1/chat/completions`。
+- omlx 是 Apple Silicon 上的 MLX 推論 server。以 `omlx serve`（零設定，模型從 `~/.omlx/models` 載入）或 `omlx serve --model-dir /path/to/models` 啟動後，OpenAI-compatible API 預設位於 `http://localhost:8000/v1/chat/completions`。
 - 如果 Fetch models 失敗，請確認本機 server 已啟動、endpoint URL 以 `/v1/chat/completions` 結尾，且 runtime 有提供 compatible `/v1/models` endpoint。
 
 本機模型的品質、速度、context length 與 JSON 穩定性，取決於模型與 runtime。建議使用具備強多語能力的 instruct model 進行翻譯。

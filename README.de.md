@@ -23,7 +23,7 @@ Die Erweiterung ist fuer normale Artikelseiten, alte textlastige Seiten und eini
 - Umgeht typische Nicht-Lesebereiche wie Navigation, Formulare, Buttons, Codebloecke, versteckten Text und Seiten-UI.
 - Verwendet vom Nutzer konfigurierte provider endpoints und API keys.
 - Unterstuetzt OpenAI, Anthropic Claude und Google Gemini provider adapters.
-- Unterstuetzt lokale OpenAI-compatible runtimes wie LM Studio, Ollama und llama.cpp server.
+- Unterstuetzt lokale OpenAI-compatible runtimes wie LM Studio, Ollama, llama.cpp server und omlx (Apple Silicon).
 - Ruft provider model lists von der Optionsseite ab.
 - Bietet integrierte oder hervorgehobene Uebersetzungsanzeige.
 - Optional einen schwebenden Seitenbutton anzeigen, der die Uebersetzung erst nach einem Nutzerklick startet.
@@ -100,6 +100,7 @@ Haeufige endpoint presets:
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
+omlx: http://localhost:8000/v1/chat/completions
 ```
 
 Lokalen runtime verwenden:
