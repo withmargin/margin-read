@@ -35,7 +35,7 @@ async function translateWithAnthropic(
   segments: TextSegment[],
   settings: ExtensionSettings
 ): Promise<TranslationResult[]> {
-  const body = {
+  const body: AnthropicRequestBody = {
     model: settings.model,
     max_tokens: 4096,
     temperature: 0,
@@ -47,9 +47,12 @@ async function translateWithAnthropic(
         input_schema: getTranslationSchema() as Tool.InputSchema
       }
     ],
-    tool_choice: { type: "tool" as const, name: TRANSLATION_TOOL_NAME },
     messages: [{ role: "user" as const, content: buildTranslationPayload(segments, settings) }]
-  } satisfies AnthropicRequestBody;
+  };
+
+  if (settings.provider === "anthropic") {
+    body.tool_choice = { type: "tool", name: TRANSLATION_TOOL_NAME };
+  }
 
   const response = await fetch(settings.providerEndpoint, {
     method: "POST",

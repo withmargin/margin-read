@@ -499,4 +499,30 @@ describe("createOrchestrator — debug state plumbing", () => {
       extensionVersion: "0.3.2"
     });
   });
+
+  it("labels Anthropic-compatible debug sessions as tool schema requests", async () => {
+    useRouter({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        debugMode: true,
+        provider: "anthropic-compatible",
+        model: "local-claude",
+        providerEndpoint: "http://user:pass@localhost:8000/v1/messages?token=secret#fragment"
+      }
+    });
+
+    seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
+    const orchestrator = createTestOrchestrator();
+
+    await orchestrator.setEnabled(true);
+
+    expect(orchestrator.getDebugState().providerConfig).toEqual({
+      provider: "anthropic-compatible",
+      providerName: "Anthropic Compatible",
+      model: "local-claude",
+      endpoint: "http://localhost:8000/v1/messages",
+      structuredOutput: "tool input_schema",
+      extensionVersion: "0.3.2"
+    });
+  });
 });

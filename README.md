@@ -31,8 +31,8 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Handle legacy `table`, `font`, and `br`-separated pages.
 - Avoid common non-reading areas such as navigation, forms, buttons, code blocks, hidden text, and page chrome.
 - Use user-configured provider endpoints and API keys.
-- Support OpenAI, Anthropic Claude, and Google Gemini provider adapters.
-- Support local OpenAI-compatible runtimes such as LM Studio, Ollama, llama.cpp server, and omlx (Apple Silicon).
+- Support OpenAI, Anthropic Claude, Google Gemini, and compatible provider adapters.
+- Support local OpenAI-compatible runtimes such as LM Studio, Ollama, llama.cpp server, and omlx (Apple Silicon), plus Anthropic Messages API-compatible endpoints.
 - Fetch provider model lists from the options page.
 - Choose integrated or highlighted translation display styles.
 - Optionally show a floating page button that starts translation only after the user clicks it.
@@ -82,13 +82,14 @@ Anthropic Claude: https://api.anthropic.com/v1/messages
 Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-The endpoint field is shown only for OpenAI Compatible / Local LLM setups, where the user is expected to choose or enter a local endpoint.
+The endpoint field is shown only for compatible / Local LLM setups, where the user is expected to choose or enter a local endpoint.
 
 The Fetch models action reads available models from the selected provider:
 
 - OpenAI: `GET /v1/models`
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
+- OpenAI Compatible / Anthropic Compatible: `GET /v1/models`
 
 Fetched models appear in the model selector. Margin keeps the currently configured model as an option when a provider default or previously saved model is not returned by the provider list.
 
@@ -108,34 +109,42 @@ Quoted posts are disabled by default and can be enabled from options. Posts that
 
 ## Local LLMs
 
-Margin supports local LLM runtimes through the OpenAI Compatible provider. This provider uses the OpenAI-style `/v1/chat/completions` API, allows an empty API key, and uses a lower default translation concurrency for local inference.
+Margin supports local LLM runtimes through compatible providers:
 
-Common endpoint presets:
+- OpenAI Compatible uses the OpenAI-style `/v1/chat/completions` API.
+- Anthropic Compatible uses the Anthropic Messages-style `/v1/messages` API with tool `input_schema` structured output. It is a wire-protocol option for compatible local or gateway endpoints, not a separate Anthropic-hosted service.
+
+Both compatible providers allow an empty API key and use lower default translation concurrency for local inference. If an Anthropic-compatible gateway requires a key, Margin sends it as `Authorization: Bearer ...`.
+
+Common compatible endpoints:
 
 ```text
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
 omlx: http://localhost:8000/v1/chat/completions
+Generic Anthropic-compatible: http://localhost:8000/v1/messages
+Ollama Anthropic compatibility: http://localhost:11434/v1/messages
 ```
 
 To use a local runtime:
 
 1. Start the local model server.
 2. Open Margin options.
-3. Select OpenAI Compatible as the provider.
-4. Select an endpoint preset, or enter the endpoint URL shown by your runtime.
+3. Select OpenAI Compatible for `/v1/chat/completions`, or Anthropic Compatible for `/v1/messages`.
+4. Select an OpenAI-compatible endpoint preset, or enter the endpoint URL shown by your runtime.
 5. Leave API key empty unless your local gateway requires one.
 6. Click Fetch models and choose a served model from the model selector.
-7. Keep Request JSON mode enabled when supported. Disable it if the local runtime rejects the `response_format` request field.
+7. For OpenAI Compatible, keep Request JSON mode enabled when supported. Disable it if the local runtime rejects the `response_format` request field.
 
 Runtime notes:
 
 - LM Studio commonly serves OpenAI-compatible requests at `http://localhost:1234/v1/chat/completions`.
 - Ollama requires its OpenAI-compatible API to be available at `http://localhost:11434/v1/chat/completions`.
+- Ollama can also expose Anthropic-compatible requests at `http://localhost:11434/v1/messages`. Margin sends tools for structured output but does not force `tool_choice` for Anthropic-compatible endpoints, because some compatible runtimes accept tools but do not support forced tool selection.
 - llama.cpp server must be started with an OpenAI-compatible HTTP server enabled, commonly at `http://localhost:8080/v1/chat/completions`.
 - omlx is an Apple Silicon MLX inference server. Start it with `omlx serve` (zero-config, models from `~/.omlx/models`) or `omlx serve --model-dir /path/to/models`; the OpenAI-compatible API becomes available at `http://localhost:8000/v1/chat/completions`.
-- If Fetch models fails, confirm the local server is running, the endpoint URL ends with `/v1/chat/completions`, and the runtime exposes a compatible `/v1/models` endpoint.
+- If Fetch models fails, confirm the local server is running, the endpoint URL ends with `/v1/chat/completions` or `/v1/messages`, and the runtime exposes a compatible `/v1/models` endpoint.
 
 Local model quality, speed, context length, and JSON reliability depend on the model and runtime. Instruct models with strong multilingual ability are recommended for translation.
 

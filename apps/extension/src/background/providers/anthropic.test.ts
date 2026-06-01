@@ -148,6 +148,8 @@ describe("anthropicCompatibleProvider.translate", () => {
     expect(headers["x-api-key"]).toBeUndefined();
     expect(headers["anthropic-dangerous-direct-browser-access"]).toBeUndefined();
     expect(headers["anthropic-version"]).toBe("2023-06-01");
+    expect(calls[0].body.tool_choice).toBeUndefined();
+    expect((calls[0].body.tools as Array<{ name: string }>)[0].name).toBe("return_translations");
   });
 
   it("omits Authorization header when api key is empty", async () => {

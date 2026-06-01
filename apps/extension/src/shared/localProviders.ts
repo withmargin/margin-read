@@ -1,6 +1,9 @@
 import type { TranslationProviderId } from "./types";
 
-export const LOCAL_TRANSLATION_PROVIDERS = ["openai-compatible", "anthropic-compatible"] as const;
+export const LOCAL_TRANSLATION_PROVIDERS = [
+  "openai-compatible",
+  "anthropic-compatible"
+] as const satisfies readonly TranslationProviderId[];
 
 export type LocalTranslationProviderId = (typeof LOCAL_TRANSLATION_PROVIDERS)[number];
 

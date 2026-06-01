@@ -11,10 +11,12 @@
  * a rewrite of this file.
  */
 
-import type { CacheMode, DisplayStyle, TranslationProviderId } from "../../types";
+import type { CacheMode, DisplayStyle } from "../../types";
+
+type TranslationProviderIdV0 = "openai" | "anthropic" | "google" | "openai-compatible";
 
 export interface ExtensionSettingsV0 {
-  provider?: TranslationProviderId;
+  provider?: TranslationProviderIdV0;
   providerEndpoint?: string;
   apiKey?: string;
   model?: string;
@@ -31,7 +33,7 @@ export interface ExtensionSettingsV0 {
   showFloatingButton?: boolean;
 }
 
-const PROVIDERS: readonly TranslationProviderId[] = ["openai", "anthropic", "google", "openai-compatible", "anthropic-compatible"];
+const PROVIDERS: readonly TranslationProviderIdV0[] = ["openai", "anthropic", "google", "openai-compatible"];
 const DISPLAY_STYLES: readonly DisplayStyle[] = ["integrated", "highlighted"];
 const CACHE_MODES: readonly CacheMode[] = ["session", "persistent", "disabled"];
 
