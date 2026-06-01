@@ -117,7 +117,7 @@ beforeEach(() => {
   onEnabledChange = vi.fn<(enabled: boolean) => void>();
   sendMessageMock = vi.fn<SendMessageImpl>(makeRouter());
 
-  vi.stubGlobal("chrome", { runtime: { sendMessage: sendMessageMock } });
+  vi.stubGlobal("chrome", { runtime: { sendMessage: sendMessageMock, getManifest: () => ({ version: "0.3.2" }) } });
   vi.stubGlobal("window", {
     getComputedStyle: stubComputedStyle,
     innerHeight: VIEWPORT_HEIGHT,
@@ -449,5 +449,50 @@ describe("createOrchestrator — debug state plumbing", () => {
     expect(debug.detectedBlocks).toBeGreaterThan(0);
     expect(debug.translatedBlocks).toBeGreaterThan(0);
     expect(debug.lastScanAt).toBeGreaterThan(0);
+  });
+
+  it("records provider request timing after a translated batch completes", async () => {
+    useRouter({ settings: { ...DEFAULT_SETTINGS, debugMode: true } });
+
+    seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
+    const orchestrator = createTestOrchestrator();
+
+    await orchestrator.setEnabled(true);
+    await vi.waitFor(() => {
+      expect(document.querySelectorAll(`[${TRANSLATED_ATTR}="done"]`)).toHaveLength(1);
+    });
+
+    const debug = orchestrator.getDebugState();
+    expect(debug.lastProviderRequestStartedAt).toBeGreaterThan(0);
+    expect(debug.lastProviderRequestFinishedAt).toBeGreaterThanOrEqual(debug.lastProviderRequestStartedAt ?? 0);
+    expect(debug.lastProviderDurationMs).toBe(
+      (debug.lastProviderRequestFinishedAt ?? 0) - (debug.lastProviderRequestStartedAt ?? 0)
+    );
+  });
+
+  it("exposes sanitized provider settings for Gemini debug sessions", async () => {
+    useRouter({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        debugMode: true,
+        provider: "google",
+        model: "gemini-1.5-flash",
+        providerEndpoint: "https://user:pass@generativelanguage.googleapis.com/v1beta/models?key=secret#fragment"
+      }
+    });
+
+    seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
+    const orchestrator = createTestOrchestrator();
+
+    await orchestrator.setEnabled(true);
+
+    expect(orchestrator.getDebugState().providerConfig).toEqual({
+      provider: "google",
+      providerName: "Google Gemini",
+      model: "gemini-1.5-flash",
+      endpoint: "https://generativelanguage.googleapis.com/v1beta/models",
+      structuredOutput: "responseJsonSchema",
+      extensionVersion: "0.3.2"
+    });
   });
 });

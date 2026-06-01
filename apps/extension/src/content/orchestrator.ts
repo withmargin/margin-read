@@ -24,6 +24,12 @@ const LOCAL_CONCURRENCY = 1;
 const INITIAL_QUEUE_LIMIT = 80;
 const NEAR_VIEWPORT_MULTIPLIER = 1.5;
 const FLOATING_HOST_ATTR = "data-margin-floating-controls";
+const PROVIDER_DISPLAY_NAMES: Record<TranslationProviderId, string> = {
+  openai: "OpenAI",
+  anthropic: "Anthropic Claude",
+  google: "Google Gemini",
+  "openai-compatible": "OpenAI Compatible"
+};
 
 interface TranslationBatchResponse {
   ok: boolean;
@@ -64,6 +70,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   let xTranslateArticles = true;
   let xTranslateQuotedPosts = false;
   let xSkipNativeTranslatedPosts = true;
+  let providerConfig: PageDebugState["providerConfig"];
   let debugState: PageDebugState = createDebugState();
 
   const blockMap = new Map<string, HTMLElement>();
@@ -114,6 +121,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       renderer.setTargetLanguage(targetLanguage);
       debugMode = response.settings?.debugMode ?? false;
       const selectedProvider = response.settings?.provider ?? "openai";
+      providerConfig = createProviderDebugConfig(response.settings, selectedProvider);
       const xConfig = response.settings?.siteAdapters?.x;
       xOptimizedTranslation = xConfig?.enabled ?? true;
       xTranslateArticles = xConfig?.translateArticles ?? true;
@@ -219,12 +227,16 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     updateDebugCounts();
 
     let response: TranslationBatchResponse;
+    const requestStartedAt = Date.now();
+    recordProviderRequestStarted(requestStartedAt);
     try {
       response = await chrome.runtime.sendMessage({
         type: "TRANSLATE_BATCH",
         segments
       });
+      recordProviderRequestFinished(requestStartedAt);
     } catch (error) {
+      recordProviderRequestFinished(requestStartedAt);
       const message = error instanceof Error ? error.message : "Provider request failed.";
       recordError(message);
       renderer.insertErrorState(blocks, message);
@@ -307,7 +319,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   }
 
   function createDebugState(): PageDebugState {
-    return {
+    const state: PageDebugState = {
       debugMode,
       enabled,
       detectedBlocks: 0,
@@ -318,6 +330,34 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
       translatedBlocks: 0,
       errorBlocks: 0
     };
+    if (providerConfig) {
+      state.providerConfig = providerConfig;
+    }
+    return state;
+  }
+
+  function createProviderDebugConfig(
+    settings: Partial<ExtensionSettings> | undefined,
+    provider: TranslationProviderId
+  ): PageDebugState["providerConfig"] {
+    return {
+      provider,
+      providerName: PROVIDER_DISPLAY_NAMES[provider],
+      model: settings?.model?.trim() || "unknown",
+      endpoint: sanitizeEndpoint(settings?.providerEndpoint),
+      structuredOutput: getStructuredOutputMode(settings, provider),
+      extensionVersion: getExtensionVersion()
+    };
+  }
+
+  function getStructuredOutputMode(
+    settings: Partial<ExtensionSettings> | undefined,
+    provider: TranslationProviderId
+  ): string {
+    if (provider === "google") return "responseJsonSchema";
+    if (provider === "openai") return "json_schema";
+    if (provider === "anthropic") return "tool input_schema";
+    return settings?.openAICompatibleJsonMode ? "json_object" : "prompt only";
   }
 
   function getDebugStateSnapshot(): PageDebugState {
@@ -343,6 +383,18 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     updateDebugCounts();
   }
 
+  function recordProviderRequestStarted(startedAt: number): void {
+    debugState.lastProviderRequestStartedAt = startedAt;
+    updateDebugCounts();
+  }
+
+  function recordProviderRequestFinished(startedAt: number): void {
+    const finishedAt = Date.now();
+    debugState.lastProviderRequestFinishedAt = finishedAt;
+    debugState.lastProviderDurationMs = Math.max(0, finishedAt - startedAt);
+    updateDebugCounts();
+  }
+
   function rememberCandidates(candidates: BlockCandidate[]): void {
     for (const candidate of candidates) {
       candidate.element.setAttribute(RENDER_STRATEGY_ATTR, candidate.renderStrategy);
@@ -355,6 +407,34 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     isEnabled: () => enabled,
     getDebugState: getDebugStateSnapshot
   };
+}
+
+function sanitizeEndpoint(endpoint: string | undefined): string {
+  const value = endpoint?.trim();
+  if (!value) return "unknown";
+
+  try {
+    const url = new URL(value);
+    url.username = "";
+    url.password = "";
+    url.search = "";
+    url.hash = "";
+    return stripTrailingSlash(url.toString());
+  } catch {
+    return stripTrailingSlash(value.split(/[?#]/)[0] || "unknown");
+  }
+}
+
+function stripTrailingSlash(value: string): string {
+  return value.length > 1 ? value.replace(/\/$/, "") : value;
+}
+
+function getExtensionVersion(): string | undefined {
+  try {
+    return chrome.runtime.getManifest?.().version;
+  } catch {
+    return undefined;
+  }
 }
 
 function getQueuePriority(element: HTMLElement): QueuePriority {

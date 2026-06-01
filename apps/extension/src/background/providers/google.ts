@@ -37,7 +37,7 @@ async function translateWithGoogle(
     generationConfig: {
       temperature: 0,
       responseMimeType: "application/json",
-      responseSchema: getTranslationSchema()
+      responseJsonSchema: getTranslationSchema()
     },
     systemInstruction: {
       parts: [{ text: TRANSLATION_SYSTEM_PROMPT }]

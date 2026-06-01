@@ -67,11 +67,22 @@ export interface TranslateBatchResponse {
 export interface PageDebugState {
   debugMode: boolean;
   enabled: boolean;
+  providerConfig?: {
+    provider: TranslationProviderId;
+    providerName: string;
+    model: string;
+    endpoint: string;
+    structuredOutput: string;
+    extensionVersion?: string;
+  };
   lastScanAt?: number;
   detectedBlocks: number;
   enqueuedBlocks: number;
   queueSize: number;
   runningRequests: number;
+  lastProviderRequestStartedAt?: number;
+  lastProviderRequestFinishedAt?: number;
+  lastProviderDurationMs?: number;
   pendingBlocks: number;
   translatedBlocks: number;
   errorBlocks: number;

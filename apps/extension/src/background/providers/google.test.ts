@@ -77,12 +77,26 @@ describe("googleProvider.translate", () => {
     const generationConfig = calls[0].body.generationConfig as {
       temperature: number;
       responseMimeType: string;
-      responseSchema: { type: string; properties: Record<string, unknown> };
+      responseJsonSchema: {
+        type: string;
+        properties: {
+          translations: {
+            items: {
+              additionalProperties: boolean;
+            };
+          };
+        };
+        additionalProperties: boolean;
+      };
+      responseSchema?: unknown;
     };
     expect(generationConfig.temperature).toBe(0);
     expect(generationConfig.responseMimeType).toBe("application/json");
-    expect(generationConfig.responseSchema.type).toBe("object");
-    expect(generationConfig.responseSchema.properties).toHaveProperty("translations");
+    expect(generationConfig.responseSchema).toBeUndefined();
+    expect(generationConfig.responseJsonSchema.type).toBe("object");
+    expect(generationConfig.responseJsonSchema.properties).toHaveProperty("translations");
+    expect(generationConfig.responseJsonSchema.additionalProperties).toBe(false);
+    expect(generationConfig.responseJsonSchema.properties.translations.items.additionalProperties).toBe(false);
     expect((calls[0].body.systemInstruction as { parts: Array<{ text: string }> }).parts[0].text).toContain(
       "Return only valid JSON"
     );

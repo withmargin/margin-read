@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-05-31
+
+### Added
+
+- Debug mode now shows sanitized provider diagnostics in the popup: provider,
+  model, endpoint without credentials or query strings, structured-output mode,
+  extension version, request start/finish timestamps, and provider duration.
+- Debug mode now labels the accumulated enqueue count as `Total enqueued`, so
+  repeated scans and viewport-triggered batches are easier to distinguish from
+  the current detected-block count.
+
+### Fixed
+
+- Google Gemini translations now send Margin's translation shape through
+  `responseJsonSchema` instead of the OpenAPI-subset `responseSchema`, fixing
+  Gemini 400 responses when the JSON Schema contains `additionalProperties`.
+  This restores Gemini structured output compatibility for current Flash models
+  such as `gemini-2.5-flash`.
+
 ## [0.3.1] - 2026-05-15
 
 ### Changed
@@ -185,7 +204,8 @@ below-source translation insertion, persistent / session / disabled
 cache modes, X timeline and article optimization, and YouTube
 subtitle translation. See the git history for the full scaffold.
 
-[Unreleased]: https://github.com/withmargin/margin-read/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/withmargin/margin-read/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/withmargin/margin-read/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/withmargin/margin-read/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/withmargin/margin-read/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/withmargin/margin-read/releases/tag/v0.2.0

@@ -89,10 +89,22 @@ function renderDebug(debug: PageDebugState | undefined): void {
   debugEl.hidden = false;
   debugEl.textContent = [
     `Enabled: ${debug.enabled ? "yes" : "no"}`,
+    ...(debug.providerConfig
+      ? [
+          `Provider: ${debug.providerConfig.providerName}`,
+          `Model: ${debug.providerConfig.model}`,
+          `Endpoint: ${debug.providerConfig.endpoint}`,
+          `Structured output: ${debug.providerConfig.structuredOutput}`,
+          `Extension version: ${debug.providerConfig.extensionVersion ?? "unknown"}`
+        ]
+      : []),
     `Detected blocks: ${debug.detectedBlocks}`,
-    `Enqueued blocks: ${debug.enqueuedBlocks}`,
+    `Total enqueued: ${debug.enqueuedBlocks}`,
     `Queue size: ${debug.queueSize}`,
     `Running requests: ${debug.runningRequests}`,
+    `Last request started: ${debug.lastProviderRequestStartedAt ? new Date(debug.lastProviderRequestStartedAt).toLocaleTimeString() : "never"}`,
+    `Last request finished: ${debug.lastProviderRequestFinishedAt ? new Date(debug.lastProviderRequestFinishedAt).toLocaleTimeString() : "never"}`,
+    `Last provider duration: ${formatProviderDuration(debug.lastProviderDurationMs)}`,
     `Pending blocks: ${debug.pendingBlocks}`,
     `Translated blocks: ${debug.translatedBlocks}`,
     `Error blocks: ${debug.errorBlocks}`,
@@ -100,4 +112,14 @@ function renderDebug(debug: PageDebugState | undefined): void {
     `Last error: ${debug.lastError ?? "none"}`,
     `Sample: ${debug.sampleText ?? "none"}`
   ].join("\n");
+}
+
+function formatProviderDuration(durationMs: number | undefined): string {
+  if (durationMs === undefined) {
+    return "none";
+  }
+  if (durationMs < 1000) {
+    return `${durationMs}ms`;
+  }
+  return `${(durationMs / 1000).toFixed(1)}s`;
 }
