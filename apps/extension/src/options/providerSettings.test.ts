@@ -13,6 +13,7 @@ function setupOptionsDom(): void {
       <select id="local-endpoint-preset">
         <option value=""></option>
         <option value="http://localhost:1234/v1/chat/completions">LM Studio</option>
+        <option value="http://localhost:8000/v1/chat/completions">omlx</option>
       </select>
       <input name="openAICompatibleJsonMode" type="checkbox" />
       <input name="providerEndpoint" type="url" />
@@ -45,6 +46,20 @@ describe("provider settings", () => {
     expect(document.querySelector<HTMLElement>("[data-provider-section='openai-compatible']")?.hidden).toBe(false);
     expect(document.querySelector<HTMLInputElement>('[name="providerEndpoint"]')?.value).toBe(
       "http://localhost:1234/v1/chat/completions"
+    );
+  });
+
+  it("applies the omlx endpoint preset as OpenAI Compatible", () => {
+    initializeProviderSettings({ locale: "en", readForm, setStatus: vi.fn() });
+
+    const localEndpointPreset = document.querySelector<HTMLSelectElement>("#local-endpoint-preset")!;
+    localEndpointPreset.value = "http://localhost:8000/v1/chat/completions";
+    localEndpointPreset.dispatchEvent(new Event("change"));
+
+    expect(document.querySelector<HTMLSelectElement>('[name="provider"]')?.value).toBe("openai-compatible");
+    expect(document.querySelector<HTMLElement>("[data-provider-section='openai-compatible']")?.hidden).toBe(false);
+    expect(document.querySelector<HTMLInputElement>('[name="providerEndpoint"]')?.value).toBe(
+      "http://localhost:8000/v1/chat/completions"
     );
   });
 
