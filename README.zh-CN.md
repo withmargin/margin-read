@@ -23,7 +23,7 @@ Margin 目前仍是早期 MVP，支持 Chrome 与其他 Chromium 浏览器，并
 - 避开常见非阅读区域，例如导航、表单、按钮、代码区块、隐藏文字与页面界面。
 - 使用用户自行设置的 provider endpoint 与 API key。
 - 支持 OpenAI、Anthropic Claude 与 Google Gemini provider adapter。
-- 支持本地 OpenAI-compatible runtime，例如 LM Studio、Ollama 与 llama.cpp server。
+- 支持本地 OpenAI-compatible runtime，例如 LM Studio、Ollama、llama.cpp server 与 omlx（Apple Silicon）。
 - 可从 options 页面获取 provider 模型列表。
 - 可选择融入原文或醒目提示的译文显示样式。
 - 可选择在页面显示浮动翻译按钮，且只有用户点击后才开始翻译。
@@ -100,6 +100,7 @@ Margin 通过 OpenAI Compatible provider 支持本地 LLM runtime。这个 provi
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
+omlx: http://localhost:8000/v1/chat/completions
 ```
 
 使用本地 runtime：

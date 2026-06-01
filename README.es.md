@@ -23,7 +23,7 @@ La extension ya funciona en paginas de articulos normales, paginas antiguas con 
 - Evita zonas no orientadas a lectura como navegacion, formularios, botones, bloques de codigo, texto oculto e interfaz de la pagina.
 - Usa endpoints y API keys configurados por el usuario.
 - Soporta adapters para OpenAI, Anthropic Claude y Google Gemini.
-- Soporta runtimes locales OpenAI-compatible como LM Studio, Ollama y llama.cpp server.
+- Soporta runtimes locales OpenAI-compatible como LM Studio, Ollama, llama.cpp server y omlx (Apple Silicon).
 - Obtiene listas de modelos del provider desde la pagina de opciones.
 - Permite elegir estilos de traduccion integrados o resaltados.
 - Opcionalmente muestra un boton flotante en la pagina que solo inicia la traduccion despues de un clic del usuario.
@@ -100,6 +100,7 @@ Endpoints comunes:
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
+omlx: http://localhost:8000/v1/chat/completions
 ```
 
 Para usar un runtime local:

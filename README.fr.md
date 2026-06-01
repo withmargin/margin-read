@@ -23,7 +23,7 @@ L'extension est utilisable sur les pages d'articles classiques, les anciennes pa
 - Eviter les zones non destinees a la lecture : navigation, formulaires, boutons, blocs de code, texte masque et interface de page.
 - Utiliser les endpoints provider et API keys configures par l'utilisateur.
 - Prendre en charge les adapters OpenAI, Anthropic Claude et Google Gemini.
-- Prendre en charge les runtimes locaux OpenAI-compatible comme LM Studio, Ollama et llama.cpp server.
+- Prendre en charge les runtimes locaux OpenAI-compatible comme LM Studio, Ollama, llama.cpp server et omlx (Apple Silicon).
 - Recuperer les listes de modeles depuis la page d'options.
 - Choisir un affichage de traduction integre ou mis en evidence.
 - Afficher optionnellement un bouton flottant dans la page qui ne lance la traduction qu'apres un clic utilisateur.
@@ -100,6 +100,7 @@ Endpoints courants :
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
+omlx: http://localhost:8000/v1/chat/completions
 ```
 
 Pour utiliser un runtime local :

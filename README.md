@@ -32,7 +32,7 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Avoid common non-reading areas such as navigation, forms, buttons, code blocks, hidden text, and page chrome.
 - Use user-configured provider endpoints and API keys.
 - Support OpenAI, Anthropic Claude, and Google Gemini provider adapters.
-- Support local OpenAI-compatible runtimes such as LM Studio, Ollama, and llama.cpp server.
+- Support local OpenAI-compatible runtimes such as LM Studio, Ollama, llama.cpp server, and omlx (Apple Silicon).
 - Fetch provider model lists from the options page.
 - Choose integrated or highlighted translation display styles.
 - Optionally show a floating page button that starts translation only after the user clicks it.
@@ -116,6 +116,7 @@ Common endpoint presets:
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
+omlx: http://localhost:8000/v1/chat/completions
 ```
 
 To use a local runtime:
@@ -133,6 +134,7 @@ Runtime notes:
 - LM Studio commonly serves OpenAI-compatible requests at `http://localhost:1234/v1/chat/completions`.
 - Ollama requires its OpenAI-compatible API to be available at `http://localhost:11434/v1/chat/completions`.
 - llama.cpp server must be started with an OpenAI-compatible HTTP server enabled, commonly at `http://localhost:8080/v1/chat/completions`.
+- omlx is an Apple Silicon MLX inference server. Start it with `omlx serve` (zero-config, models from `~/.omlx/models`) or `omlx serve --model-dir /path/to/models`; the OpenAI-compatible API becomes available at `http://localhost:8000/v1/chat/completions`.
 - If Fetch models fails, confirm the local server is running, the endpoint URL ends with `/v1/chat/completions`, and the runtime exposes a compatible `/v1/models` endpoint.
 
 Local model quality, speed, context length, and JSON reliability depend on the model and runtime. Instruct models with strong multilingual ability are recommended for translation.
