@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Anthropic Compatible provider support for local or gateway endpoints that
+  implement the Anthropic Messages-style `/v1/messages` API, including model
+  fetching via `/v1/models`, optional Bearer auth, local-provider concurrency
+  limits, and options-page setup.
+
 ## [0.3.2] - 2026-05-31
 
 ### Added

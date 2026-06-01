@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SETTINGS } from "../shared/defaults";
+import type { LocalTranslationProviderId } from "../shared/localProviders";
 import type { ExtensionSettings, RuntimeMessage, TextSegment, TranslationResult } from "../shared/types";
 import { createOrchestrator, type ContentOrchestrator } from "./orchestrator";
 import { TRANSLATION_CLASS, TRANSLATED_ATTR } from "./translationRenderer";
@@ -300,25 +301,28 @@ describe("createOrchestrator — error paths", () => {
 });
 
 describe("createOrchestrator — provider-specific queue", () => {
-  it("uses smaller batch/concurrency for openai-compatible runtimes", async () => {
-    useRouter({ settings: { ...DEFAULT_SETTINGS, provider: "openai-compatible" } });
+  it.each<LocalTranslationProviderId>(["openai-compatible", "anthropic-compatible"])(
+    "uses smaller batch/concurrency for %s runtimes",
+    async (provider) => {
+      useRouter({ settings: { ...DEFAULT_SETTINGS, provider } });
 
-    const paragraphs = Array.from({ length: 5 }, (_, i) => `${SAMPLE_PARAGRAPH} extra ${i}`);
-    seedDocument(`<main>${paragraphs.map((text) => `<p>${text}</p>`).join("")}</main>`);
-    const orchestrator = createTestOrchestrator();
+      const paragraphs = Array.from({ length: 5 }, (_, i) => `${SAMPLE_PARAGRAPH} extra ${i}`);
+      seedDocument(`<main>${paragraphs.map((text) => `<p>${text}</p>`).join("")}</main>`);
+      const orchestrator = createTestOrchestrator();
 
-    await orchestrator.setEnabled(true);
-    await vi.waitFor(() => {
-      expect(document.querySelectorAll(`p[${TRANSLATED_ATTR}="done"]`).length).toBeGreaterThan(0);
-    });
+      await orchestrator.setEnabled(true);
+      await vi.waitFor(() => {
+        expect(document.querySelectorAll(`p[${TRANSLATED_ATTR}="done"]`).length).toBeGreaterThan(0);
+      });
 
-    const batches = sendMessageMock.mock.calls
-      .map(([msg]) => msg)
-      .filter((msg): msg is Extract<RuntimeMessage, { type: "TRANSLATE_BATCH" }> => msg.type === "TRANSLATE_BATCH")
-      .map((msg) => msg.segments.length);
-    expect(batches.length).toBeGreaterThanOrEqual(2);
-    expect(Math.max(...batches)).toBeLessThanOrEqual(3);
-  });
+      const batches = sendMessageMock.mock.calls
+        .map(([msg]) => msg)
+        .filter((msg): msg is Extract<RuntimeMessage, { type: "TRANSLATE_BATCH" }> => msg.type === "TRANSLATE_BATCH")
+        .map((msg) => msg.segments.length);
+      expect(batches.length).toBeGreaterThanOrEqual(2);
+      expect(Math.max(...batches)).toBeLessThanOrEqual(3);
+    }
+  );
 });
 
 describe("createOrchestrator — DOM observers", () => {
@@ -492,6 +496,32 @@ describe("createOrchestrator — debug state plumbing", () => {
       model: "gemini-1.5-flash",
       endpoint: "https://generativelanguage.googleapis.com/v1beta/models",
       structuredOutput: "responseJsonSchema",
+      extensionVersion: "0.3.2"
+    });
+  });
+
+  it("labels Anthropic-compatible debug sessions as tool schema requests", async () => {
+    useRouter({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        debugMode: true,
+        provider: "anthropic-compatible",
+        model: "local-claude",
+        providerEndpoint: "http://user:pass@localhost:8000/v1/messages?token=secret#fragment"
+      }
+    });
+
+    seedDocument(`<main><p>${SAMPLE_PARAGRAPH}</p></main>`);
+    const orchestrator = createTestOrchestrator();
+
+    await orchestrator.setEnabled(true);
+
+    expect(orchestrator.getDebugState().providerConfig).toEqual({
+      provider: "anthropic-compatible",
+      providerName: "Anthropic Compatible",
+      model: "local-claude",
+      endpoint: "http://localhost:8000/v1/messages",
+      structuredOutput: "tool input_schema",
       extensionVersion: "0.3.2"
     });
   });

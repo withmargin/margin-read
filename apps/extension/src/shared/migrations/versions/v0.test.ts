@@ -37,6 +37,12 @@ describe("parseV0", () => {
     expect(result.cacheMode).toBe("session");
   });
 
+  it("rejects providers introduced after the v0 snapshot", () => {
+    const result = parseV0({ provider: "anthropic-compatible" });
+
+    expect(result.provider).toBeUndefined();
+  });
+
   it("drops non-boolean values for boolean fields", () => {
     const result = parseV0({
       debugMode: "yes",

@@ -19,6 +19,10 @@ export const PROVIDER_DEFAULTS: Record<
   "openai-compatible": {
     providerEndpoint: "http://localhost:1234/v1/chat/completions",
     model: "local-model"
+  },
+  "anthropic-compatible": {
+    providerEndpoint: "http://localhost:8000/v1/messages",
+    model: "local-model"
   }
 };
 

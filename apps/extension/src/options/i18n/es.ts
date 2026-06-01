@@ -2,7 +2,7 @@ import type { MessageDictionary } from "./types";
 
 export const es = {
   apiKey: "Clave de API",
-  apiKeyHint: "Pega la API key sin procesar del provider. Los endpoints locales OpenAI-compatible pueden dejarlo vacío.",
+  apiKeyHint: "Pega la API key sin procesar del provider. Los endpoints locales OpenAI-compatible y Anthropic-compatible pueden dejarlo vacío.",
   cacheBehavior: "Comportamiento de caché",
   cacheBehaviorHint:
     "Solo sesion es el valor predeterminado privacy-first. La cache persistente guarda traducciones en este perfil del navegador hasta que la borres.",
@@ -28,6 +28,9 @@ export const es = {
   fetchModelsBusy: "Obteniendo...",
   floatingButton: "Boton flotante de traduccion",
   floatingButtonHint: "Muestra un boton pequeno en la pagina que solo traduce despues de hacer clic.",
+  localAnthropicEndpointHint:
+    "Usa un endpoint de Anthropic Messages API, por ejemplo http://localhost:8000/v1/messages.",
+  localAnthropicPresets: "Endpoint local Anthropic-compatible",
   localJsonHint: "Desactívalo si un runtime local rechaza el campo OpenAI response_format.",
   localJsonMode: "Solicitar modo JSON",
   localPresetDefault: "Selecciona un runtime local",

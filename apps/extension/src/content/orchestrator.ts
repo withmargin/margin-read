@@ -1,3 +1,4 @@
+import { isLocalTranslationProvider } from "../shared/localProviders";
 import { normalizeText } from "../shared/text";
 import type { ExtensionSettings, PageDebugState, TranslationProviderId, TranslationResult } from "../shared/types";
 import type { BlockCandidate } from "./blockCandidates";
@@ -28,7 +29,8 @@ const PROVIDER_DISPLAY_NAMES: Record<TranslationProviderId, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic Claude",
   google: "Google Gemini",
-  "openai-compatible": "OpenAI Compatible"
+  "openai-compatible": "OpenAI Compatible",
+  "anthropic-compatible": "Anthropic Compatible"
 };
 
 interface TranslationBatchResponse {
@@ -312,7 +314,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
 
   function configureTranslationQueue(provider: TranslationProviderId): void {
     queue.configure(
-      provider === "openai-compatible"
+      isLocalTranslationProvider(provider)
         ? { batchSize: LOCAL_BATCH_SIZE, concurrency: LOCAL_CONCURRENCY }
         : { batchSize: BATCH_SIZE, concurrency: CONCURRENCY }
     );
@@ -356,7 +358,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
   ): string {
     if (provider === "google") return "responseJsonSchema";
     if (provider === "openai") return "json_schema";
-    if (provider === "anthropic") return "tool input_schema";
+    if (provider === "anthropic" || provider === "anthropic-compatible") return "tool input_schema";
     return settings?.openAICompatibleJsonMode ? "json_object" : "prompt only";
   }
 
