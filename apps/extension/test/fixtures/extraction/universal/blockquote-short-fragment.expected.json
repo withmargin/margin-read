@@ -1,0 +1,17 @@
+{
+  "expectedTexts": [
+    "Of course! I went ahead and deleted your account.",
+    "Also, thanks for giving IRCRelay a try, we really appreciate it."
+  ],
+  "excludedTexts": [],
+  "expectedOccurrences": [
+    {
+      "textIncludes": "Of course! I went ahead and deleted your account.",
+      "count": 1
+    },
+    {
+      "textIncludes": "Also, thanks for giving IRCRelay a try",
+      "count": 1
+    }
+  ]
+}
