@@ -192,7 +192,7 @@ export function createOrchestrator(options: ContentOrchestratorOptions): Content
     const adapterBlocks = collectSiteAdapterBlocks(document, textBlockOptions);
     const candidates =
       adapterBlocks.length > 0
-        ? createIncludedBlockCandidates(adapterBlocks, "adapter")
+        ? createIncludedBlockCandidates(adapterBlocks, "adapter", textBlockOptions)
         : collectBlockCandidates(document, textBlockOptions);
     rememberCandidates(candidates);
     const initialQueueItems = candidates.map(createQueueItem).sort(compareQueueItems).slice(0, INITIAL_QUEUE_LIMIT);

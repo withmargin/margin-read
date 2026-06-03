@@ -73,7 +73,7 @@ describe("X site adapter fixtures", () => {
       expect(xAdapter.matches(document, options)).toBe(true);
 
       const blocks = xAdapter.collectBlocks(document, options);
-      const candidates = createIncludedBlockCandidates(blocks, "adapter");
+      const candidates = createIncludedBlockCandidates(blocks, "adapter", options);
       const actualBlocks = candidates.map((candidate) => ({
         text: candidate.text,
         role: candidate.role,

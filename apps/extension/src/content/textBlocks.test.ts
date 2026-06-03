@@ -365,6 +365,48 @@ describe("collectTextBlocks", () => {
 
     expect(collectTextBlocks(document, options)).toHaveLength(0);
   });
+
+  it("drops a wrapper blockquote whose only extra text is a short fragment", () => {
+    // The blockquote's own text beyond its child <p>s is just "Brian," (below the minimum),
+    // so the blockquote must not be translated on top of its children.
+    const document = createDocument(`
+      <main>
+        <article>
+          <blockquote>
+            <p>Brian,</p>
+            <p>Of course! I went ahead and deleted your account, and you will not be billed.</p>
+            <p>Also, thanks for giving the service a try, we really appreciate the feedback.</p>
+          </blockquote>
+        </article>
+      </main>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks).toHaveLength(2);
+    expect(blocks.every((block) => block.tagName === "P")).toBe(true);
+    expect(blocks.some((block) => block.tagName === "BLOCKQUOTE")).toBe(false);
+  });
+
+  it("keeps a blockquote that owns substantial prose beyond its child block", () => {
+    // The blockquote carries its own long intro that is not inside any child block, so the
+    // residual is above the minimum and the parent must be preserved (not over-deduped away).
+    const document = createDocument(`
+      <main>
+        <article>
+          <blockquote>
+            My own commentary on the quoted passage explains why the argument below is flawed.
+            <p>The quoted source claims that every migration must finish before any release ships.</p>
+          </blockquote>
+        </article>
+      </main>
+    `);
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks.some((block) => block.tagName === "BLOCKQUOTE")).toBe(true);
+    expect(blocks.some((block) => normalize(block.textContent ?? "").includes("My own commentary"))).toBe(true);
+  });
 });
 
 function normalize(value: string): string {
