@@ -4,6 +4,7 @@ import {
   getCjkRatio,
   hasCjkSentenceTerminator,
   isCjkDominantText,
+  isCjkQuotedText,
   normalizeText
 } from "./text";
 
@@ -27,17 +28,23 @@ describe("countCodePoints", () => {
 });
 
 describe("getCjkRatio", () => {
-  it("ignores whitespace in the denominator", () => {
+  it("ignores whitespace and punctuation in the denominator", () => {
     expect(getCjkRatio("東京 行く")).toBe(1);
   });
 
-  it("excludes full-width punctuation from the numerator", () => {
-    // "――" is dashes only: no CJK letters.
+  it("is zero for letterless strings", () => {
+    // Dashes / digits only: no letters at all.
     expect(getCjkRatio("――")).toBe(0);
+    expect(getCjkRatio("2024")).toBe(0);
   });
 
-  it("treats Latin-with-CJK as a fraction", () => {
-    // "AB東" -> 1 of 3 content chars is CJK.
+  it("counts only letters, so punctuation does not dilute a lone kana", () => {
+    // "「……え？」" has one letter (え), which is CJK.
+    expect(getCjkRatio("「……え？」")).toBe(1);
+  });
+
+  it("treats Latin-with-CJK as a fraction of letters", () => {
+    // "AB東" -> 1 of 3 letters is CJK.
     expect(getCjkRatio("AB東")).toBeCloseTo(1 / 3);
   });
 });
@@ -52,9 +59,26 @@ describe("isCjkDominantText", () => {
     expect(isCjkDominantText("Sign in")).toBe(false);
   });
 
+  it("is true for punctuation-heavy CJK with a lone kana", () => {
+    expect(isCjkDominantText("「……え？」")).toBe(true);
+  });
+
   it("is false for symbol-only strings", () => {
     expect(isCjkDominantText("――")).toBe(false);
     expect(isCjkDominantText("2024")).toBe(false);
+  });
+});
+
+describe("isCjkQuotedText", () => {
+  it.each(["「ちぇー」", "『はい』", "「……え？」", " 「うん」 "])(
+    "is true for bracket-enclosed dialogue %s",
+    (value) => {
+      expect(isCjkQuotedText(value)).toBe(true);
+    }
+  );
+
+  it.each(["ちぇー", "「途中で切れた", "次へ"])("is false when not fully enclosed: %s", (value) => {
+    expect(isCjkQuotedText(value)).toBe(false);
   });
 });
 

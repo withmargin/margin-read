@@ -2,6 +2,7 @@ import {
   countCodePoints,
   hasCjkSentenceTerminator,
   isCjkDominantText,
+  isCjkQuotedText,
   normalizeText
 } from "../../shared/text";
 import { createBlockCandidate, type BlockCandidate, type BlockCandidateSource } from "../blockCandidates";
@@ -245,7 +246,10 @@ function applyCjkMinimum(text: string, base: number): number {
   if (!isCjkDominantText(text)) {
     return base;
   }
-  const cjkMinimum = hasCjkSentenceTerminator(text) ? CJK_MIN_TEXT_LENGTH_WITH_TERMINATOR : CJK_MIN_TEXT_LENGTH;
+  // A sentence terminator or full quotation enclosure both mark a complete utterance,
+  // so even very short lines (e.g. 「ちぇー」) are allowed.
+  const isCompleteUtterance = hasCjkSentenceTerminator(text) || isCjkQuotedText(text);
+  const cjkMinimum = isCompleteUtterance ? CJK_MIN_TEXT_LENGTH_WITH_TERMINATOR : CJK_MIN_TEXT_LENGTH;
   return Math.min(base, cjkMinimum);
 }
 

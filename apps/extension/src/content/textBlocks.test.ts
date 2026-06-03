@@ -332,6 +332,18 @@ describe("collectTextBlocks", () => {
     expect(collectTextBlocks(document, options)).toHaveLength(1);
   });
 
+  it("keeps a punctuation-heavy short CJK line with a lone kana", () => {
+    const document = createDocument("<main><p>「……え？」</p></main>");
+
+    expect(collectTextBlocks(document, options)).toHaveLength(1);
+  });
+
+  it("keeps short bracket-enclosed CJK dialogue without terminal punctuation", () => {
+    const document = createDocument("<main><p>「ちぇー」</p></main>");
+
+    expect(collectTextBlocks(document, options)).toHaveLength(1);
+  });
+
   it("keeps CJK lines that reach the CJK minimum without punctuation", () => {
     const document = createDocument("<main><p>彼女は歩き出す</p></main>");
 
