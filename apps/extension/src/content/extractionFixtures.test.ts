@@ -13,6 +13,8 @@ import substackExpected from "../../test/fixtures/extraction/universal/substack-
 import substackHtml from "../../test/fixtures/extraction/universal/substack-article.html?raw";
 import cjkLeadInsExpected from "../../test/fixtures/extraction/universal/cjk-lead-ins.expected.json?raw";
 import cjkLeadInsHtml from "../../test/fixtures/extraction/universal/cjk-lead-ins.html?raw";
+import cjkNovelDialogueExpected from "../../test/fixtures/extraction/universal/cjk-novel-dialogue.expected.json?raw";
+import cjkNovelDialogueHtml from "../../test/fixtures/extraction/universal/cjk-novel-dialogue.html?raw";
 import hiddenAccessibilityExpected from "../../test/fixtures/extraction/universal/hidden-accessibility.expected.json?raw";
 import hiddenAccessibilityHtml from "../../test/fixtures/extraction/universal/hidden-accessibility.html?raw";
 import nestedQuoteExpected from "../../test/fixtures/extraction/universal/nested-quote.expected.json?raw";
@@ -90,6 +92,11 @@ const fixtures: ExtractionFixture[] = [
     name: "universal/cjk-lead-ins",
     html: cjkLeadInsHtml,
     expected: parseExpected(cjkLeadInsExpected)
+  },
+  {
+    name: "universal/cjk-novel-dialogue",
+    html: cjkNovelDialogueHtml,
+    expected: parseExpected(cjkNovelDialogueExpected)
   },
   {
     name: "universal/hidden-accessibility",

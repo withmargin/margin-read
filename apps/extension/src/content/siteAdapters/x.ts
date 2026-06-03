@@ -1,5 +1,7 @@
+import { countCodePoints } from "../../shared/text";
 import type { TextBlockOptions } from "../textBlocks";
 import {
+  getBaseMinimumTextLength,
   getNormalizedText,
   isTranslatableElement,
   isVisibleElement,
@@ -92,7 +94,11 @@ function isArticleTextBlock(element: HTMLElement, options: TextBlockOptions): bo
     return false;
   }
 
-  if (element.querySelector("img, video, svg") && getNormalizedText(element).length < options.minTextLength * 2) {
+  const mediaBlockText = getNormalizedText(element);
+  if (
+    element.querySelector("img, video, svg") &&
+    countCodePoints(mediaBlockText) < getBaseMinimumTextLength(mediaBlockText, options) * 2
+  ) {
     return false;
   }
 

@@ -1,6 +1,8 @@
+import { countCodePoints } from "../../shared/text";
 import type { TextBlockOptions } from "./types";
 import {
   filterCandidateElements,
+  getBaseMinimumTextLength,
   getNormalizedText,
   isTranslatableElement,
   shouldSkipElement,
@@ -36,7 +38,7 @@ function isLegacyContainer(element: HTMLElement, options: TextBlockOptions): boo
   }
 
   const text = getNormalizedText(element);
-  if (text.length < options.minTextLength * 3) {
+  if (countCodePoints(text) < getBaseMinimumTextLength(text, options) * 3) {
     return false;
   }
 
