@@ -16,13 +16,13 @@ export function collectBlockCandidates(document: Document, options: TextBlockOpt
   const archetypeBlocks = uniqueElements([...docsBlocks, ...articleBlocks]);
   const semanticBlocks = uniqueElements([...archetypeBlocks, ...universalBlocks]);
   if (hasEnoughSemanticContent(archetypeBlocks) || hasEnoughSemanticContent(semanticBlocks)) {
-    return createSemanticBlockCandidates(archetypeBlocks, universalBlocks);
+    return createSemanticBlockCandidates(archetypeBlocks, universalBlocks, options);
   }
 
   const legacyBlocks = collectLegacyBlocks(document, options);
   return legacyBlocks.length > 0
-    ? createIncludedBlockCandidates(legacyBlocks, "legacy")
-    : createSemanticBlockCandidates(archetypeBlocks, universalBlocks);
+    ? createIncludedBlockCandidates(legacyBlocks, "legacy", options)
+    : createSemanticBlockCandidates(archetypeBlocks, universalBlocks, options);
 }
 
 function hasEnoughSemanticContent(blocks: HTMLElement[]): boolean {
@@ -44,13 +44,17 @@ function uniqueElements(elements: HTMLElement[]): HTMLElement[] {
 
 function createSemanticBlockCandidates(
   archetypeBlocks: HTMLElement[],
-  universalBlocks: HTMLElement[]
+  universalBlocks: HTMLElement[],
+  options: TextBlockOptions
 ): BlockCandidate[] {
   const archetypeBlockSet = new Set(archetypeBlocks);
   const remainingUniversalBlocks = universalBlocks.filter((element) => !archetypeBlockSet.has(element));
 
-  return removeCoveredAncestorCandidates([
-    ...createIncludedBlockCandidates(archetypeBlocks, "archetype"),
-    ...createIncludedBlockCandidates(remainingUniversalBlocks, "semantic")
-  ]);
+  return removeCoveredAncestorCandidates(
+    [
+      ...createIncludedBlockCandidates(archetypeBlocks, "archetype", options),
+      ...createIncludedBlockCandidates(remainingUniversalBlocks, "semantic", options)
+    ],
+    options
+  );
 }

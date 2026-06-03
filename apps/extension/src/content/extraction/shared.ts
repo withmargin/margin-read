@@ -169,14 +169,18 @@ export function createBlockCandidates(elements: HTMLElement[], source: BlockCand
 
 export function createIncludedBlockCandidates(
   elements: HTMLElement[],
-  source: BlockCandidateSource
+  source: BlockCandidateSource,
+  options: TextBlockOptions
 ): BlockCandidate[] {
   const includedCandidates = createBlockCandidates(elements, source).filter((candidate) => !candidate.skipReason);
-  return removeCoveredAncestorCandidates(includedCandidates);
+  return removeCoveredAncestorCandidates(includedCandidates, options);
 }
 
-export function removeCoveredAncestorCandidates(candidates: BlockCandidate[]): BlockCandidate[] {
-  return candidates.filter((candidate) => !isTextFullyCoveredByDescendantCandidates(candidate, candidates));
+export function removeCoveredAncestorCandidates(
+  candidates: BlockCandidate[],
+  options: TextBlockOptions
+): BlockCandidate[] {
+  return candidates.filter((candidate) => !isTextFullyCoveredByDescendantCandidates(candidate, candidates, options));
 }
 
 export function shouldIncludeCandidate(element: HTMLElement, source: BlockCandidateSource): boolean {
@@ -206,7 +210,11 @@ function isXKeyboardShortcutsPrompt(element: HTMLElement): boolean {
   return Boolean(element.querySelector('a[href="/i/keyboard_shortcuts"]'));
 }
 
-function isTextFullyCoveredByDescendantCandidates(candidate: BlockCandidate, candidates: BlockCandidate[]): boolean {
+function isTextFullyCoveredByDescendantCandidates(
+  candidate: BlockCandidate,
+  candidates: BlockCandidate[],
+  options: TextBlockOptions
+): boolean {
   const descendantCandidates = candidates.filter(
     (otherCandidate) => otherCandidate !== candidate && candidate.element.contains(otherCandidate.element)
   );
@@ -214,8 +222,34 @@ function isTextFullyCoveredByDescendantCandidates(candidate: BlockCandidate, can
     return false;
   }
 
+  // Fast path: the descendants reproduce the parent's text exactly — it owns nothing extra.
   const descendantText = normalizeText(descendantCandidates.map((descendant) => descendant.text).join(" "));
-  return descendantText === candidate.text;
+  if (descendantText === candidate.text) {
+    return true;
+  }
+
+  // Otherwise the parent is a pure wrapper only when the text it owns beyond its descendant
+  // candidates is itself too short to be worth translating (e.g. a "Brian," salutation that
+  // is below the minimum, so it never became its own candidate). A parent carrying real prose
+  // of its own keeps a residual at or above the minimum and is preserved.
+  const residual = getOwnResidualText(candidate.text, descendantCandidates);
+  return countCodePoints(residual) < getMinimumTextLengthForText(residual, options);
+}
+
+// Parent text with each descendant candidate's text removed, longest first so nested
+// (overlapping) descendants subtract cleanly. A descendant whose text cannot be located
+// (whitespace/normalization drift) is skipped, biasing toward keeping the parent.
+function getOwnResidualText(parentText: string, descendants: BlockCandidate[]): string {
+  const ordered = [...descendants].sort((left, right) => right.text.length - left.text.length);
+  let residual = parentText;
+  for (const descendant of ordered) {
+    const index = residual.indexOf(descendant.text);
+    if (index === -1) {
+      continue;
+    }
+    residual = `${residual.slice(0, index)} ${residual.slice(index + descendant.text.length)}`;
+  }
+  return normalizeText(residual);
 }
 
 function getMinimumTextLength(element: HTMLElement, text: string, options: TextBlockOptions): number {
