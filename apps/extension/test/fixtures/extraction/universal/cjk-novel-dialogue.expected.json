@@ -1,0 +1,21 @@
+{
+  "expectedTexts": [
+    "「申し訳ないが――」",
+    "抱きついていた体から、ひんやりと冷たい声が発せられた。",
+    "オリアナはようやく、いつもと違うことに気付いた。",
+    "「うん。」"
+  ],
+  "excludedTexts": [
+    "次へ",
+    "ホーム",
+    "ログイン"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "申し訳ないが",
+      "role": "paragraph",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

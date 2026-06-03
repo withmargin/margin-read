@@ -316,6 +316,43 @@ describe("collectTextBlocks", () => {
     expect(blocks).toHaveLength(1);
     expect(normalize(blocks[0]?.textContent ?? "")).toBe("Visible legacy paragraph has enough text to become its own block.");
   });
+
+  it("keeps short CJK dialogue ending in a sentence terminator", () => {
+    const document = createDocument("<main><p>「申し訳ないが――」</p></main>");
+
+    const blocks = collectTextBlocks(document, options);
+
+    expect(blocks).toHaveLength(1);
+    expect(normalize(blocks[0]?.textContent ?? "")).toBe("「申し訳ないが――」");
+  });
+
+  it("keeps a short CJK reaction ending in a full stop", () => {
+    const document = createDocument("<main><p>「うん。」</p></main>");
+
+    expect(collectTextBlocks(document, options)).toHaveLength(1);
+  });
+
+  it("keeps CJK lines that reach the CJK minimum without punctuation", () => {
+    const document = createDocument("<main><p>彼女は歩き出す</p></main>");
+
+    expect(collectTextBlocks(document, options)).toHaveLength(1);
+  });
+
+  it("excludes very short CJK without terminal punctuation", () => {
+    const document = createDocument("<main><p>次へ</p></main>");
+
+    expect(collectTextBlocks(document, options)).toHaveLength(0);
+  });
+
+  it("does not count furigana readings toward CJK length", () => {
+    // Base content "竜が来た" is 4 chars (below the CJK minimum and unterminated); the
+    // <rt> reading must not inflate it past the threshold.
+    const document = createDocument(
+      "<main><p><ruby>竜<rt>りゅう</rt></ruby>が来た</p></main>"
+    );
+
+    expect(collectTextBlocks(document, options)).toHaveLength(0);
+  });
 });
 
 function normalize(value: string): string {
