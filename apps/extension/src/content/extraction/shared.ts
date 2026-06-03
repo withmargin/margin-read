@@ -1,10 +1,23 @@
-import { normalizeText } from "../../shared/text";
+import {
+  countCodePoints,
+  hasCjkSentenceTerminator,
+  isCjkDominantText,
+  normalizeText
+} from "../../shared/text";
 import { createBlockCandidate, type BlockCandidate, type BlockCandidateSource } from "../blockCandidates";
 import { isNonReadingElement, isVisibleForReading } from "../readingVisibility";
 import type { TextBlockOptions } from "./types";
 
 export const MAX_TEXT_LENGTH = 4000;
 export const BR_SEPARATED_SELECTOR = "p, td, font";
+
+// A CJK character is roughly a whole morpheme, so the Latin-tuned minimum (typically 24)
+// is ~3x too high for CJK and drops legitimate short lines (e.g. novel dialogue).
+// These are the CJK-content equivalents.
+export const CJK_MIN_TEXT_LENGTH = 6;
+// With a sentence terminator the line is provably a complete utterance, so allow it even
+// shorter (e.g. "やめて。"). Short UI labels almost never carry terminal punctuation.
+export const CJK_MIN_TEXT_LENGTH_WITH_TERMINATOR = 2;
 
 type SplitDatasetKey = "marginLegacyBlock" | "marginBrSeparatedBlock";
 
@@ -34,7 +47,8 @@ export function isTranslatableElement(element: HTMLElement, options: TextBlockOp
   }
 
   const text = getNormalizedText(element);
-  if (text.length < getMinimumTextLength(element, text, options)) {
+  const lengthText = getLengthMeasuringText(element, text);
+  if (countCodePoints(lengthText) < getMinimumTextLength(element, lengthText, options)) {
     return false;
   }
 
@@ -84,7 +98,7 @@ export function splitTextByBrGroups(
     }
 
     const text = normalizeText(nodes.map((node) => getSplitNodeText(node, options)).join(" "));
-    if (text.length < options.minTextLength || text.length > MAX_TEXT_LENGTH) {
+    if (countCodePoints(text) < getMinimumTextLengthForText(text, options) || text.length > MAX_TEXT_LENGTH) {
       return;
     }
 
@@ -140,7 +154,8 @@ export function isBrSeparatedContainer(element: HTMLElement, options: TextBlockO
   }
 
   const breakCount = element.querySelectorAll("br").length;
-  return breakCount >= 3 && getNormalizedText(element).length > options.minTextLength * 3;
+  const text = getNormalizedText(element);
+  return breakCount >= 3 && countCodePoints(text) > getBaseMinimumTextLength(text, options) * 3;
 }
 
 export function filterCandidateElements(elements: HTMLElement[], source: BlockCandidateSource): HTMLElement[] {
@@ -203,6 +218,10 @@ function isTextFullyCoveredByDescendantCandidates(candidate: BlockCandidate, can
 }
 
 function getMinimumTextLength(element: HTMLElement, text: string, options: TextBlockOptions): number {
+  return applyCjkMinimum(text, getStructuralMinimumTextLength(element, text, options));
+}
+
+function getStructuralMinimumTextLength(element: HTMLElement, text: string, options: TextBlockOptions): number {
   if (isHeadingElement(element) || element.matches("th")) {
     return 2;
   }
@@ -219,6 +238,39 @@ function getMinimumTextLength(element: HTMLElement, text: string, options: TextB
     return 2;
   }
   return options.minTextLength;
+}
+
+// CJK content never raises a minimum, only lowers it, so existing low per-tag thresholds win.
+function applyCjkMinimum(text: string, base: number): number {
+  if (!isCjkDominantText(text)) {
+    return base;
+  }
+  const cjkMinimum = hasCjkSentenceTerminator(text) ? CJK_MIN_TEXT_LENGTH_WITH_TERMINATOR : CJK_MIN_TEXT_LENGTH;
+  return Math.min(base, cjkMinimum);
+}
+
+// Length minimum for a bare text run (no owning element), used by the <br>-split path.
+export function getMinimumTextLengthForText(text: string, options: TextBlockOptions): number {
+  return applyCjkMinimum(text, options.minTextLength);
+}
+
+// CJK-adjusted base minimum without the sentence-terminator relaxation, for container-level
+// heuristics that multiply the minimum (e.g. "container is large enough to split").
+export function getBaseMinimumTextLength(text: string, options: TextBlockOptions): number {
+  return isCjkDominantText(text) ? CJK_MIN_TEXT_LENGTH : options.minTextLength;
+}
+
+// Measures content length excluding furigana readings: getNormalizedText() uses innerText,
+// which includes <rt>/<rp> reading text and inflates the count for ruby-annotated CJK.
+function getLengthMeasuringText(element: HTMLElement, normalizedText: string): string {
+  if (!element.querySelector("rt, rp")) {
+    return normalizedText;
+  }
+  const clone = element.cloneNode(true) as HTMLElement;
+  for (const reading of Array.from(clone.querySelectorAll("rt, rp"))) {
+    reading.remove();
+  }
+  return normalizeText(clone.innerText ?? clone.textContent ?? "");
 }
 
 function isHeadingElement(element: HTMLElement): boolean {
