@@ -266,6 +266,20 @@ nav.links a:hover { color: var(--jam); }
   max-width: 540px;
 }
 .signup-note .dot { color: var(--jam); }
+.cws-ver {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 4px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--mute);
+}
+.cws-ver.hidden { display: none; }
+.cws-ver .dot { color: var(--jam); }
+.cws-ver:hover { color: var(--ink); }
+.cws-ver #cwsVerNum { color: var(--ink); border-bottom: 1px solid var(--line-strong); }
 .alt-link {
   margin-top: 28px;
   font-family: 'JetBrains Mono', monospace;

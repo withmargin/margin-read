@@ -97,6 +97,29 @@ openWaitlistBtn?.addEventListener("click", () => {
 });
 
 // =========================================
+// Live Chrome Web Store version (shields.io JSON endpoint)
+// =========================================
+const cwsVer = document.getElementById("cwsVer");
+const cwsVerNum = document.getElementById("cwsVerNum");
+const CWS_EXTENSION_ID = "clgdnabgpfiffmfdboefecbhggbepjde";
+
+if (cwsVer && cwsVerNum) {
+  fetch(`https://img.shields.io/chrome-web-store/v/${CWS_EXTENSION_ID}.json`)
+    .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+    .then((data: { message?: string; value?: string }) => {
+      const version = data.message ?? data.value;
+      // shields prefixes a leading "v"; only show when it looks like a version.
+      if (version && /\d/.test(version)) {
+        cwsVerNum.textContent = version;
+        cwsVer.classList.remove("hidden");
+      }
+    })
+    .catch(() => {
+      // Store unreachable / rate-limited — stay hidden rather than show a stub.
+    });
+}
+
+// =========================================
 // Marquee — duplicate track for seamless scroll
 // =========================================
 const marquee = document.getElementById("marquee");

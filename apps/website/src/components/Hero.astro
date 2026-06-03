@@ -7,6 +7,11 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+
+// Chrome Web Store listing. The extension id is also used by the live
+// version fetch in site.ts (shields.io JSON endpoint for the same id).
+const STORE_URL =
+  "https://chromewebstore.google.com/detail/margin-read/clgdnabgpfiffmfdboefecbhggbepjde";
 ---
 
 <section class="hero" id="top">
@@ -24,7 +29,7 @@ const t = useTranslations(locale);
       <div class="cta-row">
         <a
           class="cta primary"
-          href="https://github.com/withmargin/margin-read/"
+          href={STORE_URL}
           target="_blank"
           rel="noopener">
           <span>{t("hero.cta1")}</span>
@@ -35,6 +40,16 @@ const t = useTranslations(locale);
           <span class="cta-meta mono">{t("hero.cta2m")}</span>
         </button>
       </div>
+      <a
+        class="cws-ver hidden"
+        id="cwsVer"
+        href={STORE_URL}
+        target="_blank"
+        rel="noopener">
+        <span class="dot">●</span>
+        <span>{t("hero.ver_label")}</span>
+        <span class="mono" id="cwsVerNum"></span>
+      </a>
       <div class="follow hidden" id="follow-panel">
         <p class="follow-lede">{t("hero.follow_lede")}</p>
         <div class="follow-grid">

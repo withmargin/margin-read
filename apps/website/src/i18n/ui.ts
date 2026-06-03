@@ -31,10 +31,11 @@ export const ui = {
     "hero.p1": "No account. Ready to use.",
     "hero.p2":
       " Translation goes from your browser directly to OpenAI, Anthropic, or Google — no Margin in between. Fully MIT open source. Your browsing and reading stay truly private.",
-    "hero.cta1": "Install from source",
-    "hero.cta1m": "unpacked · MV3",
-    "hero.cta2": "Notify me on launch",
-    "hero.cta2m": "No email — pick a channel",
+    "hero.cta1": "Add to Chrome",
+    "hero.cta1m": "Chrome Web Store · MV3",
+    "hero.cta2": "Follow updates",
+    "hero.cta2m": "No email — GitHub or RSS",
+    "hero.ver_label": "Live on the Chrome Web Store",
     "hero.follow_lede": "No email list. Pick whichever you already use:",
     "hero.follow_gh_t": "Watch on GitHub",
     "hero.follow_gh_d": "Releases-only notifications from GitHub itself.",
@@ -274,9 +275,9 @@ export const ui = {
     "faq.q6": "Why is the codebase TypeScript?",
     "faq.a6":
       "A privacy-claiming extension should be auditable. TypeScript on Manifest V3 with Rolldown gives a small, readable surface area. The repository contains the PRD, principles, threat model, and roadmap so the design choices are checkable, not just the binaries.",
-    "faq.q7": "When will it be on the Chrome Web Store?",
+    "faq.q7": "Is it on the Chrome Web Store?",
     "faq.a7":
-      "Soon. The MVP is fully usable today as an unpacked install — clone the repo, load it in chrome://extensions. We don't keep an email list. To get notified when the Web Store version ships, either Watch the GitHub repo (releases only) or subscribe to the releases RSS feed — both are linked from the hero above. GitHub does the delivery; we never see who subscribed.",
+      "Yes — Margin is live on the Chrome Web Store; just click Add to Chrome above. If you'd rather audit the code or run a dev build, you can still install unpacked from source: clone the repo and load it in chrome://extensions. We don't keep an email list. To follow new releases, either Watch the GitHub repo (releases only) or subscribe to the releases RSS feed — both are linked from the hero above. GitHub does the delivery; we never see who subscribed.",
 
     "ft.tag":
       "A privacy-first browser extension for bilingual webpage translation. The original stays, the translation grows beneath. Bring your own API key.",
@@ -311,10 +312,11 @@ export const ui = {
     "hero.t3": "。",
     "hero.p1": "無需帳號、立即可用。",
     "hero.p2": "翻譯從你的瀏覽器直送 OpenAI、Anthropic、Google — 中間沒有我們。全程 MIT 開源。真正保有你的瀏覽與閱讀隱私。",
-    "hero.cta1": "從 source 載入",
-    "hero.cta1m": "unpacked · MV3",
-    "hero.cta2": "上架時通知我",
-    "hero.cta2m": "不收 email — 挑一個通知管道",
+    "hero.cta1": "加到 Chrome",
+    "hero.cta1m": "Chrome Web Store · MV3",
+    "hero.cta2": "追蹤更新",
+    "hero.cta2m": "不收 email — GitHub 或 RSS",
+    "hero.ver_label": "已上架 Chrome Web Store",
     "hero.follow_lede": "我們不留 email 名單。選一個你已經在用的：",
     "hero.follow_gh_t": "在 GitHub 追蹤",
     "hero.follow_gh_d": "每次發版會收到通知（由 GitHub 直接寄）。",
@@ -551,9 +553,9 @@ export const ui = {
     "faq.q6": "為什麼用 TypeScript？",
     "faq.a6":
       "宣稱隱私的擴充應該可審計。TypeScript + MV3 + Rolldown 給出小而易讀的 surface area。Repo 內含 PRD、principles、threat model、roadmap，設計選擇都可被檢驗，不只是 binary。",
-    "faq.q7": "什麼時候上 Chrome Web Store？",
+    "faq.q7": "已經上架 Chrome Web Store 了嗎？",
     "faq.a7":
-      "快了。MVP 今天就能以 unpacked 載入使用 — clone repo, 進 chrome://extensions 載入即可。我們不留 email 名單。想在 Web Store 上架當天收到通知，請從 hero 區的兩個管道擇一：在 GitHub 上 Watch 這個 repo (releases only)，或訂閱 releases RSS feed。GitHub 負責寄送，我們從頭到尾不知道誰訂了。",
+      "已經上架了 — 點上方的「加到 Chrome」即可安裝。若想自行審計原始碼或跑開發版，仍可從 source 以 unpacked 載入：clone repo，進 chrome://extensions 載入即可。我們不留 email 名單。想追蹤新版本，請從 hero 區的兩個管道擇一：在 GitHub 上 Watch 這個 repo (releases only)，或訂閱 releases RSS feed。GitHub 負責寄送，我們從頭到尾不知道誰訂了。",
 
     "ft.tag":
       "隱私優先的雙語對照翻譯瀏覽器外掛。原文留下，譯文長在下方。自帶 API Key。",
