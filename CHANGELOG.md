@@ -7,12 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-06-04
+
 ### Added
 
 - Anthropic Compatible provider support for local or gateway endpoints that
   implement the Anthropic Messages-style `/v1/messages` API, including model
   fetching via `/v1/models`, optional Bearer auth, local-provider concurrency
   limits, and options-page setup.
+- omlx (Apple Silicon MLX) local runtime preset for quick setup of a local
+  endpoint.
+
+### Fixed
+
+- Short CJK lines are no longer dropped before translation. Length gating is
+  now CJK-aware, so a few Chinese, Japanese, or Korean characters count as
+  enough text to translate instead of being filtered out by the previous
+  character-count threshold tuned for Latin scripts.
+- Punctuation-heavy and short quoted CJK dialogue is now translated instead of
+  being treated as noise.
+- Parent and child blocks no longer produce duplicate translations; overlapping
+  residual text is de-duplicated before enqueueing.
 
 ## [0.3.2] - 2026-05-31
 
