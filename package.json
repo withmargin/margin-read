@@ -1,6 +1,6 @@
 {
   "name": "margin",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Privacy-first translation and notes, placed where reading happens.",
   "private": true,
   "type": "module",

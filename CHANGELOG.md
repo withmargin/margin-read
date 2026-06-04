@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-06-04
+
+### Fixed
+
+- Loose paragraphs that are not wrapped in their own element are now
+  translated. On table-based pages (such as Hacker News) a comment's first
+  paragraph is a bare text node followed by `<p>` siblings, and
+  single-paragraph comments have no `<p>` at all; both were previously skipped.
+- Translations rendered inside table cells no longer overlap the source text.
+  The nested translation now uses a small positive top gap instead of a
+  negative margin that pulled it up over the original line.
+
 ## [0.3.3] - 2026-06-04
 
 ### Added
