@@ -18,7 +18,8 @@
     "lint": "pnpm --filter @margin/extension lint",
     "package:extension": "pnpm --filter @margin/extension run package",
     "test": "pnpm --filter @margin/extension test",
-    "test:watch": "pnpm --filter @margin/extension test:watch"
+    "test:watch": "pnpm --filter @margin/extension test:watch",
+    "version:set": "node apps/extension/scripts/set-version.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

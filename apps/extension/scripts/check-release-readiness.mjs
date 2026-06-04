@@ -19,7 +19,9 @@ const defaultsPath = join(root, "src/shared/defaults.ts");
 const rootPackage = await readJson(rootPackagePath);
 const extensionPackage = await readJson(extensionPackagePath);
 const sourceManifest = await readJson(sourceManifestPath);
-const version = sourceManifest.version;
+// The source manifest carries no version; package.json is the source of truth
+// and the build injects the version into the packaged manifest.
+const version = rootPackage.version;
 const artifactPath = join(artifactsDir, `margin-read-v${version}.zip`);
 
 checkVersionConsistency();
@@ -53,9 +55,9 @@ if (warnings.length > 0) {
 }
 
 function checkVersionConsistency() {
-  assert(isSemver(version), `manifest version must be a semver version. Got ${version}.`);
-  assert(rootPackage.version === version, `root package version must match manifest version ${version}.`);
-  assert(extensionPackage.version === version, `extension package version must match manifest version ${version}.`);
+  assert(isSemver(version), `root package version must be a semver version. Got ${version}.`);
+  assert(!("version" in sourceManifest), "source manifest must not pin a version; it is injected at build from package.json.");
+  assert(extensionPackage.version === version, `extension package version must match root package version ${version}.`);
 
   const refName = process.env.GITHUB_REF_NAME;
   if (refName?.startsWith("v")) {
@@ -124,10 +126,12 @@ async function checkArtifact() {
     return;
   }
 
+  const { version: zipVersion, ...zipManifestRest } = zipManifest;
   assert(
-    JSON.stringify(zipManifest) === JSON.stringify(sourceManifest),
-    "artifact manifest.json must match apps/extension/manifest.json."
+    JSON.stringify(zipManifestRest) === JSON.stringify(sourceManifest),
+    "artifact manifest.json must match apps/extension/manifest.json (excluding the injected version)."
   );
+  assert(zipVersion === version, `artifact manifest version must be ${version}. Got ${zipVersion}.`);
   checkSourceManifest(zipManifest, "artifact manifest");
   checkRequiredManifestFiles(zipManifest, entrySet);
   checkZipContents(entries);

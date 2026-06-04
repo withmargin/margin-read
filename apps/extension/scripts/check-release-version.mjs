@@ -7,12 +7,12 @@ const repoRoot = resolve(root, "../..");
 const expectedVersion = getExpectedVersion();
 const rootPackage = await readJson(join(repoRoot, "package.json"));
 const extensionPackage = await readJson(join(root, "package.json"));
-const manifest = await readJson(join(root, "manifest.json"));
 const failures = [];
 
+// The manifest version is injected at build from package.json, so only the
+// package.json files are checked against the release tag here.
 assert(rootPackage.version === expectedVersion, `root package version must be ${expectedVersion}.`);
 assert(extensionPackage.version === expectedVersion, `extension package version must be ${expectedVersion}.`);
-assert(manifest.version === expectedVersion, `extension manifest version must be ${expectedVersion}.`);
 
 if (failures.length > 0) {
   console.error("Release version check failed:");

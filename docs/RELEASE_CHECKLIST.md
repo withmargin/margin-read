@@ -6,11 +6,18 @@ job.
 
 ## Before Tagging
 
-- Confirm the version is updated consistently:
-  - root `package.json`
-  - `apps/extension/package.json`
-  - `apps/extension/manifest.json`
-- Update `CHANGELOG.md`.
+- Set the version from one place:
+
+```sh
+pnpm version:set X.Y.Z
+```
+
+  This updates the root `package.json` and `apps/extension/package.json`, and
+  cuts the current `[Unreleased]` notes into a dated `[X.Y.Z]` CHANGELOG
+  section. The extension `manifest.json` does not store a version on disk; it is
+  injected at build time from `package.json`, so `package.json` is the single
+  source of truth.
+- Review `CHANGELOG.md` and confirm the `[X.Y.Z]` section reads well.
 - Confirm the release notes describe user-visible changes, privacy changes, and
   known risks.
 - Run the extension checks locally when possible:
