@@ -380,4 +380,32 @@ describe("applyTranslationDisplayStyle", () => {
     expect(translation.style.fontSize).toBe("18px");
     expect(translation.style.fontWeight).toBe("450");
   });
+
+  it("uses a positive top gap for table-cell translations so they never overlap the source", () => {
+    const source = { tagName: "P" } as HTMLElement;
+    const integrated = { style: {} } as HTMLElement;
+    const tableCell = { style: {} } as HTMLElement;
+
+    vi.stubGlobal("window", {
+      getComputedStyle: () => ({
+        fontFamily: "Inter",
+        fontSize: "20px",
+        fontWeight: "400",
+        lineHeight: "30px",
+        letterSpacing: "0px",
+        textAlign: "start",
+        color: "rgb(20, 20, 20)",
+        maxWidth: "640px",
+        marginBottom: "24px"
+      })
+    });
+
+    applyTranslationDisplayStyle(source, integrated, "quiet", "integrated");
+    applyTranslationDisplayStyle(source, tableCell, "quiet", "table-cell");
+
+    // The integrated strategy collapses against the source margin-bottom and goes negative;
+    // the table-cell strategy must stay positive because it is nested inside the source.
+    expect(integrated.style.marginTop).toBe("-0.87em");
+    expect(tableCell.style.marginTop).toBe("0.33em");
+  });
 });

@@ -20,7 +20,46 @@ export const CJK_MIN_TEXT_LENGTH = 6;
 // shorter (e.g. "やめて。"). Short UI labels almost never carry terminal punctuation.
 export const CJK_MIN_TEXT_LENGTH_WITH_TERMINATOR = 2;
 
-type SplitDatasetKey = "marginLegacyBlock" | "marginBrSeparatedBlock";
+type SplitDatasetKey = "marginLegacyBlock" | "marginBrSeparatedBlock" | "marginInlineRunBlock";
+
+// Block-level child elements act as run separators when carving loose inline text out of a
+// container (e.g. a Hacker News comment whose first paragraph is a bare text node followed by
+// <p> siblings). Anything not in this set is treated as inline and stays inside the run.
+const INLINE_RUN_SEPARATOR_TAGS = new Set([
+  "ADDRESS",
+  "ARTICLE",
+  "ASIDE",
+  "BLOCKQUOTE",
+  "DD",
+  "DETAILS",
+  "DIALOG",
+  "DIV",
+  "DL",
+  "DT",
+  "FIELDSET",
+  "FIGCAPTION",
+  "FIGURE",
+  "FOOTER",
+  "FORM",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "HEADER",
+  "HGROUP",
+  "HR",
+  "LI",
+  "MAIN",
+  "NAV",
+  "OL",
+  "P",
+  "PRE",
+  "SECTION",
+  "TABLE",
+  "UL"
+]);
 
 export function isTranslatableElement(element: HTMLElement, options: TextBlockOptions): boolean {
   if (element.hasAttribute(options.translatedAttr)) {
@@ -92,32 +131,11 @@ export function splitTextByBrGroups(
   let pendingBreaks: ChildNode[] = [];
 
   const flush = (): void => {
-    const nodes = currentNodes;
+    const block = createSplitBlock(container, currentNodes, document, options, datasetKey);
     currentNodes = [];
-    if (nodes.length === 0) {
-      return;
+    if (block) {
+      blocks.push(block);
     }
-
-    const text = normalizeText(nodes.map((node) => getSplitNodeText(node, options)).join(" "));
-    if (countCodePoints(text) < getMinimumTextLengthForText(text, options) || text.length > MAX_TEXT_LENGTH) {
-      return;
-    }
-
-    const firstNode = nodes.find((node) => node.parentNode === container);
-    /* v8 ignore next -- Defensive guard for DOM mutations during block splitting. */
-    if (!firstNode) {
-      return;
-    }
-
-    const block = document.createElement("span");
-    block.dataset[datasetKey] = "true";
-    container.insertBefore(block, firstNode);
-    for (const node of nodes) {
-      if (node.parentNode === container) {
-        block.append(node);
-      }
-    }
-    blocks.push(block);
   };
 
   for (const node of Array.from(container.childNodes)) {
@@ -142,6 +160,84 @@ export function splitTextByBrGroups(
 
   flush();
   return blocks;
+}
+
+// Carves each run of loose inline content (text nodes + inline elements) out of a container,
+// using block-level child elements as separators, and wraps it in a synthetic span block.
+// This recovers prose that is not wrapped in its own semantic element — e.g. a Hacker News
+// comment's first paragraph (a bare text node preceding <p> siblings) or a single-paragraph
+// comment with no <p> at all.
+export function splitContainerInlineRuns(
+  container: HTMLElement,
+  document: Document,
+  options: TextBlockOptions
+): HTMLElement[] {
+  const existingBlocks = getExistingSplitBlocks(container, "marginInlineRunBlock");
+  if (existingBlocks.length > 0) {
+    return existingBlocks.filter((element) => isTranslatableElement(element, options));
+  }
+
+  const blocks: HTMLElement[] = [];
+  let currentNodes: ChildNode[] = [];
+
+  const flush = (): void => {
+    const block = createSplitBlock(container, currentNodes, document, options, "marginInlineRunBlock");
+    currentNodes = [];
+    if (block) {
+      blocks.push(block);
+    }
+  };
+
+  for (const node of Array.from(container.childNodes)) {
+    if (isInlineRunSeparator(node)) {
+      flush();
+      continue;
+    }
+
+    if (getSplitNodeText(node, options).trim().length > 0) {
+      currentNodes.push(node);
+    }
+  }
+
+  flush();
+  return blocks;
+}
+
+function createSplitBlock(
+  container: HTMLElement,
+  nodes: ChildNode[],
+  document: Document,
+  options: TextBlockOptions,
+  datasetKey: SplitDatasetKey
+): HTMLElement | undefined {
+  if (nodes.length === 0) {
+    return undefined;
+  }
+
+  const text = normalizeText(nodes.map((node) => getSplitNodeText(node, options)).join(" "));
+  if (countCodePoints(text) < getMinimumTextLengthForText(text, options) || text.length > MAX_TEXT_LENGTH) {
+    return undefined;
+  }
+
+  const firstNode = nodes.find((node) => node.parentNode === container);
+  /* v8 ignore next -- Defensive guard for DOM mutations during block splitting. */
+  if (!firstNode) {
+    return undefined;
+  }
+
+  const block = document.createElement("span");
+  block.dataset[datasetKey] = "true";
+  container.insertBefore(block, firstNode);
+  for (const node of nodes) {
+    if (node.parentNode === container) {
+      block.append(node);
+    }
+  }
+  return block;
+}
+
+function isInlineRunSeparator(node: ChildNode): boolean {
+  return node.nodeType === Node.ELEMENT_NODE && INLINE_RUN_SEPARATOR_TAGS.has((node as Element).tagName);
 }
 
 export function isBrSeparatedContainer(element: HTMLElement, options: TextBlockOptions): boolean {

@@ -48,8 +48,8 @@ export function createTranslationRenderer(options: TranslationRendererOptions): 
     translation.dataset.state = state;
     applyTranslationLabel(translation, state, showTranslationLabel, translationLabel);
     translation.removeAttribute("style");
-    applyTranslationDisplayStyle(source, translation, displayStyle);
     const renderStrategy = getRenderStrategy(source);
+    applyTranslationDisplayStyle(source, translation, displayStyle, renderStrategy);
     if (renderStrategy === "table-cell") {
       translation.dataset.marginLayout = "table-cell";
     } else {
@@ -173,7 +173,11 @@ function getTranslationSource(source: HTMLElement): "legacy" | "web" | "x" {
 }
 
 export function isLegacySplitBlock(element: HTMLElement): boolean {
-  return element.dataset.marginLegacyBlock === "true" || element.dataset.marginBrSeparatedBlock === "true";
+  return (
+    element.dataset.marginLegacyBlock === "true" ||
+    element.dataset.marginBrSeparatedBlock === "true" ||
+    element.dataset.marginInlineRunBlock === "true"
+  );
 }
 
 function getRenderStrategy(source: HTMLElement): BlockRenderStrategy {

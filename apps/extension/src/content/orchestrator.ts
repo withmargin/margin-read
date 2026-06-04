@@ -482,6 +482,7 @@ function isMarginManagedNode(node: Node): boolean {
     node.hasAttribute(RENDER_STRATEGY_ATTR) ||
     node.dataset.marginLegacyBlock === "true" ||
     node.dataset.marginBrSeparatedBlock === "true" ||
+    node.dataset.marginInlineRunBlock === "true" ||
     node.dataset.marginLayout === "table-cell"
   );
 }

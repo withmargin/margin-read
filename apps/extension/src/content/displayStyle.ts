@@ -1,3 +1,4 @@
+import type { BlockRenderStrategy } from "./blockCandidates";
 import { normalizeDisplayStyle } from "../shared/displayStyle";
 import type { DisplayStyle, ModernDisplayStyle } from "../shared/types";
 
@@ -56,10 +57,18 @@ export function getTranslationClassName(style: TranslationDisplayStyle): string 
 export function applyTranslationDisplayStyle(
   source: HTMLElement,
   translation: HTMLElement,
-  style: TranslationDisplayStyle
+  style: TranslationDisplayStyle,
+  renderStrategy?: BlockRenderStrategy
 ): void {
   const computedStyle = window.getComputedStyle(source);
   const tokens = deriveIntegratedStyleTokens(source, computedStyle);
+  if (renderStrategy === "table-cell") {
+    // Table-cell translations are appended *inside* the source, directly below its own
+    // text. The integrated margin-top collapses against a sibling's margin-bottom and can
+    // go negative, which here pulls the translation up over the source line. Use a small
+    // positive gap instead so the two never overlap.
+    tokens.marginTop = getNestedMarginTop(computedStyle, source.tagName);
+  }
   applyStyleTokens(translation, tokens);
   applyDisplayModeTypography(source, translation, computedStyle, normalizeDisplayStyle(style));
 }
@@ -218,6 +227,20 @@ export function getIntegratedMarginTop(
   const desiredGapPixels = sourceLineHeight * (heading ? 0.14 : 0.22);
   const marginTopPixels = Math.max(desiredGapPixels - marginPixels, marginPixels > 0 ? -marginPixels + 4 : 0);
   return `${roundCssNumber(marginTopPixels / sourceFontSize)}em`;
+}
+
+// Positive top gap for a translation nested directly beneath the source's own text
+// (table-cell strategy), mirroring the integrated desired gap but never collapsing into
+// a sibling margin — so it can never go negative and overlap the source line.
+function getNestedMarginTop(
+  style: Pick<CSSStyleDeclaration, "fontSize" | "lineHeight">,
+  tagName: string
+): string {
+  const sourceFontSize = parseCssPixels(style.fontSize) ?? 16;
+  const heading = isHeading(tagName);
+  const sourceLineHeight = getSourceLineHeightPixels(style.lineHeight, sourceFontSize, heading);
+  const gapPixels = sourceLineHeight * (heading ? 0.14 : 0.22);
+  return `${roundCssNumber(gapPixels / sourceFontSize)}em`;
 }
 
 export function getIntegratedMarginBottom(

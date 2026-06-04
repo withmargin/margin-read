@@ -1,6 +1,7 @@
 import type { BlockCandidate } from "../blockCandidates";
 import { collectArticleBlocks } from "./archetypes/article";
 import { collectDocsBlocks } from "./archetypes/docs";
+import { collectInlineRunBlocks } from "./inlineText";
 import { collectLegacyBlocks } from "./legacy";
 import { createIncludedBlockCandidates, getNormalizedText, removeCoveredAncestorCandidates } from "./shared";
 import type { TextBlockOptions } from "./types";
@@ -12,7 +13,10 @@ const MIN_SEMANTIC_TEXT_LENGTH = 500;
 export function collectBlockCandidates(document: Document, options: TextBlockOptions): BlockCandidate[] {
   const docsBlocks = collectDocsBlocks(document, options);
   const articleBlocks = collectArticleBlocks(document, options);
-  const universalBlocks = collectUniversalBlocks(document, options);
+  const universalBlocks = uniqueElements([
+    ...collectUniversalBlocks(document, options),
+    ...collectInlineRunBlocks(document, options)
+  ]);
   const archetypeBlocks = uniqueElements([...docsBlocks, ...articleBlocks]);
   const semanticBlocks = uniqueElements([...archetypeBlocks, ...universalBlocks]);
   if (hasEnoughSemanticContent(archetypeBlocks) || hasEnoughSemanticContent(semanticBlocks)) {

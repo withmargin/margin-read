@@ -1,0 +1,41 @@
+{
+  "expectedTexts": [
+    "I started this project last winter as a weekend experiment",
+    "Pebblecast turns any folder of plain notes into a small searchable website",
+    "What works today: full text search, tag filters",
+    "I would love feedback on the layout and which feature you think should come next.",
+    "Do you really need a hundred separate plugins to make this useful"
+  ],
+  "excludedTexts": [
+    "412 points",
+    "94 comments",
+    "hours ago"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "I started this project last winter as a weekend experiment",
+      "source": "semantic",
+      "renderStrategy": "inline"
+    },
+    {
+      "textIncludes": "Do you really need a hundred separate plugins",
+      "source": "semantic",
+      "renderStrategy": "inline"
+    },
+    {
+      "textIncludes": "Pebblecast turns any folder of plain notes",
+      "role": "table",
+      "renderStrategy": "table-cell"
+    }
+  ],
+  "expectedOccurrences": [
+    {
+      "textIncludes": "I started this project last winter",
+      "count": 1
+    },
+    {
+      "textIncludes": "Do you really need a hundred separate plugins",
+      "count": 1
+    }
+  ]
+}

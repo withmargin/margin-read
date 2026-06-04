@@ -189,6 +189,12 @@ function getRenderStrategy(
   role: BlockCandidateRole,
   source: BlockCandidateSource
 ): BlockRenderStrategy {
+  // Synthetic inline-run blocks are loose prose wrapped in a span; render them as a block
+  // below the run (like legacy/<br>-split blocks), never as a table cell even when nested
+  // inside a table-based layout.
+  if (element.dataset.marginInlineRunBlock === "true") {
+    return "inline";
+  }
   if (role === "table") {
     return "table-cell";
   }
