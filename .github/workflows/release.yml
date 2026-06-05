@@ -115,6 +115,7 @@ jobs:
 
       - name: Fetch Chrome Web Store status before upload
         run: |
+          set -o pipefail
           curl --fail-with-body --show-error --silent \
             -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
             "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_ITEM_ID}:fetchStatus" \
@@ -149,6 +150,7 @@ jobs:
       - name: Upload package draft
         if: steps.cws.outputs.should_submit == 'true'
         run: |
+          set -o pipefail
           curl --fail-with-body --show-error --silent \
             -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
             -X POST \
@@ -159,6 +161,7 @@ jobs:
       - name: Submit for review
         if: steps.cws.outputs.should_submit == 'true'
         run: |
+          set -o pipefail
           curl --fail-with-body --show-error --silent \
             -H "Authorization: Bearer $CWS_ACCESS_TOKEN" \
             -H "Content-Type: application/json" \
