@@ -284,7 +284,7 @@ function createFloatingControls(
   close.type = "button";
   close.className = "margin-floating__button margin-floating__button--secondary";
   close.setAttribute("part", "close-button");
-  close.textContent = "×";
+  close.append(createCloseIcon(doc));
   close.title = "Turn off the Margin button";
   close.setAttribute("aria-label", "Turn off the Margin floating button");
   close.addEventListener("click", onClose);
@@ -304,6 +304,18 @@ function createFloatingControls(
   // Close sits outside the shell (revealed on hover), so it never crowds the button.
   container.append(shell, close, overlay);
   return container;
+}
+
+// A geometric cross, so the mark is centred regardless of the font's "×" glyph metrics.
+function createCloseIcon(doc: Document): SVGSVGElement {
+  const icon = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("viewBox", "0 0 10 10");
+  icon.setAttribute("aria-hidden", "true");
+  icon.setAttribute("focusable", "false");
+  icon.classList.add("margin-floating__close-icon");
+  icon.innerHTML =
+    '<path d="M2.4 2.4 7.6 7.6M7.6 2.4 2.4 7.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none" />';
+  return icon;
 }
 
 function createTranslateIcon(doc: Document): SVGSVGElement {
@@ -420,18 +432,22 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       width: 18px;
       height: 18px;
       color: #ffffff;
-      background: rgb(17 24 39 / 90%);
-      box-shadow: 0 2px 8px rgb(15 23 42 / 28%);
-      font-size: 14px;
-      font-weight: 500;
+      background: rgb(30 41 59 / 55%);
+      box-shadow: 0 2px 8px rgb(15 23 42 / 20%);
       opacity: 0;
       pointer-events: none;
       transform: translateY(-50%) scale(0.9);
     }
 
     :host([data-theme="dark"]) .margin-floating__button--secondary {
-      color: #111827;
-      background: rgb(255 255 255 / 92%);
+      color: #1e293b;
+      background: rgb(255 255 255 / 78%);
+    }
+
+    .margin-floating__close-icon {
+      width: 9px;
+      height: 9px;
+      display: block;
     }
 
     .margin-floating:hover .margin-floating__button--secondary,
