@@ -32,6 +32,7 @@ function onToggle(): void {
 
 beforeEach(() => {
   document.documentElement.innerHTML = "<head></head><body></body>";
+  document.documentElement.removeAttribute("style");
   toggleSpy = vi.fn<() => void>();
 });
 
@@ -157,6 +158,39 @@ describe("installFloatingButton", () => {
     handle.syncFromSettings({ showFloatingButton: true });
 
     expect(getHost()?.getAttribute("data-theme")).toBe("light");
+  });
+
+  it("falls through to the documentElement background when the body is transparent", () => {
+    document.body.style.backgroundColor = "rgba(0, 0, 0, 0)";
+    document.documentElement.style.backgroundColor = "rgb(10, 12, 16)";
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.getAttribute("data-theme")).toBe("dark");
+  });
+
+  it("ignores non-primary pointer buttons so a right-click never drags", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    getPrimaryButton()?.dispatchEvent(
+      new PointerEvent("pointerdown", { clientY: 361, button: 2, bubbles: true, cancelable: true })
+    );
+    document.dispatchEvent(pointerEvent("pointermove", 500));
+
+    expect(getHost()?.style.top).toBe("361px");
+  });
+
+  it("centers the button when initialPositionRatio is not finite", () => {
+    handle = installFloatingButton({
+      document,
+      initialEnabled: false,
+      onToggle: onToggle,
+      initialPositionRatio: Number.NaN
+    });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.style.top).toBe("361px");
   });
 
   it("nests the button in the shell and keeps the close affordance outside it", () => {

@@ -109,6 +109,7 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
   }
 
   function handlePointerMove(event: PointerEvent): void {
+    /* v8 ignore next 3 -- The move listener is only attached while a drag is active. */
     if (!pointerActive) {
       return;
     }
@@ -158,6 +159,7 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
 
   function topToRatio(top: number): number {
     const { minTop, maxTop } = verticalBounds();
+    /* v8 ignore next 3 -- Requires a viewport shorter than the button; not reachable in practice. */
     if (maxTop <= minTop) {
       return DEFAULT_POSITION_RATIO;
     }
@@ -219,6 +221,7 @@ function clampRatio(value: number): number {
 // a light (or unknown/transparent) page gets the white shell.
 function detectPageTheme(doc: Document): "dark" | "light" {
   const view = doc.defaultView;
+  /* v8 ignore next 3 -- A live document always exposes a defaultView. */
   if (!view) {
     return "light";
   }
@@ -236,6 +239,7 @@ function effectivePageBackground(
   view: Window
 ): { r: number; g: number; b: number } | undefined {
   for (const element of [doc.body, doc.documentElement]) {
+    /* v8 ignore next 3 -- body/documentElement are always present when the host renders. */
     if (!element) {
       continue;
     }
@@ -258,6 +262,7 @@ function parseRgbColor(value: string): { r: number; g: number; b: number; a: num
     .split(/[,\s/]+/)
     .map((part) => Number.parseFloat(part))
     .filter((part) => Number.isFinite(part));
+  /* v8 ignore next 3 -- getComputedStyle never returns an rgb() with fewer than 3 channels. */
   if (parts.length < 3) {
     return undefined;
   }

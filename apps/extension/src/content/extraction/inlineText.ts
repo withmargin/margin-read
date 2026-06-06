@@ -99,6 +99,7 @@ function nearestBlockContainer(element: HTMLElement | null, options: TextBlockOp
     current = current.parentElement;
   }
 
+  /* v8 ignore next 3 -- The climb stops at the first block ancestor; the root is never null here. */
   if (!current) {
     return undefined;
   }
@@ -119,6 +120,7 @@ function nearestBlockContainer(element: HTMLElement | null, options: TextBlockOp
 // A run that is mostly link text is navigation/metadata (e.g. a comment byline), not prose.
 function isLinkHeavy(element: HTMLElement): boolean {
   const text = normalizeText(element.innerText ?? element.textContent ?? "");
+  /* v8 ignore next 3 -- Synthetic run blocks always carry text by construction. */
   if (text.length === 0) {
     return true;
   }
