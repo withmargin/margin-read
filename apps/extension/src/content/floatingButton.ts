@@ -54,7 +54,7 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
     host.setAttribute(FLOATING_HOST_ATTR, "true");
     host.setAttribute("data-margin-root", "floating-controls");
     host.setAttribute("data-position", "right");
-    host.setAttribute("data-theme", "light");
+    host.setAttribute("data-theme", detectPageTheme(doc));
     host.setAttribute("data-state", enabled ? "enabled" : "idle");
     host.setAttribute("translate", "no");
     host.className = "margin-notranslate";
@@ -213,6 +213,55 @@ function clampRatio(value: number): number {
   return Math.min(1, Math.max(0, value));
 }
 
+// Pick a shell theme from the page's effective background: a dark page gets the dark shell,
+// a light (or unknown/transparent) page gets the white shell.
+function detectPageTheme(doc: Document): "dark" | "light" {
+  const view = doc.defaultView;
+  if (!view) {
+    return "light";
+  }
+  const background = effectivePageBackground(doc, view);
+  if (!background) {
+    return "light";
+  }
+  // Perceived brightness (YIQ); below mid-scale reads as a dark page.
+  const brightness = (background.r * 299 + background.g * 587 + background.b * 114) / 1000;
+  return brightness < 128 ? "dark" : "light";
+}
+
+function effectivePageBackground(
+  doc: Document,
+  view: Window
+): { r: number; g: number; b: number } | undefined {
+  for (const element of [doc.body, doc.documentElement]) {
+    if (!element) {
+      continue;
+    }
+    const color = parseRgbColor(view.getComputedStyle(element).backgroundColor);
+    if (color && color.a > 0) {
+      return color;
+    }
+  }
+  return undefined;
+}
+
+// Parses the rgb()/rgba() strings that getComputedStyle returns. Returns undefined for
+// anything else (e.g. a transparent keyword), which the caller treats as "no background".
+function parseRgbColor(value: string): { r: number; g: number; b: number; a: number } | undefined {
+  const match = /rgba?\(([^)]+)\)/i.exec(value);
+  if (!match) {
+    return undefined;
+  }
+  const parts = match[1]
+    .split(/[,\s/]+/)
+    .map((part) => Number.parseFloat(part))
+    .filter((part) => Number.isFinite(part));
+  if (parts.length < 3) {
+    return undefined;
+  }
+  return { r: parts[0], g: parts[1], b: parts[2], a: parts.length >= 4 ? parts[3] : 1 };
+}
+
 function createFloatingControls(
   doc: Document,
   onToggle: () => void,
@@ -302,17 +351,27 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       height: 40px;
       padding: 4px;
       border-radius: 999px;
-      background: rgb(17 24 39 / 88%);
-      box-shadow: 0 10px 28px rgb(15 23 42 / 26%);
+      background: rgb(255 255 255 / 92%);
+      box-shadow: 0 10px 28px rgb(15 23 42 / 20%);
+      opacity: 0.8;
       pointer-events: auto;
       cursor: grab;
       touch-action: none;
       transition:
         transform 140ms ease,
-        box-shadow 140ms ease;
+        box-shadow 140ms ease,
+        opacity 140ms ease;
     }
 
-    .margin-floating__shell:hover {
+    :host([data-theme="dark"]) .margin-floating__shell {
+      background: rgb(17 24 39 / 88%);
+      box-shadow: 0 10px 28px rgb(15 23 42 / 38%);
+    }
+
+    /* Idle controls stay slightly transparent to reduce intrusion; hover/focus makes them solid. */
+    .margin-floating__shell:hover,
+    .margin-floating__shell:focus-within {
+      opacity: 1;
       transform: translateY(-1px);
       box-shadow: 0 14px 34px rgb(15 23 42 / 32%);
     }

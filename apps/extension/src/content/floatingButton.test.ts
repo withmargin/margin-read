@@ -132,6 +132,29 @@ describe("installFloatingButton", () => {
     expect(getPrimaryButton()?.getAttribute("aria-label")).toBe("Translate into Français");
   });
 
+  it("uses the dark shell theme on a dark page", () => {
+    document.body.style.backgroundColor = "rgb(17, 24, 39)";
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.getAttribute("data-theme")).toBe("dark");
+  });
+
+  it("uses the light shell theme on a light page", () => {
+    document.body.style.backgroundColor = "rgb(255, 255, 255)";
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.getAttribute("data-theme")).toBe("light");
+  });
+
+  it("defaults to the light theme when the page has no background", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.getAttribute("data-theme")).toBe("light");
+  });
+
   it("wraps the button and close affordance in a shell container", () => {
     handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
     handle.syncFromSettings({ showFloatingButton: true });
