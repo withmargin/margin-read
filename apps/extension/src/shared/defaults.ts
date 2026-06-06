@@ -47,7 +47,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     }
   },
   openAICompatibleJsonMode: true,
-  showFloatingButton: false
+  showFloatingButton: true
 };
 
 export const SETTINGS_KEY = "margin.settings";

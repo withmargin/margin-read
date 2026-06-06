@@ -19,5 +19,5 @@
     }
   },
   "openAICompatibleJsonMode": true,
-  "showFloatingButton": false
+  "showFloatingButton": true
 }
