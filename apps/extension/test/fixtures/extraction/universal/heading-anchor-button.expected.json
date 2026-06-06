@@ -1,0 +1,25 @@
+{
+  "expectedTexts": [
+    "Choosing a deployment strategy for small teams",
+    "Pick the smallest setup that still meets your reliability target",
+    "When a single server is genuinely enough",
+    "Most side projects never outgrow one well-tuned box"
+  ],
+  "excludedTexts": [
+    "Subscribe now"
+  ],
+  "blockShape": [
+    {
+      "textIncludes": "Choosing a deployment strategy for small teams",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    },
+    {
+      "textIncludes": "When a single server is genuinely enough",
+      "role": "heading",
+      "source": "semantic",
+      "renderStrategy": "integrated"
+    }
+  ]
+}

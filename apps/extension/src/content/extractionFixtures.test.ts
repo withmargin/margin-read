@@ -25,6 +25,8 @@ import tableDefinitionExpected from "../../test/fixtures/extraction/universal/ta
 import tableDefinitionHtml from "../../test/fixtures/extraction/universal/table-definition.html?raw";
 import hnLooseParagraphsExpected from "../../test/fixtures/extraction/universal/hn-loose-paragraphs.expected.json?raw";
 import hnLooseParagraphsHtml from "../../test/fixtures/extraction/universal/hn-loose-paragraphs.html?raw";
+import headingAnchorButtonExpected from "../../test/fixtures/extraction/universal/heading-anchor-button.expected.json?raw";
+import headingAnchorButtonHtml from "../../test/fixtures/extraction/universal/heading-anchor-button.html?raw";
 import { collectBlockCandidates } from "./textBlocks";
 import type { TextBlockOptions } from "./textBlocks";
 import type { BlockCandidateRole, BlockCandidateSource, BlockRenderStrategy } from "./blockCandidates";
@@ -126,6 +128,11 @@ const fixtures: ExtractionFixture[] = [
     name: "universal/hn-loose-paragraphs",
     html: hnLooseParagraphsHtml,
     expected: parseExpected(hnLooseParagraphsExpected)
+  },
+  {
+    name: "universal/heading-anchor-button",
+    html: headingAnchorButtonHtml,
+    expected: parseExpected(headingAnchorButtonExpected)
   }
 ];
 

@@ -5,7 +5,12 @@ import {
   isCjkQuotedText,
   normalizeText
 } from "../../shared/text";
-import { createBlockCandidate, type BlockCandidate, type BlockCandidateSource } from "../blockCandidates";
+import {
+  createBlockCandidate,
+  hasBlockingInteractiveContent,
+  type BlockCandidate,
+  type BlockCandidateSource
+} from "../blockCandidates";
 import { isNonReadingElement, isVisibleForReading } from "../readingVisibility";
 import type { TextBlockOptions } from "./types";
 
@@ -96,7 +101,7 @@ export function isTranslatableElement(element: HTMLElement, options: TextBlockOp
     return false;
   }
 
-  if (element.querySelector("input, textarea, select, button")) {
+  if (hasBlockingInteractiveContent(element)) {
     return false;
   }
 

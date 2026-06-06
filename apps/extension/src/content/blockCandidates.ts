@@ -109,7 +109,7 @@ export function inferBlockRole(element: HTMLElement): BlockCandidateRole {
     return "table";
   }
 
-  if (element.querySelector("input, textarea, select, button")) {
+  if (hasBlockingInteractiveContent(element)) {
     return "ui";
   }
 
@@ -160,7 +160,7 @@ export function getCandidateSkipReason(
     return "decorative-caption";
   }
 
-  if (element.querySelector("input, textarea, select, button")) {
+  if (hasBlockingInteractiveContent(element)) {
     return "interactive-content";
   }
 
@@ -209,6 +209,19 @@ function getRenderStrategy(
 
 function hasReadableLength(text: string): boolean {
   return text.length >= 48 && text.length <= 1200;
+}
+
+// Whether an element holds interactive controls that should keep it from being treated as
+// translatable prose. Form fields always count. Buttons only count when they carry their own
+// text (a real control/label) — icon-only affordances such as a heading's permalink button
+// carry no text and must not disqualify the surrounding prose from translation.
+export function hasBlockingInteractiveContent(element: HTMLElement): boolean {
+  if (element.querySelector("input, textarea, select")) {
+    return true;
+  }
+  return Array.from(element.querySelectorAll("button")).some(
+    (button) => normalizeText(button.textContent ?? "").length > 0
+  );
 }
 
 function hasHighLinkDensity(element: HTMLElement, text: string): boolean {
