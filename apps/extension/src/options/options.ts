@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS } from "../shared/defaults";
+import { DEFAULT_SETTINGS, SETTINGS_KEY } from "../shared/defaults";
 import { getSettings, getStoredSettings, saveSettings } from "../shared/storage";
 import { applyOptionsI18n, detectOptionsLocale, t } from "./i18n";
 import { initializeDisplayPreview } from "./displayPreview";
@@ -51,6 +51,21 @@ async function initialize(): Promise<void> {
     void chrome.runtime.sendMessage({ type: "CLEAR_CACHE" }).then(() => {
       setStatus(t(locale, "statusCacheCleared"));
     });
+  });
+
+  // Keep the floating-button checkbox in sync when the setting changes elsewhere — e.g. the
+  // page's close (×) button turning the feature off.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local") {
+      return;
+    }
+    const next = changes[SETTINGS_KEY]?.newValue as { showFloatingButton?: unknown } | undefined;
+    if (next && typeof next.showFloatingButton === "boolean") {
+      const checkbox = form?.querySelector<HTMLInputElement>('[name="showFloatingButton"]');
+      if (checkbox) {
+        checkbox.checked = next.showFloatingButton;
+      }
+    }
   });
 }
 

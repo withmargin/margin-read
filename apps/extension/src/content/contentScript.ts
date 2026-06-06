@@ -1,6 +1,7 @@
 import "./content.css";
 import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings, RuntimeMessage } from "../shared/types";
+import { getSettings, saveSettings } from "../shared/storage";
 import { installFloatingButton, type FloatingButtonHandle } from "./floatingButton";
 import { createOrchestrator } from "./orchestrator";
 import { initializeYouTubeControls } from "./siteAdapters/youtube";
@@ -62,7 +63,8 @@ async function initializeFloatingButton(): Promise<void> {
     onToggle: () => orchestrator.setEnabled(!orchestrator.isEnabled()),
     onPositionChange: (ratio) => {
       void chrome.storage.local.set({ [FLOATING_POSITION_KEY]: ratio });
-    }
+    },
+    onClose: () => void disableFloatingButton()
   });
 
   try {
@@ -73,6 +75,16 @@ async function initializeFloatingButton(): Promise<void> {
   } catch {
     floatingButton.dispose();
     floatingButton = undefined;
+  }
+}
+
+// Close (×) turns the feature off globally and persists it, so the options page reflects it.
+async function disableFloatingButton(): Promise<void> {
+  try {
+    const settings = await getSettings();
+    await saveSettings({ ...settings, showFloatingButton: false });
+  } catch {
+    // Storage unavailable (e.g. during teardown); the host is already removed.
   }
 }
 

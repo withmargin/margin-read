@@ -25,6 +25,9 @@ export interface FloatingButtonOptions {
   // Null/undefined centres the button. Reported back via onPositionChange after a drag.
   initialPositionRatio?: number | null;
   onPositionChange?: (ratio: number) => void;
+  // Invoked when the close (×) button turns the feature off, so the caller can persist
+  // showFloatingButton = false (keeping the options page in sync).
+  onClose?: () => void;
 }
 
 export function installFloatingButton(options: FloatingButtonOptions): FloatingButtonHandle {
@@ -33,7 +36,6 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
   let host: HTMLElement | undefined;
   let primaryButton: HTMLButtonElement | undefined;
   let showEnabled = false;
-  let hiddenForPage = false;
   let targetLanguage = "English";
 
   let positionRatio = clampRatio(options.initialPositionRatio ?? DEFAULT_POSITION_RATIO);
@@ -163,8 +165,8 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
   }
 
   function handleClose(): void {
-    hiddenForPage = true;
     removeHost();
+    options.onClose?.();
   }
 
   function updateLabel(): void {
@@ -189,7 +191,7 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
         showEnabled = settings.showFloatingButton;
       }
       targetLanguage = settings.targetLanguage || targetLanguage;
-      if (showEnabled && !hiddenForPage) {
+      if (showEnabled) {
         ensureHost();
       } else {
         removeHost();
@@ -283,23 +285,24 @@ function createFloatingControls(
   close.className = "margin-floating__button margin-floating__button--secondary";
   close.setAttribute("part", "close-button");
   close.textContent = "×";
-  close.title = "Hide Margin on this page";
-  close.setAttribute("aria-label", "Hide Margin floating button on this page");
+  close.title = "Turn off the Margin button";
+  close.setAttribute("aria-label", "Turn off the Margin floating button");
   close.addEventListener("click", onClose);
 
-  // Outer container: a dark circular backdrop that holds the button and the hover-only
-  // close affordance, and doubles as the drag handle.
+  // Outer container: a backdrop that holds the button and doubles as the drag handle. Its
+  // right edge is flush with the screen; the left side curves around the button.
   const shell = doc.createElement("div");
   shell.className = "margin-floating__shell";
   shell.setAttribute("part", "shell");
-  shell.append(primary, close);
+  shell.append(primary);
 
   const overlay = doc.createElement("div");
   overlay.className = "margin-floating__overlay";
   overlay.setAttribute("part", "overlay");
   overlay.hidden = true;
 
-  container.append(shell, overlay);
+  // Close sits outside the shell (revealed on hover), so it never crowds the button.
+  container.append(shell, close, overlay);
   return container;
 }
 
@@ -335,11 +338,10 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       pointer-events: none;
     }
 
+    /* Non-interactive positioning context: empty areas never block the underlying page. */
     .margin-floating {
-      display: grid;
-      gap: 10px;
-      justify-items: end;
-      pointer-events: auto;
+      position: relative;
+      pointer-events: none;
     }
 
     .margin-floating__shell {
@@ -350,7 +352,8 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       width: 40px;
       height: 40px;
       padding: 4px;
-      border-radius: 999px;
+      /* Flat right edge (flush to screen), rounded left around the button. */
+      border-radius: 999px 0 0 999px;
       background: rgb(255 255 255 / 92%);
       box-shadow: 0 10px 28px rgb(15 23 42 / 20%);
       opacity: 0.8;
@@ -368,9 +371,10 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       box-shadow: 0 10px 28px rgb(15 23 42 / 38%);
     }
 
-    /* Idle controls stay slightly transparent to reduce intrusion; hover/focus makes them solid. */
-    .margin-floating__shell:hover,
-    .margin-floating__shell:focus-within {
+    /* Idle controls stay slightly transparent to reduce intrusion; hover/focus over any
+       part of the control (button or close) makes the whole thing solid. */
+    .margin-floating:hover .margin-floating__shell,
+    .margin-floating:focus-within .margin-floating__shell {
       opacity: 1;
       transform: translateY(-1px);
       box-shadow: 0 14px 34px rgb(15 23 42 / 32%);
@@ -407,27 +411,34 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       background: #d96890;
     }
 
+    /* Outside the shell, to its left with a gap, so it never sits over the button. Themed
+       against the page (not the shell) since it floats on the page background. */
     .margin-floating__button--secondary {
       position: absolute;
-      top: -3px;
-      left: -3px;
+      top: 50%;
+      right: 48px;
       width: 18px;
       height: 18px;
       color: #ffffff;
-      background: rgb(17 24 39 / 92%);
-      box-shadow: 0 2px 6px rgb(15 23 42 / 30%);
+      background: rgb(17 24 39 / 90%);
+      box-shadow: 0 2px 8px rgb(15 23 42 / 28%);
       font-size: 14px;
       font-weight: 500;
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.9);
+      transform: translateY(-50%) scale(0.9);
     }
 
-    .margin-floating__shell:hover .margin-floating__button--secondary,
-    .margin-floating__shell:focus-within .margin-floating__button--secondary {
+    :host([data-theme="dark"]) .margin-floating__button--secondary {
+      color: #111827;
+      background: rgb(255 255 255 / 92%);
+    }
+
+    .margin-floating:hover .margin-floating__button--secondary,
+    .margin-floating:focus-within .margin-floating__button--secondary {
       opacity: 1;
       pointer-events: auto;
-      transform: scale(1);
+      transform: translateY(-50%) scale(1);
     }
 
     .margin-floating__icon {

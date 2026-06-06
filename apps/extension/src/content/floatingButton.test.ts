@@ -96,15 +96,19 @@ describe("installFloatingButton", () => {
     expect(toggleSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("hides for the current page after the close button is clicked and stays hidden across syncs", () => {
-    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+  it("turns the feature off via onClose when the close button is clicked", () => {
+    const onClose = vi.fn<() => void>();
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle, onClose });
     handle.syncFromSettings({ showFloatingButton: true });
 
     getCloseButton()?.click();
     expect(getHost()).toBeNull();
+    expect(onClose).toHaveBeenCalledTimes(1);
 
+    // Re-enabling from settings shows it again — close is a global off switch, not a sticky
+    // per-page hide.
     handle.syncFromSettings({ showFloatingButton: true });
-    expect(getHost()).toBeNull();
+    expect(getHost()).not.toBeNull();
   });
 
   it("dispose removes the host", () => {
@@ -155,14 +159,14 @@ describe("installFloatingButton", () => {
     expect(getHost()?.getAttribute("data-theme")).toBe("light");
   });
 
-  it("wraps the button and close affordance in a shell container", () => {
+  it("nests the button in the shell and keeps the close affordance outside it", () => {
     handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
     handle.syncFromSettings({ showFloatingButton: true });
 
     const shell = getHost()?.shadowRoot?.querySelector(".margin-floating__shell");
-    expect(shell).not.toBeNull();
     expect(shell?.querySelector(".margin-floating__button--primary")).not.toBeNull();
-    expect(shell?.querySelector(".margin-floating__button--secondary")).not.toBeNull();
+    expect(shell?.querySelector(".margin-floating__button--secondary")).toBeNull();
+    expect(getCloseButton()).not.toBeNull();
   });
 
   // Viewport is 768px tall in the test env and the host measures 0 (no layout), so the
