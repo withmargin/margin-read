@@ -132,6 +132,16 @@ describe("installFloatingButton", () => {
     expect(getPrimaryButton()?.getAttribute("aria-label")).toBe("Translate into Français");
   });
 
+  it("wraps the button and close affordance in a shell container", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    const shell = getHost()?.shadowRoot?.querySelector(".margin-floating__shell");
+    expect(shell).not.toBeNull();
+    expect(shell?.querySelector(".margin-floating__button--primary")).not.toBeNull();
+    expect(shell?.querySelector(".margin-floating__button--secondary")).not.toBeNull();
+  });
+
   // Viewport is 768px tall in the test env and the host measures 0 (no layout), so the
   // fallback height (46) gives bounds minTop 8 / maxTop 714; a 0.5 ratio centres at 361.
   it("drags vertically and stays pinned to the right edge", () => {

@@ -62,7 +62,8 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
     shadow.append(createFloatingStyles(doc), createFloatingControls(doc, handlePrimaryClick, handleClose));
     doc.documentElement.append(host);
     primaryButton = shadow.querySelector<HTMLButtonElement>(".margin-floating__button--primary") ?? undefined;
-    primaryButton?.addEventListener("pointerdown", handlePointerDown);
+    const dragHandle = shadow.querySelector<HTMLElement>(".margin-floating__shell") ?? primaryButton;
+    dragHandle?.addEventListener("pointerdown", handlePointerDown);
     applyPosition();
     doc.defaultView?.addEventListener("resize", applyPosition);
     updateLabel();
@@ -237,12 +238,19 @@ function createFloatingControls(
   close.setAttribute("aria-label", "Hide Margin floating button on this page");
   close.addEventListener("click", onClose);
 
+  // Outer container: a dark circular backdrop that holds the button and the hover-only
+  // close affordance, and doubles as the drag handle.
+  const shell = doc.createElement("div");
+  shell.className = "margin-floating__shell";
+  shell.setAttribute("part", "shell");
+  shell.append(primary, close);
+
   const overlay = doc.createElement("div");
   overlay.className = "margin-floating__overlay";
   overlay.setAttribute("part", "overlay");
   overlay.hidden = true;
 
-  container.append(primary, close, overlay);
+  container.append(shell, overlay);
   return container;
 }
 
@@ -285,15 +293,36 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
       pointer-events: auto;
     }
 
+    .margin-floating__shell {
+      position: relative;
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgb(17 24 39 / 88%);
+      box-shadow: 0 10px 28px rgb(15 23 42 / 26%);
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
+      transition:
+        transform 140ms ease,
+        box-shadow 140ms ease;
+    }
+
+    .margin-floating__shell:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgb(15 23 42 / 32%);
+    }
+
     .margin-floating__button {
       box-sizing: border-box;
       display: grid;
-      width: 46px;
-      height: 46px;
       place-items: center;
       border: 0;
       border-radius: 999px;
-      box-shadow: 0 10px 30px rgb(15 23 42 / 18%);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       padding: 0;
       line-height: 1;
@@ -304,20 +333,15 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
         opacity 140ms ease;
     }
 
-    .margin-floating__button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 36px rgb(15 23 42 / 24%);
-    }
-
     .margin-floating__button:focus-visible {
       outline: 3px solid rgb(47 111 237 / 40%);
       outline-offset: 3px;
     }
 
     .margin-floating__button--primary {
+      width: 32px;
+      height: 32px;
       background: #d96890;
-      cursor: grab;
-      touch-action: none;
     }
 
     .margin-floating__button--primary[data-state="enabled"] {
@@ -326,27 +350,30 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
 
     .margin-floating__button--secondary {
       position: absolute;
-      top: 50%;
-      left: -30px;
-      width: 24px;
-      height: 24px;
+      top: -3px;
+      left: -3px;
+      width: 18px;
+      height: 18px;
       color: #ffffff;
-      background: rgb(17 24 39 / 32%);
-      font-size: 21px;
+      background: rgb(17 24 39 / 92%);
+      box-shadow: 0 2px 6px rgb(15 23 42 / 30%);
+      font-size: 14px;
       font-weight: 500;
       opacity: 0;
-      transform: translate(-3px, -50%) scale(0.96);
+      pointer-events: none;
+      transform: scale(0.9);
     }
 
-    .margin-floating:hover .margin-floating__button--secondary,
-    .margin-floating:focus-within .margin-floating__button--secondary {
+    .margin-floating__shell:hover .margin-floating__button--secondary,
+    .margin-floating__shell:focus-within .margin-floating__button--secondary {
       opacity: 1;
-      transform: translate(0, -50%) scale(1);
+      pointer-events: auto;
+      transform: scale(1);
     }
 
     .margin-floating__icon {
-      width: 25px;
-      height: 25px;
+      width: 18px;
+      height: 18px;
       display: block;
     }
 
@@ -418,14 +445,19 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
         right: 0;
       }
 
-      .margin-floating__button {
-        width: 42px;
-        height: 42px;
+      .margin-floating__shell {
+        width: 36px;
+        height: 36px;
+      }
+
+      .margin-floating__button--primary {
+        width: 28px;
+        height: 28px;
       }
 
       .margin-floating__icon {
-        width: 23px;
-        height: 23px;
+        width: 16px;
+        height: 16px;
       }
     }
   `;
