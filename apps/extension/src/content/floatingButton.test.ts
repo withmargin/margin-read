@@ -19,6 +19,10 @@ function getCloseButton(): HTMLButtonElement | null {
   );
 }
 
+function pointerEvent(type: string, clientY: number): PointerEvent {
+  return new PointerEvent(type, { clientY, button: 0, bubbles: true, cancelable: true });
+}
+
 let handle: FloatingButtonHandle | undefined;
 let toggleSpy: ReturnType<typeof vi.fn<() => void>>;
 
@@ -126,5 +130,79 @@ describe("installFloatingButton", () => {
     handle.syncFromSettings({ showFloatingButton: true });
 
     expect(getPrimaryButton()?.getAttribute("aria-label")).toBe("Translate into Français");
+  });
+
+  // Viewport is 768px tall in the test env and the host measures 0 (no layout), so the
+  // fallback height (46) gives bounds minTop 8 / maxTop 714; a 0.5 ratio centres at 361.
+  it("drags vertically and stays pinned to the right edge", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.style.top).toBe("361px");
+
+    getPrimaryButton()?.dispatchEvent(pointerEvent("pointerdown", 361));
+    document.dispatchEvent(pointerEvent("pointermove", 461));
+
+    expect(getHost()?.style.top).toBe("461px");
+    expect(getHost()?.style.right).toBe(""); // horizontal is never set inline; CSS keeps right: 0
+
+    document.dispatchEvent(pointerEvent("pointerup", 461));
+  });
+
+  it("treats movement under the threshold as a click, not a drag", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    getPrimaryButton()?.dispatchEvent(pointerEvent("pointerdown", 361));
+    document.dispatchEvent(pointerEvent("pointermove", 363));
+    document.dispatchEvent(pointerEvent("pointerup", 363));
+    getPrimaryButton()?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(getHost()?.style.top).toBe("361px");
+    expect(toggleSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("suppresses the click that immediately follows a drag", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    getPrimaryButton()?.dispatchEvent(pointerEvent("pointerdown", 361));
+    document.dispatchEvent(pointerEvent("pointermove", 461));
+    document.dispatchEvent(pointerEvent("pointerup", 461));
+    getPrimaryButton()?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(toggleSpy).not.toHaveBeenCalled();
+  });
+
+  it("clamps the drag to the bottom edge margin", () => {
+    handle = installFloatingButton({ document, initialEnabled: false, onToggle: onToggle });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    getPrimaryButton()?.dispatchEvent(pointerEvent("pointerdown", 361));
+    document.dispatchEvent(pointerEvent("pointermove", 5000));
+    document.dispatchEvent(pointerEvent("pointerup", 5000));
+
+    expect(getHost()?.style.top).toBe("714px");
+  });
+
+  it("applies initialPositionRatio and reports the new ratio after a drag", () => {
+    const onPositionChange = vi.fn<(ratio: number) => void>();
+    handle = installFloatingButton({
+      document,
+      initialEnabled: false,
+      onToggle: onToggle,
+      initialPositionRatio: 0,
+      onPositionChange
+    });
+    handle.syncFromSettings({ showFloatingButton: true });
+
+    expect(getHost()?.style.top).toBe("8px"); // ratio 0 pins to the top edge margin
+
+    getPrimaryButton()?.dispatchEvent(pointerEvent("pointerdown", 8));
+    document.dispatchEvent(pointerEvent("pointermove", 714));
+    document.dispatchEvent(pointerEvent("pointerup", 714));
+
+    expect(onPositionChange).toHaveBeenCalledTimes(1);
+    expect(onPositionChange.mock.calls[0][0]).toBeCloseTo(1, 5);
   });
 });

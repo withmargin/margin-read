@@ -5,6 +5,8 @@ import { installFloatingButton, type FloatingButtonHandle } from "./floatingButt
 import { createOrchestrator } from "./orchestrator";
 import { initializeYouTubeControls } from "./siteAdapters/youtube";
 
+const FLOATING_POSITION_KEY = "margin.floatingButton.positionRatio";
+
 interface SettingsResponse {
   ok: boolean;
   settings?: Partial<ExtensionSettings>;
@@ -56,7 +58,11 @@ async function initializeFloatingButton(): Promise<void> {
   floatingButton = installFloatingButton({
     document,
     initialEnabled: orchestrator.isEnabled(),
-    onToggle: () => orchestrator.setEnabled(!orchestrator.isEnabled())
+    initialPositionRatio: await readFloatingPositionRatio(),
+    onToggle: () => orchestrator.setEnabled(!orchestrator.isEnabled()),
+    onPositionChange: (ratio) => {
+      void chrome.storage.local.set({ [FLOATING_POSITION_KEY]: ratio });
+    }
   });
 
   try {
@@ -67,5 +73,15 @@ async function initializeFloatingButton(): Promise<void> {
   } catch {
     floatingButton.dispose();
     floatingButton = undefined;
+  }
+}
+
+async function readFloatingPositionRatio(): Promise<number | null> {
+  try {
+    const stored = await chrome.storage.local.get(FLOATING_POSITION_KEY);
+    const value: unknown = stored[FLOATING_POSITION_KEY];
+    return typeof value === "number" ? value : null;
+  } catch {
+    return null;
   }
 }

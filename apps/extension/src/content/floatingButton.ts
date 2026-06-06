@@ -3,6 +3,14 @@ import type { ExtensionSettings } from "../shared/types";
 const FLOATING_HOST_ID = "margin-floating-controls";
 const FLOATING_HOST_ATTR = "data-margin-floating-controls";
 
+// Drag tuning. The button only moves vertically and always stays pinned to the right
+// edge; EDGE_MARGIN keeps it fully on screen, and DRAG_THRESHOLD separates a click (toggle)
+// from a drag. FALLBACK_HOST_HEIGHT is used when layout has not measured the host yet.
+const EDGE_MARGIN = 8;
+const DRAG_THRESHOLD = 4;
+const FALLBACK_HOST_HEIGHT = 46;
+const DEFAULT_POSITION_RATIO = 0.5;
+
 export interface FloatingButtonHandle {
   syncFromSettings(settings: Partial<ExtensionSettings>): void;
   setEnabledState(enabled: boolean): void;
@@ -13,6 +21,10 @@ export interface FloatingButtonOptions {
   document: Document;
   initialEnabled: boolean;
   onToggle: () => void | Promise<void>;
+  // Vertical position as a 0..1 ratio of the available height (0 = top edge, 1 = bottom).
+  // Null/undefined centres the button. Reported back via onPositionChange after a drag.
+  initialPositionRatio?: number | null;
+  onPositionChange?: (ratio: number) => void;
 }
 
 export function installFloatingButton(options: FloatingButtonOptions): FloatingButtonHandle {
@@ -23,6 +35,14 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
   let showEnabled = false;
   let hiddenForPage = false;
   let targetLanguage = "English";
+
+  let positionRatio = clampRatio(options.initialPositionRatio ?? DEFAULT_POSITION_RATIO);
+  let currentTop = 0;
+  let pointerActive = false;
+  let dragging = false;
+  let suppressClick = false;
+  let dragStartPointerY = 0;
+  let dragStartTop = 0;
 
   function ensureHost(): void {
     if (host || !doc.body) {
@@ -39,13 +59,21 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
     host.setAttribute("translate", "no");
     host.className = "margin-notranslate";
     const shadow = host.attachShadow({ mode: "open" });
-    shadow.append(createFloatingStyles(doc), createFloatingControls(doc, handleToggle, handleClose));
+    shadow.append(createFloatingStyles(doc), createFloatingControls(doc, handlePrimaryClick, handleClose));
     doc.documentElement.append(host);
     primaryButton = shadow.querySelector<HTMLButtonElement>(".margin-floating__button--primary") ?? undefined;
+    primaryButton?.addEventListener("pointerdown", handlePointerDown);
+    applyPosition();
+    doc.defaultView?.addEventListener("resize", applyPosition);
     updateLabel();
   }
 
   function removeHost(): void {
+    doc.defaultView?.removeEventListener("resize", applyPosition);
+    doc.removeEventListener("pointermove", handlePointerMove);
+    doc.removeEventListener("pointerup", handlePointerUp);
+    pointerActive = false;
+    dragging = false;
     host?.remove();
     host = undefined;
     primaryButton = undefined;
@@ -53,6 +81,84 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
 
   function handleToggle(): void {
     void onToggle();
+  }
+
+  // A click fires after a drag ends on the same button, so swallow that one click.
+  function handlePrimaryClick(): void {
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    }
+    handleToggle();
+  }
+
+  function handlePointerDown(event: PointerEvent): void {
+    if (event.button !== 0) {
+      return;
+    }
+    pointerActive = true;
+    dragging = false;
+    suppressClick = false;
+    dragStartPointerY = event.clientY;
+    dragStartTop = currentTop;
+    doc.addEventListener("pointermove", handlePointerMove);
+    doc.addEventListener("pointerup", handlePointerUp);
+  }
+
+  function handlePointerMove(event: PointerEvent): void {
+    if (!pointerActive) {
+      return;
+    }
+    const delta = event.clientY - dragStartPointerY;
+    if (!dragging && Math.abs(delta) < DRAG_THRESHOLD) {
+      return;
+    }
+    dragging = true;
+    event.preventDefault();
+    setTop(dragStartTop + delta);
+  }
+
+  function handlePointerUp(): void {
+    doc.removeEventListener("pointermove", handlePointerMove);
+    doc.removeEventListener("pointerup", handlePointerUp);
+    pointerActive = false;
+    if (dragging) {
+      suppressClick = true;
+      positionRatio = topToRatio(currentTop);
+      options.onPositionChange?.(positionRatio);
+    }
+  }
+
+  function verticalBounds(): { minTop: number; maxTop: number } {
+    const viewportHeight = doc.defaultView?.innerHeight ?? 0;
+    const hostHeight = host?.getBoundingClientRect().height || FALLBACK_HOST_HEIGHT;
+    const minTop = EDGE_MARGIN;
+    const maxTop = Math.max(minTop, viewportHeight - hostHeight - EDGE_MARGIN);
+    return { minTop, maxTop };
+  }
+
+  // Horizontal position is never touched — the host stays pinned to the right edge (CSS
+  // right: 0), so the button is always against the edge. Only `top` moves.
+  function setTop(top: number): void {
+    const { minTop, maxTop } = verticalBounds();
+    currentTop = Math.min(Math.max(top, minTop), maxTop);
+    if (host) {
+      host.style.top = `${currentTop}px`;
+      host.style.transform = "none";
+    }
+  }
+
+  function applyPosition(): void {
+    const { minTop, maxTop } = verticalBounds();
+    setTop(minTop + positionRatio * (maxTop - minTop));
+  }
+
+  function topToRatio(top: number): number {
+    const { minTop, maxTop } = verticalBounds();
+    if (maxTop <= minTop) {
+      return DEFAULT_POSITION_RATIO;
+    }
+    return clampRatio((top - minTop) / (maxTop - minTop));
   }
 
   function handleClose(): void {
@@ -97,6 +203,13 @@ export function installFloatingButton(options: FloatingButtonOptions): FloatingB
       removeHost();
     }
   };
+}
+
+function clampRatio(value: number): number {
+  if (!Number.isFinite(value)) {
+    return DEFAULT_POSITION_RATIO;
+  }
+  return Math.min(1, Math.max(0, value));
 }
 
 function createFloatingControls(
@@ -203,6 +316,8 @@ function createFloatingStyles(doc: Document): HTMLStyleElement {
 
     .margin-floating__button--primary {
       background: #d96890;
+      cursor: grab;
+      touch-action: none;
     }
 
     .margin-floating__button--primary[data-state="enabled"] {
