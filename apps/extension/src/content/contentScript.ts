@@ -1,3 +1,4 @@
+import "./content.css";
 import { SETTINGS_KEY } from "../shared/defaults";
 import type { ExtensionSettings, RuntimeMessage } from "../shared/types";
 import { installFloatingButton, type FloatingButtonHandle } from "./floatingButton";

@@ -126,11 +126,12 @@ async function checkArtifact() {
     return;
   }
 
-  const { version: zipVersion, ...zipManifestRest } = zipManifest;
-  assert(
-    JSON.stringify(zipManifestRest) === JSON.stringify(sourceManifest),
-    "artifact manifest.json must match apps/extension/manifest.json (excluding the injected version)."
-  );
+  // The CRXJS build generates the shipped manifest from the source manifest (hashed entry
+  // paths, web_accessible_resources for content chunks), so it intentionally differs from
+  // the hand-authored apps/extension/manifest.json. Rather than assert byte equality, the
+  // generated manifest is validated on its own merits below (MV3, name, permissions
+  // allowlist, no custom CSP, no remote code, required files present).
+  const { version: zipVersion } = zipManifest;
   assert(zipVersion === version, `artifact manifest version must be ${version}. Got ${zipVersion}.`);
   checkSourceManifest(zipManifest, "artifact manifest");
   checkRequiredManifestFiles(zipManifest, entrySet);

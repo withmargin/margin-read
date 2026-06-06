@@ -6,12 +6,15 @@ const root = new URL("..", import.meta.url).pathname;
 const manifest = JSON.parse(await readFile(join(root, "manifest.json"), "utf8"));
 const failures = [];
 
-const BUNDLE_SIZE_BUDGETS = {
-  "background.js": 28 * 1024,
-  "popup.js": 10 * 1024,
-  "content.js": 100 * 1024,
-  "options.js": 80 * 1024
-};
+// CRXJS emits hashed chunk names (e.g. assets/contentScript.ts-<hash>.js), so budgets are
+// matched by the entry's filename prefix rather than an exact name. The largest matching
+// chunk is checked — that is the entry chunk where an accidental runtime SDK import lands.
+const BUNDLE_SIZE_BUDGETS = [
+  { label: "service worker", prefix: "serviceWorker", limit: 28 * 1024 },
+  { label: "popup", prefix: "popup.html", limit: 10 * 1024 },
+  { label: "content script", prefix: "contentScript", limit: 100 * 1024 },
+  { label: "options", prefix: "options.html", limit: 80 * 1024 }
+];
 
 assert(manifest.manifest_version === 3, "manifest_version must be 3.");
 assert(!manifest.background || manifest.background.type === "module", "background service worker must be an ES module.");
@@ -41,20 +44,26 @@ function containsProviderApiKey(content) {
 await checkBundleSizes();
 
 async function checkBundleSizes() {
-  const distDir = join(root, "dist");
-  if (!(await exists(distDir))) {
+  const assetsDir = join(root, "dist", "assets");
+  if (!(await exists(assetsDir))) {
     return;
   }
 
-  for (const [name, limit] of Object.entries(BUNDLE_SIZE_BUDGETS)) {
-    const path = join(distDir, name);
-    if (!(await exists(path))) {
+  const assetFiles = await readdir(assetsDir);
+  for (const { label, prefix, limit } of BUNDLE_SIZE_BUDGETS) {
+    const matches = assetFiles.filter((name) => name.startsWith(prefix) && name.endsWith(".js"));
+    if (matches.length === 0) {
       continue;
     }
-    const info = await stat(path);
+
+    let largest = 0;
+    for (const name of matches) {
+      const info = await stat(join(assetsDir, name));
+      largest = Math.max(largest, info.size);
+    }
     assert(
-      info.size <= limit,
-      `${name} (${info.size} bytes) exceeds bundle budget of ${limit} bytes. ` +
+      largest <= limit,
+      `${label} bundle (${largest} bytes) exceeds budget of ${limit} bytes. ` +
         `A regression here usually means an SDK or large dependency was imported as runtime instead of type-only.`
     );
   }

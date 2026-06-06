@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const optionsHtml = readFileSync(join(process.cwd(), "public/options.html"), "utf8");
+const optionsHtml = readFileSync(join(process.cwd(), "options.html"), "utf8");
 
 describe("options layout", () => {
   it("places Fetch Models next to the model selector", () => {
