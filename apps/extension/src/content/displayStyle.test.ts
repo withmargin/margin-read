@@ -408,4 +408,83 @@ describe("applyTranslationDisplayStyle", () => {
     expect(integrated.style.marginTop).toBe("-0.87em");
     expect(tableCell.style.marginTop).toBe("0.33em");
   });
+
+  it("falls back to a 16px base when the source font size is not in pixels (focus)", () => {
+    const source = { tagName: "P" } as HTMLElement;
+    const translation = { style: {} } as HTMLElement;
+
+    vi.stubGlobal("window", {
+      getComputedStyle: () => ({
+        fontFamily: "Inter",
+        fontSize: "",
+        fontWeight: "100",
+        lineHeight: "30px",
+        letterSpacing: "0px",
+        textAlign: "start",
+        color: "rgb(20, 20, 20)",
+        maxWidth: "640px",
+        marginBottom: "24px"
+      })
+    });
+
+    applyTranslationDisplayStyle(source, translation, "focus");
+
+    expect(translation.style.fontSize).toBe("15px");
+  });
+
+  it("gives a heading table-cell translation a small positive top gap", () => {
+    const source = { tagName: "H2" } as HTMLElement;
+    const translation = { style: {} } as HTMLElement;
+
+    vi.stubGlobal("window", {
+      getComputedStyle: () => ({
+        fontFamily: "Inter",
+        fontSize: "",
+        fontWeight: "600",
+        lineHeight: "30px",
+        letterSpacing: "0px",
+        textAlign: "start",
+        color: "rgb(20, 20, 20)",
+        maxWidth: "640px",
+        marginBottom: "24px"
+      })
+    });
+
+    applyTranslationDisplayStyle(source, translation, "quiet", "table-cell");
+
+    expect(translation.style.marginTop).toBe("0.26em");
+  });
+});
+
+describe("typography branch edge cases", () => {
+  it("resolves Chinese names and native labels to the right zh code", () => {
+    const traditionalLabel = document.createElement("div");
+    applyLanguageTypography(traditionalLabel, "繁體中文");
+    expect(traditionalLabel.lang).toBe("zh-TW");
+
+    const genericLabel = document.createElement("div");
+    applyLanguageTypography(genericLabel, "中文");
+    expect(genericLabel.lang).toBe("zh");
+
+    const traditionalName = document.createElement("div");
+    applyLanguageTypography(traditionalName, "Traditional Chinese (Taiwan)");
+    expect(traditionalName.lang).toBe("zh-TW");
+
+    const simplifiedName = document.createElement("div");
+    applyLanguageTypography(simplifiedName, "Simplified Chinese (China)");
+    expect(simplifiedName.lang).toBe("zh-CN");
+  });
+
+  it("uses tighter heading rhythm when the source margin is not in pixels", () => {
+    expect(getIntegratedMarginBottom("auto", 30, 20, true)).toBe("0.45em");
+    expect(getIntegratedMarginBottom("auto", 30, 20, false)).toBe("0.8em");
+  });
+
+  it("returns non-numeric focus font weights unchanged", () => {
+    expect(getFocusFontWeight("bold")).toBe("bold");
+  });
+
+  it("returns a px-suffixed but unparsable font size unchanged", () => {
+    expect(scaleFontSize("abcpx", "P")).toBe("abcpx");
+  });
 });
