@@ -177,4 +177,12 @@ describe("googleProvider.listModels", () => {
     const models = await googleProvider.listModels(makeSettings());
     expect(models).toEqual([{ id: "gemini-flash-latest", displayName: "Flash" }]);
   });
+
+  it("returns an empty list when the response omits the models field", async () => {
+    const { fetch: stub } = stubFetch(new Response(JSON.stringify({}), { status: 200 }));
+    vi.stubGlobal("fetch", stub);
+
+    const models = await googleProvider.listModels(makeSettings());
+    expect(models).toEqual([]);
+  });
 });

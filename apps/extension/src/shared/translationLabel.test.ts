@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { getTranslationLabel } from "./translationLabel";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { getBrowserTranslationLabel, getTranslationLabel } from "./translationLabel";
 
 describe("getTranslationLabel", () => {
   it("uses compact CJK labels", () => {
@@ -31,8 +31,37 @@ describe("getTranslationLabel", () => {
     expect(getTranslationLabel("Brazilian Portuguese")).toBe("Trad.");
   });
 
+  it("maps European Portuguese and resolves direct locale codes", () => {
+    expect(getTranslationLabel("European Portuguese")).toBe("Trad.");
+    expect(getTranslationLabel("pt-PT")).toBe("Trad.");
+    expect(getTranslationLabel("pt-BR")).toBe("Trad.");
+  });
+
   it("falls back to English", () => {
     expect(getTranslationLabel("unknown-language")).toBe("Translation");
     expect(getTranslationLabel(undefined)).toBe("Translation");
+  });
+});
+
+describe("getBrowserTranslationLabel", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("uses the chrome.i18n UI language when available", () => {
+    vi.stubGlobal("chrome", { i18n: { getUILanguage: () => "ja-JP" } });
+    expect(getBrowserTranslationLabel()).toBe("翻訳");
+  });
+
+  it("falls back to navigator when chrome has no i18n", () => {
+    vi.stubGlobal("chrome", {});
+    vi.stubGlobal("navigator", { languages: ["fr-FR"], language: "fr-FR" });
+    expect(getBrowserTranslationLabel()).toBe("Trad.");
+  });
+
+  it("uses navigator.language when navigator.languages is empty", () => {
+    vi.stubGlobal("chrome", undefined);
+    vi.stubGlobal("navigator", { languages: [], language: "ko-KR" });
+    expect(getBrowserTranslationLabel()).toBe("번역");
   });
 });
