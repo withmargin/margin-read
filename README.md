@@ -35,7 +35,7 @@ The extension is usable for normal article pages, legacy text-heavy pages, and s
 - Support local OpenAI-compatible runtimes such as LM Studio, Ollama, llama.cpp server, and omlx (Apple Silicon), plus Anthropic Messages API-compatible endpoints.
 - Fetch provider model lists from the options page.
 - Choose integrated or highlighted translation display styles.
-- Optionally show a floating page button that starts translation only after the user clicks it.
+- Show a floating page button (enabled by default) that starts translation only after the user clicks it. The button can be dragged vertically along the screen edge, remembers its position, adapts its shell to the page's light or dark background, and can be turned off from its close (×) control or the options page.
 - Use session-only translation caching by default, with persistent and disabled cache options.
 - Show popup diagnostics for text detection, queue state, and provider errors.
 - Observe dynamically inserted content.
@@ -157,6 +157,14 @@ corepack enable
 pnpm install
 ```
 
+Run the dev server with hot reloading (Vite + CRXJS). Load `apps/extension/dist/`
+as an unpacked extension once, then edit source and the extension reloads
+automatically:
+
+```sh
+pnpm --filter @margin/extension dev
+```
+
 Run type checks:
 
 ```sh
@@ -187,7 +195,7 @@ Build the extension:
 pnpm build
 ```
 
-The build uses Rolldown and writes the unpacked extension to `apps/extension/dist/`.
+The build uses Vite with the CRXJS plugin (Rolldown under the hood) and writes the unpacked extension to `apps/extension/dist/`.
 
 ## Project Structure
 
@@ -198,7 +206,8 @@ apps/extension/src/options/        Extension options page
 apps/extension/src/popup/          Popup UI and diagnostics
 apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         Shared types, defaults, storage, and messages
-apps/extension/public/             Static extension UI and content CSS
+apps/extension/public/             Static assets (icons) copied verbatim into the build
+apps/extension/*.html              Popup and options HTML entry points
 apps/extension/scripts/            Build and extension validation scripts
 docs/                              Product, roadmap, principles, and threat model
 ```

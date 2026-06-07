@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The floating translate button can be dragged vertically. It stays pinned to
+  the screen edge and remembers its position across page loads.
+
+### Changed
+
+- The floating translate button is now enabled by default and restyled: a
+  smaller button inside a themed shell that adapts to the page's light or dark
+  background and dims slightly while idle to stay out of the way. Its close (×)
+  affordance now turns the feature off and keeps the options page checkbox in
+  sync, instead of only hiding the button for the current page.
+- The extension build moved from a hand-rolled Rolldown setup to Vite + CRXJS
+  (Rolldown under the hood), adding a hot-reloading dev server via `pnpm dev`.
+  User-facing behavior is unchanged.
+
+### Fixed
+
+- Headings and paragraphs that contain only an icon button — such as a Substack
+  heading's permalink link — are now translated instead of being skipped as
+  interactive UI. The interactive-content guard only excludes form fields and
+  buttons that carry their own text.
+
 ## [0.3.4] - 2026-06-04
 
 ### Fixed
