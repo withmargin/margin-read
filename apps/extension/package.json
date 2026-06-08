@@ -1,7 +1,7 @@
 {
   "name": "@margin/extension",
   "version": "0.3.4",
-  "description": "Privacy-first translation and notes, placed where reading happens.",
+  "description": "Privacy-first bilingual web translation that keeps the original text in place so you never lose context.",
   "private": true,
   "type": "module",
   "scripts": {

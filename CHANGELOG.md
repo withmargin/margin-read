@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The extension build moved from a hand-rolled Rolldown setup to Vite + CRXJS
   (Rolldown under the hood), adding a hot-reloading dev server via `pnpm dev`.
   User-facing behavior is unchanged.
+- The Chrome Web Store listing description is now localized through `_locales`
+  (English and Traditional Chinese), and the description copy was refreshed.
 
 ### Fixed
 

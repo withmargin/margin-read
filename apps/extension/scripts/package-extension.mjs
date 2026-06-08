@@ -15,10 +15,8 @@ const outputPath = join(artifacts, packageName);
 const failures = [];
 
 assert(manifest.name === "Margin Read", "dist manifest name must be Margin Read.");
-assert(
-  manifest.description?.includes("Privacy-first"),
-  "dist manifest description must include Privacy-first."
-);
+const description = await resolveManifestMessage(manifest.description, join(dist, "_locales"), manifest.default_locale);
+assert(description.includes("Privacy-first"), "dist manifest description must include Privacy-first.");
 
 const files = await listFiles(dist);
 for (const file of files) {
@@ -78,6 +76,17 @@ function assert(condition, message) {
   if (!condition) {
     failures.push(message);
   }
+}
+
+// Resolves a manifest field that may be a __MSG_key__ placeholder against the default
+// locale's _locales messages, so checks read the real localized text.
+async function resolveManifestMessage(value, localesDir, defaultLocale) {
+  const match = /^__MSG_(.+)__$/.exec(value ?? "");
+  if (!match) {
+    return value ?? "";
+  }
+  const messages = JSON.parse(await readFile(join(localesDir, defaultLocale, "messages.json"), "utf8"));
+  return messages[match[1]]?.message ?? "";
 }
 
 function containsProviderApiKey(content) {

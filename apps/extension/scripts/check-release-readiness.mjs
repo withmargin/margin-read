@@ -24,10 +24,12 @@ const sourceManifest = await readJson(sourceManifestPath);
 const version = rootPackage.version;
 const artifactPath = join(artifactsDir, `margin-read-v${version}.zip`);
 
+const sourceMessages = await readLocaleMessages(join(root, "public/_locales"), sourceManifest.default_locale);
+
 checkVersionConsistency();
 await checkChangelog();
 await checkPrivacyDefaults();
-checkSourceManifest(sourceManifest, "source manifest");
+checkSourceManifest(sourceManifest, "source manifest", resolveManifestMessage(sourceManifest.description, sourceMessages));
 await checkArtifact();
 
 if (failures.length > 0) {
@@ -82,12 +84,13 @@ async function checkPrivacyDefaults() {
   );
 }
 
-function checkSourceManifest(manifest, label) {
+function checkSourceManifest(manifest, label, description) {
   assert(manifest.manifest_version === 3, `${label} must use Manifest V3.`);
   assert(manifest.name === "Margin Read", `${label} name must be Margin Read.`);
+  // The description is a __MSG__ placeholder localized via _locales; `description` is the
+  // resolved default-locale text, which must stay the source-of-truth package description.
   assert(
-    manifest.description === rootPackage.description &&
-      manifest.description === extensionPackage.description,
+    description === rootPackage.description && description === extensionPackage.description,
     `${label} description must match package descriptions.`
   );
   assert(!manifest.content_security_policy, `${label} must not define a custom content_security_policy.`);
@@ -133,7 +136,8 @@ async function checkArtifact() {
   // allowlist, no custom CSP, no remote code, required files present).
   const { version: zipVersion } = zipManifest;
   assert(zipVersion === version, `artifact manifest version must be ${version}. Got ${zipVersion}.`);
-  checkSourceManifest(zipManifest, "artifact manifest");
+  const zipMessages = readZipJson(artifactPath, `_locales/${zipManifest.default_locale}/messages.json`) ?? {};
+  checkSourceManifest(zipManifest, "artifact manifest", resolveManifestMessage(zipManifest.description, zipMessages));
   checkRequiredManifestFiles(zipManifest, entrySet);
   checkZipContents(entries);
   checkZipTextContents(entries);
@@ -244,6 +248,23 @@ function normalizeZipEntry(entry) {
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, "utf8"));
+}
+
+async function readLocaleMessages(localesDir, defaultLocale) {
+  if (!defaultLocale) {
+    return {};
+  }
+  return readJson(join(localesDir, defaultLocale, "messages.json"));
+}
+
+// Resolves a manifest field that may be a __MSG_key__ placeholder against a _locales
+// messages object, returning the localized text (or the literal value when not a placeholder).
+function resolveManifestMessage(value, messages) {
+  const match = /^__MSG_(.+)__$/.exec(value ?? "");
+  if (!match) {
+    return value ?? "";
+  }
+  return messages?.[match[1]]?.message ?? "";
 }
 
 async function exists(path) {
