@@ -1,6 +1,5 @@
 import { normalizeDisplayStyle } from "../shared/displayStyle";
 import { getTranslationLabel } from "../shared/translationLabel";
-import type { OptionsLocale } from "./i18n";
 
 export interface DisplayPreviewElements {
   marker: HTMLElement;
@@ -10,7 +9,7 @@ export interface DisplayPreviewElements {
   targetLanguageInput?: HTMLInputElement;
 }
 
-export function initializeDisplayPreview(locale: OptionsLocale): void {
+export function initializeDisplayPreview(): void {
   const root = document.querySelector<HTMLElement>("#display-style-preview");
   const styleSelect = document.querySelector<HTMLSelectElement>('[name="displayStyle"]');
   const markerInput = document.querySelector<HTMLInputElement>('[name="showTranslationLabel"]');
@@ -22,7 +21,7 @@ export function initializeDisplayPreview(locale: OptionsLocale): void {
 
   const elements = { marker, markerInput, root, styleSelect, targetLanguageInput: targetLanguageInput ?? undefined };
   const sync = (): void => {
-    syncDisplayPreview(elements, locale);
+    syncDisplayPreview(elements);
   };
 
   sync();
@@ -32,12 +31,14 @@ export function initializeDisplayPreview(locale: OptionsLocale): void {
   targetLanguageInput?.addEventListener("input", sync);
 }
 
-export function syncDisplayPreview(elements: DisplayPreviewElements, locale: OptionsLocale): void {
+export function syncDisplayPreview(elements: DisplayPreviewElements): void {
   const displayStyle = normalizeDisplayStyle(elements.styleSelect.value);
   const showMarker = elements.markerInput.checked;
 
   elements.root.dataset.previewStyle = displayStyle;
   elements.root.dataset.previewMarker = showMarker ? "visible" : "hidden";
   elements.marker.hidden = !showMarker;
-  elements.marker.textContent = getTranslationLabel(elements.targetLanguageInput?.value || locale);
+  elements.marker.textContent = getTranslationLabel(
+    elements.targetLanguageInput?.value || chrome.i18n.getUILanguage()
+  );
 }

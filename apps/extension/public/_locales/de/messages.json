@@ -1,0 +1,244 @@
+{
+  "extDescription": {
+    "message": "Datenschutzfreundliche zweisprachige Web-Übersetzung – der Originaltext bleibt erhalten, der Kontext geht nie verloren."
+  },
+  "apiKey": {
+    "message": "API key"
+  },
+  "apiKeyHint": {
+    "message": "Fuege den rohen provider API key ein. Lokale OpenAI-compatible und Anthropic-compatible endpoints koennen leer bleiben."
+  },
+  "cacheBehavior": {
+    "message": "Cache-Verhalten"
+  },
+  "cacheBehaviorHint": {
+    "message": "Nur Sitzung ist der privacy-first Standard. Persistenter Cache speichert Uebersetzungen in diesem Browserprofil, bis du den Cache leerst."
+  },
+  "cacheDisabled": {
+    "message": "Deaktiviert"
+  },
+  "cachePersistent": {
+    "message": "Persistenter Cache"
+  },
+  "cacheSession": {
+    "message": "Nur Sitzung"
+  },
+  "clearCache": {
+    "message": "Cache leeren"
+  },
+  "debugHint": {
+    "message": "Zeigt Seitenerkennung, Queue und provider-Fehlerdetails im Popup."
+  },
+  "debugMode": {
+    "message": "Debug-Modus"
+  },
+  "displayBalanced": {
+    "message": "Ausgewogen"
+  },
+  "displayCard": {
+    "message": "Karte"
+  },
+  "displayFocus": {
+    "message": "Uebersetzung im Fokus"
+  },
+  "displayHighlighted": {
+    "message": "Hervorgehoben"
+  },
+  "displayIntegrated": {
+    "message": "Integriert"
+  },
+  "displayPreview": {
+    "message": "Vorschau"
+  },
+  "displayPreviewOriginal": {
+    "message": "Das Original bleibt nah, damit Lesen nicht zum Raten wird."
+  },
+  "displayPreviewTranslation": {
+    "message": "Die Uebersetzung bleibt ruhig daneben und ist trotzdem klar erkennbar."
+  },
+  "displayQuiet": {
+    "message": "Ruhig"
+  },
+  "displayStyle": {
+    "message": "Anzeigestil"
+  },
+  "endpointPreset": {
+    "message": "Endpoint preset"
+  },
+  "endpointPresetHint": {
+    "message": "Presets wechseln den provider zu OpenAI Compatible und fuellen den endpoint aus."
+  },
+  "fetchModels": {
+    "message": "Modelle abrufen"
+  },
+  "fetchModelsBusy": {
+    "message": "Wird abgerufen..."
+  },
+  "floatingButton": {
+    "message": "Schwebender Uebersetzen-Button"
+  },
+  "floatingButtonHint": {
+    "message": "Zeigt einen kleinen Seitenbutton, der erst nach einem Klick uebersetzt."
+  },
+  "localAnthropicEndpointHint": {
+    "message": "Verwende einen Anthropic Messages API endpoint, z. B. http://localhost:8000/v1/messages."
+  },
+  "localAnthropicPresets": {
+    "message": "Lokaler Anthropic-compatible endpoint"
+  },
+  "localJsonHint": {
+    "message": "Deaktivieren, wenn ein lokaler runtime das OpenAI response_format Feld ablehnt."
+  },
+  "localJsonMode": {
+    "message": "JSON mode anfordern"
+  },
+  "localPresetDefault": {
+    "message": "Lokalen runtime waehlen"
+  },
+  "localPresets": {
+    "message": "Local LLM presets"
+  },
+  "model": {
+    "message": "Modell"
+  },
+  "modelDefault": {
+    "message": "Modelle abrufen, um ein Modell zu waehlen"
+  },
+  "modelHint": {
+    "message": "Modelle vom gewaehlten provider abrufen oder das aktuelle provider default behalten."
+  },
+  "optimizeXHint": {
+    "message": "Uebersetzt standardmaessig nur tweet text aus X timeline cards."
+  },
+  "optimizeXTimelines": {
+    "message": "X timelines optimieren"
+  },
+  "provider": {
+    "message": "Provider"
+  },
+  "providerEndpoint": {
+    "message": "Endpoint URL"
+  },
+  "saveSettings": {
+    "message": "Einstellungen speichern"
+  },
+  "sourceAuto": {
+    "message": "Automatisch pro Textblock erkennen"
+  },
+  "sourceDetection": {
+    "message": "Quellsprache erkennen"
+  },
+  "sourceLanguage": {
+    "message": "Quellsprache"
+  },
+  "sourceLanguageHint": {
+    "message": "Automatische Erkennung ist am besten fuer mehrsprachige Webseiten und timelines."
+  },
+  "sourceSpecific": {
+    "message": "Bestimmte Quellsprache"
+  },
+  "sourceSpecificHint": {
+    "message": "Nur verwenden, wenn jede uebersetzte Seite groesstenteils dieselbe Quellsprache hat."
+  },
+  "statusCacheCleared": {
+    "message": "Uebersetzungs-Cache geleert."
+  },
+  "statusFetchingModels": {
+    "message": "Modelle werden abgerufen..."
+  },
+  "statusLoadedModels": {
+    "message": "$count$ Modelle geladen.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusModelsFailed": {
+    "message": "Modelle konnten nicht abgerufen werden."
+  },
+  "statusSettingsSaved": {
+    "message": "Einstellungen gespeichert."
+  },
+  "targetLanguage": {
+    "message": "Zielsprache"
+  },
+  "targetLanguageHint": {
+    "message": "Suche nach englischem Namen, nativem Namen, Sprachcode oder Alias."
+  },
+  "title": {
+    "message": "Margin Optionen"
+  },
+  "translationMarker": {
+    "message": "Uebersetzungsmarkierung"
+  },
+  "translationMarkerHint": {
+    "message": "Setzt eine kleine Markierung in der Zielsprache vor uebersetzte Passagen."
+  },
+  "translateQuotedPosts": {
+    "message": "Quoted posts uebersetzen"
+  },
+  "translateQuotedPostsHint": {
+    "message": "Uebersetzt auch verschachtelten zitierten Post-Text in X cards."
+  },
+  "translateXArticles": {
+    "message": "X articles uebersetzen"
+  },
+  "translateXArticlesHint": {
+    "message": "Uebersetzt Titel von X longform articles und lesbare Rich-Text-Bloecke."
+  },
+  "youtubeCaptions": {
+    "message": "YouTube Untertitel"
+  },
+  "youtubeCaptionsHint": {
+    "message": "Margin uebersetzt derzeit vorhandene YouTube Untertitelspuren. Wenn ein Video keine manuellen oder automatisch erzeugten Untertitel hat, ist vor der Uebersetzung speech-to-text erforderlich."
+  },
+  "youtubeExistingCaptions": {
+    "message": "Vorhandene Untertitel"
+  },
+  "youtubeExistingCaptionsHint": {
+    "message": "Funktioniert mit vom Creator bereitgestellten Untertiteln und YouTube Auto-Untertiteln. Sie werden mit dem gewaehlten provider uebersetzt."
+  },
+  "youtubeSpeechToText": {
+    "message": "AI Untertitel"
+  },
+  "youtubeSpeechToTextHint": {
+    "message": "Noch nicht verfuegbar. Videos ohne YouTube Untertitel benoetigen einen OpenAI oder lokalen speech-to-text provider, bevor Margin sie uebersetzen kann."
+  },
+  "xOptimization": {
+    "message": "X Optimierung"
+  },
+  "xSkipNative": {
+    "message": "Von X uebersetzte Posts ueberspringen"
+  },
+  "xSkipNativeHint": {
+    "message": "Verhindert erneutes Uebersetzen von Posts, die X bereits als uebersetzt markiert."
+  },
+  "popupBilingualEnabled": {
+    "message": "Zweisprachige Übersetzung ist aktiviert."
+  },
+  "popupReady": {
+    "message": "Bereit, die aktuelle Seite zu übersetzen."
+  },
+  "popupChecking": {
+    "message": "Seitenstatus wird geprüft …"
+  },
+  "popupTranslate": {
+    "message": "Diese Seite übersetzen"
+  },
+  "popupDisable": {
+    "message": "Auf dieser Seite deaktivieren"
+  },
+  "popupOptions": {
+    "message": "Optionen"
+  },
+  "popupOpenWebpage": {
+    "message": "Öffne eine Webseite, um Margin zu nutzen."
+  },
+  "popupUnreachable": {
+    "message": "Diese Seite konnte nicht erreicht werden."
+  },
+  "popupCannotTranslate": {
+    "message": "Diese Seite kann nicht übersetzt werden. Versuche eine normale Webseite."
+  }
+}

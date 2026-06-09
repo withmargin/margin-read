@@ -27,14 +27,14 @@ describe("display preview", () => {
     styleSelect.value = "card";
     markerInput.checked = false;
     const targetLanguageInput = document.querySelector<HTMLInputElement>('[name="targetLanguage"]')!;
-    syncDisplayPreview({ marker, markerInput, root, styleSelect, targetLanguageInput }, "en");
+    syncDisplayPreview({ marker, markerInput, root, styleSelect, targetLanguageInput });
 
     expect(root.dataset.previewStyle).toBe("card");
     expect(root.dataset.previewMarker).toBe("hidden");
     expect(marker.hidden).toBe(true);
 
     markerInput.checked = true;
-    syncDisplayPreview({ marker, markerInput, root, styleSelect, targetLanguageInput }, "en");
+    syncDisplayPreview({ marker, markerInput, root, styleSelect, targetLanguageInput });
 
     expect(root.dataset.previewStyle).toBe("card");
     expect(root.dataset.previewMarker).toBe("visible");
@@ -43,7 +43,7 @@ describe("display preview", () => {
   });
 
   it("updates from the target language instead of the UI locale", () => {
-    initializeDisplayPreview("ja");
+    initializeDisplayPreview();
 
     const root = document.querySelector<HTMLElement>("#display-style-preview")!;
     const styleSelect = document.querySelector<HTMLSelectElement>('[name="displayStyle"]')!;

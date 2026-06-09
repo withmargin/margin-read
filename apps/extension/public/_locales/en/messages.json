@@ -2,5 +2,244 @@
   "extDescription": {
     "message": "Privacy-first bilingual web translation that keeps the original text in place so you never lose context.",
     "description": "Chrome Web Store summary shown under the extension name (max 132 characters)."
+  },
+  "apiKey": {
+    "message": "API key"
+  },
+  "apiKeyHint": {
+    "message": "Paste the raw provider API key. Local OpenAI-compatible and Anthropic-compatible endpoints can leave this empty."
+  },
+  "cacheBehavior": {
+    "message": "Cache behavior"
+  },
+  "cacheBehaviorHint": {
+    "message": "Session only is the privacy-first default. Persistent stores translated text in this browser profile until cleared."
+  },
+  "cacheDisabled": {
+    "message": "Disabled"
+  },
+  "cachePersistent": {
+    "message": "Persistent"
+  },
+  "cacheSession": {
+    "message": "Session only"
+  },
+  "clearCache": {
+    "message": "Clear cache"
+  },
+  "debugHint": {
+    "message": "Show page detection, queue, and provider error details in the popup."
+  },
+  "debugMode": {
+    "message": "Debug mode"
+  },
+  "displayBalanced": {
+    "message": "Balanced"
+  },
+  "displayCard": {
+    "message": "Card"
+  },
+  "displayFocus": {
+    "message": "Focus translation"
+  },
+  "displayHighlighted": {
+    "message": "Highlighted"
+  },
+  "displayIntegrated": {
+    "message": "Integrated"
+  },
+  "displayPreview": {
+    "message": "Preview"
+  },
+  "displayPreviewOriginal": {
+    "message": "The original stays close, so reading never turns into guesswork."
+  },
+  "displayPreviewTranslation": {
+    "message": "The translation sits quietly beside it, but stays easy to recognize."
+  },
+  "displayQuiet": {
+    "message": "Quiet"
+  },
+  "displayStyle": {
+    "message": "Display style"
+  },
+  "endpointPreset": {
+    "message": "Endpoint preset"
+  },
+  "endpointPresetHint": {
+    "message": "Presets switch the provider to OpenAI Compatible and fill the endpoint."
+  },
+  "fetchModels": {
+    "message": "Fetch models"
+  },
+  "fetchModelsBusy": {
+    "message": "Fetching..."
+  },
+  "floatingButton": {
+    "message": "Floating translate button"
+  },
+  "floatingButtonHint": {
+    "message": "Show a small page button that only translates after you click it."
+  },
+  "localAnthropicEndpointHint": {
+    "message": "Use an Anthropic Messages API endpoint such as http://localhost:8000/v1/messages."
+  },
+  "localAnthropicPresets": {
+    "message": "Local Anthropic-compatible endpoint"
+  },
+  "localJsonHint": {
+    "message": "Disable this if a local runtime rejects the OpenAI response_format field."
+  },
+  "localJsonMode": {
+    "message": "Request JSON mode"
+  },
+  "localPresetDefault": {
+    "message": "Select a local runtime"
+  },
+  "localPresets": {
+    "message": "Local LLM presets"
+  },
+  "model": {
+    "message": "Model"
+  },
+  "modelDefault": {
+    "message": "Fetch models to choose a model"
+  },
+  "modelHint": {
+    "message": "Fetch models from the selected provider, or keep the current provider default."
+  },
+  "optimizeXHint": {
+    "message": "Translate only tweet text from X timeline cards by default."
+  },
+  "optimizeXTimelines": {
+    "message": "Optimize X timelines"
+  },
+  "provider": {
+    "message": "Provider"
+  },
+  "providerEndpoint": {
+    "message": "Endpoint URL"
+  },
+  "saveSettings": {
+    "message": "Save settings"
+  },
+  "sourceAuto": {
+    "message": "Auto-detect per text block"
+  },
+  "sourceDetection": {
+    "message": "Source detection"
+  },
+  "sourceLanguage": {
+    "message": "Source language"
+  },
+  "sourceLanguageHint": {
+    "message": "Auto-detect is best for mixed-language webpages and timelines."
+  },
+  "sourceSpecific": {
+    "message": "Specific source language"
+  },
+  "sourceSpecificHint": {
+    "message": "Use this only when every page you translate is mostly the same source language."
+  },
+  "statusCacheCleared": {
+    "message": "Translation cache cleared."
+  },
+  "statusFetchingModels": {
+    "message": "Fetching models..."
+  },
+  "statusLoadedModels": {
+    "message": "Loaded $count$ models.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusModelsFailed": {
+    "message": "Could not fetch models."
+  },
+  "statusSettingsSaved": {
+    "message": "Settings saved."
+  },
+  "targetLanguage": {
+    "message": "Target language"
+  },
+  "targetLanguageHint": {
+    "message": "Search by English name, native name, language code, or alias."
+  },
+  "title": {
+    "message": "Margin Options"
+  },
+  "translationMarker": {
+    "message": "Translation marker"
+  },
+  "translationMarkerHint": {
+    "message": "Prefix translated passages with a small marker in the target language."
+  },
+  "translateQuotedPosts": {
+    "message": "Translate quoted posts"
+  },
+  "translateQuotedPostsHint": {
+    "message": "Also translate nested quoted post text inside X cards."
+  },
+  "translateXArticles": {
+    "message": "Translate X articles"
+  },
+  "translateXArticlesHint": {
+    "message": "Translate X longform article titles and readable rich text blocks."
+  },
+  "youtubeCaptions": {
+    "message": "YouTube captions"
+  },
+  "youtubeCaptionsHint": {
+    "message": "Margin currently translates existing YouTube caption tracks. If a video has no manual or auto-generated captions, speech-to-text is required before translation can work."
+  },
+  "youtubeExistingCaptions": {
+    "message": "Existing captions"
+  },
+  "youtubeExistingCaptionsHint": {
+    "message": "Works with creator-provided captions and YouTube auto captions. These are translated by your selected translation provider."
+  },
+  "youtubeSpeechToText": {
+    "message": "AI subtitles"
+  },
+  "youtubeSpeechToTextHint": {
+    "message": "Not available yet. Videos without YouTube captions will need an OpenAI or local speech-to-text provider before Margin can translate them."
+  },
+  "xOptimization": {
+    "message": "X optimization"
+  },
+  "xSkipNative": {
+    "message": "Skip X translated posts"
+  },
+  "xSkipNativeHint": {
+    "message": "Avoid retranslating posts that X already marks as translated."
+  },
+  "popupBilingualEnabled": {
+    "message": "Bilingual translation is enabled."
+  },
+  "popupReady": {
+    "message": "Ready to translate the current page."
+  },
+  "popupChecking": {
+    "message": "Checking page status..."
+  },
+  "popupTranslate": {
+    "message": "Translate this page"
+  },
+  "popupDisable": {
+    "message": "Disable on this page"
+  },
+  "popupOptions": {
+    "message": "Options"
+  },
+  "popupOpenWebpage": {
+    "message": "Open a webpage to use Margin."
+  },
+  "popupUnreachable": {
+    "message": "Could not reach this page."
+  },
+  "popupCannotTranslate": {
+    "message": "This page cannot be translated. Try a regular webpage."
   }
 }

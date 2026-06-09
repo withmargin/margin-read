@@ -1,0 +1,244 @@
+{
+  "extDescription": {
+    "message": "プライバシー重視の二言語ウェブ翻訳。原文をその場に残すので、文脈を見失いません。"
+  },
+  "apiKey": {
+    "message": "API キー"
+  },
+  "apiKeyHint": {
+    "message": "Provider の生 API key を貼り付けます。Local OpenAI-compatible と Anthropic-compatible endpoint では空欄にできます。"
+  },
+  "cacheBehavior": {
+    "message": "キャッシュ動作"
+  },
+  "cacheBehaviorHint": {
+    "message": "「セッションのみ」がプライバシー優先の既定値です。「永続」は、消去するまで翻訳文をこのブラウザ profile に保存します。"
+  },
+  "cacheDisabled": {
+    "message": "無効"
+  },
+  "cachePersistent": {
+    "message": "永続"
+  },
+  "cacheSession": {
+    "message": "セッションのみ"
+  },
+  "clearCache": {
+    "message": "キャッシュを消去"
+  },
+  "debugHint": {
+    "message": "popup にページ検出、キュー、provider エラーの詳細を表示します。"
+  },
+  "debugMode": {
+    "message": "Debug モード"
+  },
+  "displayBalanced": {
+    "message": "バランス"
+  },
+  "displayCard": {
+    "message": "カード"
+  },
+  "displayFocus": {
+    "message": "翻訳優先"
+  },
+  "displayHighlighted": {
+    "message": "強調表示"
+  },
+  "displayIntegrated": {
+    "message": "本文に統合"
+  },
+  "displayPreview": {
+    "message": "プレビュー"
+  },
+  "displayPreviewOriginal": {
+    "message": "原文が近くに残るので、読解が推測になりません。"
+  },
+  "displayPreviewTranslation": {
+    "message": "翻訳は静かにそばへ置かれますが、すぐに見分けられます。"
+  },
+  "displayQuiet": {
+    "message": "控えめ"
+  },
+  "displayStyle": {
+    "message": "表示スタイル"
+  },
+  "endpointPreset": {
+    "message": "Endpoint preset"
+  },
+  "endpointPresetHint": {
+    "message": "Preset を選ぶと OpenAI Compatible に切り替え、endpoint を入力します。"
+  },
+  "fetchModels": {
+    "message": "モデルを取得"
+  },
+  "fetchModelsBusy": {
+    "message": "取得中..."
+  },
+  "floatingButton": {
+    "message": "フローティング翻訳ボタン"
+  },
+  "floatingButtonHint": {
+    "message": "ページ上に小さなボタンを表示し、クリックした後だけ翻訳します。"
+  },
+  "localAnthropicEndpointHint": {
+    "message": "Anthropic Messages API endpoint（例: http://localhost:8000/v1/messages）を使用してください。"
+  },
+  "localAnthropicPresets": {
+    "message": "ローカル Anthropic-compatible endpoint"
+  },
+  "localJsonHint": {
+    "message": "Local runtime が OpenAI response_format を拒否する場合はオフにしてください。"
+  },
+  "localJsonMode": {
+    "message": "JSON mode を要求"
+  },
+  "localPresetDefault": {
+    "message": "Local runtime を選択"
+  },
+  "localPresets": {
+    "message": "Local LLM presets"
+  },
+  "model": {
+    "message": "モデル"
+  },
+  "modelDefault": {
+    "message": "モデル一覧を取得して選択"
+  },
+  "modelHint": {
+    "message": "現在の翻訳サービスからモデルを取得するか、provider の既定モデルを使います。"
+  },
+  "optimizeXHint": {
+    "message": "既定では X timeline card の tweet text だけを翻訳します。"
+  },
+  "optimizeXTimelines": {
+    "message": "X timeline を最適化"
+  },
+  "provider": {
+    "message": "翻訳サービス"
+  },
+  "providerEndpoint": {
+    "message": "Endpoint URL"
+  },
+  "saveSettings": {
+    "message": "設定を保存"
+  },
+  "sourceAuto": {
+    "message": "テキストブロックごとに自動検出"
+  },
+  "sourceDetection": {
+    "message": "元言語の検出"
+  },
+  "sourceLanguage": {
+    "message": "元言語"
+  },
+  "sourceLanguageHint": {
+    "message": "自動検出は多言語ページや timeline に適しています。"
+  },
+  "sourceSpecific": {
+    "message": "元言語を指定"
+  },
+  "sourceSpecificHint": {
+    "message": "翻訳するページの大半が同じ元言語の場合だけ使用してください。"
+  },
+  "statusCacheCleared": {
+    "message": "翻訳キャッシュを消去しました。"
+  },
+  "statusFetchingModels": {
+    "message": "モデル一覧を取得中..."
+  },
+  "statusLoadedModels": {
+    "message": "$count$ 個のモデルを読み込みました。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusModelsFailed": {
+    "message": "モデル一覧を取得できませんでした。"
+  },
+  "statusSettingsSaved": {
+    "message": "設定を保存しました。"
+  },
+  "targetLanguage": {
+    "message": "翻訳先言語"
+  },
+  "targetLanguageHint": {
+    "message": "英語名、現地名、言語コード、別名で検索できます。"
+  },
+  "title": {
+    "message": "Margin 設定"
+  },
+  "translationMarker": {
+    "message": "翻訳マーカー"
+  },
+  "translationMarkerHint": {
+    "message": "翻訳文の前に翻訳先言語の小さなマーカーを表示します。"
+  },
+  "translateQuotedPosts": {
+    "message": "Quoted posts を翻訳"
+  },
+  "translateQuotedPostsHint": {
+    "message": "X card 内の引用投稿テキストも翻訳します。"
+  },
+  "translateXArticles": {
+    "message": "X articles を翻訳"
+  },
+  "translateXArticlesHint": {
+    "message": "X longform article のタイトルと本文ブロックを翻訳します。"
+  },
+  "youtubeCaptions": {
+    "message": "YouTube 字幕"
+  },
+  "youtubeCaptionsHint": {
+    "message": "Margin は現在、既存の YouTube 字幕トラックを翻訳します。手動字幕や自動生成字幕がない動画では、翻訳の前に speech-to-text が必要です。"
+  },
+  "youtubeExistingCaptions": {
+    "message": "既存の字幕"
+  },
+  "youtubeExistingCaptionsHint": {
+    "message": "作成者が提供した字幕と YouTube 自動字幕に対応し、選択した翻訳 provider で翻訳します。"
+  },
+  "youtubeSpeechToText": {
+    "message": "AI 字幕"
+  },
+  "youtubeSpeechToTextHint": {
+    "message": "まだ利用できません。YouTube 字幕がない動画には、OpenAI または local speech-to-text provider が必要です。"
+  },
+  "xOptimization": {
+    "message": "X 最適化"
+  },
+  "xSkipNative": {
+    "message": "X の翻訳済み投稿をスキップ"
+  },
+  "xSkipNativeHint": {
+    "message": "X が翻訳済みとして表示している投稿の再翻訳を避けます。"
+  },
+  "popupBilingualEnabled": {
+    "message": "二言語翻訳が有効です。"
+  },
+  "popupReady": {
+    "message": "現在のページを翻訳できます。"
+  },
+  "popupChecking": {
+    "message": "ページの状態を確認しています…"
+  },
+  "popupTranslate": {
+    "message": "このページを翻訳"
+  },
+  "popupDisable": {
+    "message": "このページで無効にする"
+  },
+  "popupOptions": {
+    "message": "設定"
+  },
+  "popupOpenWebpage": {
+    "message": "Margin を使うにはウェブページを開いてください。"
+  },
+  "popupUnreachable": {
+    "message": "このページに接続できませんでした。"
+  },
+  "popupCannotTranslate": {
+    "message": "このページは翻訳できません。通常のウェブページでお試しください。"
+  }
+}

@@ -1,15 +1,14 @@
 import { PROVIDER_DEFAULTS } from "../shared/defaults";
+import { msg } from "../shared/i18n";
 import type { ExtensionSettings, ProviderModel, TranslationProviderId } from "../shared/types";
-import { t, type OptionsLocale } from "./i18n";
 import { getInputValue, setInputValue } from "./settingsForm";
 
 interface ProviderSettingsOptions {
-  locale: OptionsLocale;
   readForm: () => ExtensionSettings;
   setStatus: (message: string) => void;
 }
 
-export function initializeProviderSettings({ locale, readForm, setStatus }: ProviderSettingsOptions): void {
+export function initializeProviderSettings({ readForm, setStatus }: ProviderSettingsOptions): void {
   const providerInput = document.querySelector<HTMLSelectElement>('[name="provider"]');
   const localEndpointPreset = document.querySelector<HTMLSelectElement>("#local-endpoint-preset");
   const fetchModelsButton = document.querySelector<HTMLButtonElement>("#fetch-models");
@@ -19,7 +18,7 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
     const provider = providerInput.value as TranslationProviderId;
     const defaults = PROVIDER_DEFAULTS[provider];
     setInputValue("providerEndpoint", defaults.providerEndpoint);
-    resetModelSelect(locale, defaults.model);
+    resetModelSelect(defaults.model);
     updateProviderSections(provider);
   });
 
@@ -33,12 +32,12 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
       getInputValue("model") === PROVIDER_DEFAULTS.openai.model
         ? PROVIDER_DEFAULTS["openai-compatible"].model
         : getInputValue("model");
-    resetModelSelect(locale, nextModel);
+    resetModelSelect(nextModel);
     updateProviderSections("openai-compatible");
   });
 
   fetchModelsButton?.addEventListener("click", () => {
-    void fetchModels(locale, readForm, setStatus, fetchModelsButton);
+    void fetchModels(readForm, setStatus, fetchModelsButton);
   });
 
   modelSelect?.addEventListener("change", () => {
@@ -48,7 +47,7 @@ export function initializeProviderSettings({ locale, readForm, setStatus }: Prov
   });
 
   updateProviderSections((providerInput?.value as TranslationProviderId | undefined) ?? "openai");
-  resetModelSelect(locale, getInputValue("model"));
+  resetModelSelect(getInputValue("model"));
 }
 
 function updateProviderSections(provider: TranslationProviderId): void {
@@ -59,16 +58,15 @@ function updateProviderSections(provider: TranslationProviderId): void {
 }
 
 async function fetchModels(
-  locale: OptionsLocale,
   readForm: () => ExtensionSettings,
   setStatus: (message: string) => void,
   fetchModelsButton: HTMLButtonElement
 ): Promise<void> {
-  const buttonLabel = fetchModelsButton.textContent ?? t(locale, "fetchModels");
+  const buttonLabel = fetchModelsButton.textContent ?? msg("fetchModels");
   fetchModelsButton.disabled = true;
   fetchModelsButton.setAttribute("aria-busy", "true");
-  fetchModelsButton.textContent = t(locale, "fetchModelsBusy");
-  setStatus(t(locale, "statusFetchingModels"));
+  fetchModelsButton.textContent = msg("fetchModelsBusy");
+  setStatus(msg("statusFetchingModels"));
   try {
     const response: ListModelsResponse = await chrome.runtime.sendMessage({
       type: "LIST_MODELS",
@@ -76,12 +74,12 @@ async function fetchModels(
     });
 
     if (!response.ok || !response.models) {
-      setStatus(response.error ?? t(locale, "statusModelsFailed"));
+      setStatus(response.error ?? msg("statusModelsFailed"));
       return;
     }
 
-    renderModelOptions(locale, response.models, readForm().model);
-    setStatus(t(locale, "statusLoadedModels", { count: response.models.length }));
+    renderModelOptions(response.models, readForm().model);
+    setStatus(msg("statusLoadedModels", [String(response.models.length)]));
   } finally {
     fetchModelsButton.disabled = false;
     fetchModelsButton.removeAttribute("aria-busy");
@@ -95,14 +93,14 @@ interface ListModelsResponse {
   error?: string;
 }
 
-function renderModelOptions(locale: OptionsLocale, models: ProviderModel[], selectedModel: string): void {
+function renderModelOptions(models: ProviderModel[], selectedModel: string): void {
   const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
   const modelOptions = models.map((model) => {
     return createModelOption(model.id, model.displayName ? `${model.displayName} (${model.id})` : model.id);
   });
   const hasSelectedModel = modelOptions.some((option) => option.value === selectedModel);
   modelSelect?.replaceChildren(
-    createModelOption("", t(locale, "modelDefault")),
+    createModelOption("", msg("modelDefault")),
     ...(selectedModel && !hasSelectedModel ? [createModelOption(selectedModel, selectedModel)] : []),
     ...modelOptions
   );
@@ -111,10 +109,10 @@ function renderModelOptions(locale: OptionsLocale, models: ProviderModel[], sele
   }
 }
 
-function resetModelSelect(locale: OptionsLocale, selectedModel: string): void {
+function resetModelSelect(selectedModel: string): void {
   const modelSelect = document.querySelector<HTMLSelectElement>("#model-select");
   modelSelect?.replaceChildren(
-    createModelOption("", t(locale, "modelDefault")),
+    createModelOption("", msg("modelDefault")),
     ...(selectedModel ? [createModelOption(selectedModel, selectedModel)] : [])
   );
   if (modelSelect && selectedModel) {

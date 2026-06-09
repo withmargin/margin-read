@@ -1,0 +1,244 @@
+{
+  "extDescription": {
+    "message": "Traduction web bilingue axée sur la confidentialité : le texte original reste en place, sans perdre le contexte."
+  },
+  "apiKey": {
+    "message": "Cle API"
+  },
+  "apiKeyHint": {
+    "message": "Collez l'API key brute du provider. Les endpoints locaux OpenAI-compatible et Anthropic-compatible peuvent rester vides."
+  },
+  "cacheBehavior": {
+    "message": "Comportement du cache"
+  },
+  "cacheBehaviorHint": {
+    "message": "Session uniquement est le choix privacy-first par defaut. Le cache persistant conserve les traductions dans ce profil de navigateur jusqu'a ce que vous le vidiez."
+  },
+  "cacheDisabled": {
+    "message": "Desactive"
+  },
+  "cachePersistent": {
+    "message": "Persistant"
+  },
+  "cacheSession": {
+    "message": "Session uniquement"
+  },
+  "clearCache": {
+    "message": "Vider le cache"
+  },
+  "debugHint": {
+    "message": "Affiche dans le popup la detection de page, la file d'attente et les erreurs du provider."
+  },
+  "debugMode": {
+    "message": "Mode debug"
+  },
+  "displayBalanced": {
+    "message": "Equilibre"
+  },
+  "displayCard": {
+    "message": "Carte"
+  },
+  "displayFocus": {
+    "message": "Traduction prioritaire"
+  },
+  "displayHighlighted": {
+    "message": "Mis en evidence"
+  },
+  "displayIntegrated": {
+    "message": "Integre"
+  },
+  "displayPreview": {
+    "message": "Apercu"
+  },
+  "displayPreviewOriginal": {
+    "message": "L'original reste proche, pour que la lecture ne devienne pas une devinette."
+  },
+  "displayPreviewTranslation": {
+    "message": "La traduction reste calmement a cote, tout en restant facile a reperer."
+  },
+  "displayQuiet": {
+    "message": "Discret"
+  },
+  "displayStyle": {
+    "message": "Style d'affichage"
+  },
+  "endpointPreset": {
+    "message": "Preset d'endpoint"
+  },
+  "endpointPresetHint": {
+    "message": "Les presets basculent le provider vers OpenAI Compatible et remplissent l'endpoint."
+  },
+  "fetchModels": {
+    "message": "Charger les modeles"
+  },
+  "fetchModelsBusy": {
+    "message": "Chargement..."
+  },
+  "floatingButton": {
+    "message": "Bouton flottant de traduction"
+  },
+  "floatingButtonHint": {
+    "message": "Affiche un petit bouton sur la page qui ne traduit qu'apres un clic."
+  },
+  "localAnthropicEndpointHint": {
+    "message": "Utilisez un endpoint Anthropic Messages API, par exemple http://localhost:8000/v1/messages."
+  },
+  "localAnthropicPresets": {
+    "message": "Endpoint local Anthropic-compatible"
+  },
+  "localJsonHint": {
+    "message": "Desactivez ceci si un runtime local rejette le champ OpenAI response_format."
+  },
+  "localJsonMode": {
+    "message": "Demander le mode JSON"
+  },
+  "localPresetDefault": {
+    "message": "Selectionner un runtime local"
+  },
+  "localPresets": {
+    "message": "Presets Local LLM"
+  },
+  "model": {
+    "message": "Modele"
+  },
+  "modelDefault": {
+    "message": "Chargez les modeles pour en choisir un"
+  },
+  "modelHint": {
+    "message": "Chargez les modeles du provider selectionne ou gardez le modele par defaut actuel."
+  },
+  "optimizeXHint": {
+    "message": "Traduit uniquement le tweet text des cartes de timeline X par defaut."
+  },
+  "optimizeXTimelines": {
+    "message": "Optimiser les timelines X"
+  },
+  "provider": {
+    "message": "Provider"
+  },
+  "providerEndpoint": {
+    "message": "Endpoint URL"
+  },
+  "saveSettings": {
+    "message": "Enregistrer"
+  },
+  "sourceAuto": {
+    "message": "Detection automatique par bloc de texte"
+  },
+  "sourceDetection": {
+    "message": "Detection de la langue source"
+  },
+  "sourceLanguage": {
+    "message": "Langue source"
+  },
+  "sourceLanguageHint": {
+    "message": "La detection automatique convient le mieux aux pages et timelines multilingues."
+  },
+  "sourceSpecific": {
+    "message": "Langue source specifique"
+  },
+  "sourceSpecificHint": {
+    "message": "A utiliser seulement quand chaque page traduite est surtout dans la meme langue source."
+  },
+  "statusCacheCleared": {
+    "message": "Cache de traduction vide."
+  },
+  "statusFetchingModels": {
+    "message": "Chargement des modeles..."
+  },
+  "statusLoadedModels": {
+    "message": "$count$ modeles charges.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusModelsFailed": {
+    "message": "Impossible de charger les modeles."
+  },
+  "statusSettingsSaved": {
+    "message": "Parametres enregistres."
+  },
+  "targetLanguage": {
+    "message": "Langue cible"
+  },
+  "targetLanguageHint": {
+    "message": "Recherchez par nom anglais, nom natif, code de langue ou alias."
+  },
+  "title": {
+    "message": "Options de Margin"
+  },
+  "translationMarker": {
+    "message": "Marqueur de traduction"
+  },
+  "translationMarkerHint": {
+    "message": "Ajoute un petit marqueur dans la langue cible avant les passages traduits."
+  },
+  "translateQuotedPosts": {
+    "message": "Traduire les quoted posts"
+  },
+  "translateQuotedPostsHint": {
+    "message": "Traduit aussi le texte des posts cites imbriques dans les cartes X."
+  },
+  "translateXArticles": {
+    "message": "Traduire les X articles"
+  },
+  "translateXArticlesHint": {
+    "message": "Traduit les titres de X longform article et les blocs de texte lisibles."
+  },
+  "youtubeCaptions": {
+    "message": "Sous-titres YouTube"
+  },
+  "youtubeCaptionsHint": {
+    "message": "Margin traduit actuellement les pistes de sous-titres YouTube existantes. Si une video n'a pas de sous-titres manuels ou automatiques, une etape speech-to-text est necessaire avant la traduction."
+  },
+  "youtubeExistingCaptions": {
+    "message": "Sous-titres existants"
+  },
+  "youtubeExistingCaptionsHint": {
+    "message": "Fonctionne avec les sous-titres fournis par le createur et les sous-titres automatiques YouTube. Ils sont traduits par le provider choisi."
+  },
+  "youtubeSpeechToText": {
+    "message": "Sous-titres IA"
+  },
+  "youtubeSpeechToTextHint": {
+    "message": "Pas encore disponible. Les videos sans sous-titres YouTube auront besoin d'un provider speech-to-text OpenAI ou local avant que Margin puisse les traduire."
+  },
+  "xOptimization": {
+    "message": "Optimisation X"
+  },
+  "xSkipNative": {
+    "message": "Ignorer les posts deja traduits par X"
+  },
+  "xSkipNativeHint": {
+    "message": "Evite de retraduire les posts que X marque deja comme traduits."
+  },
+  "popupBilingualEnabled": {
+    "message": "La traduction bilingue est activée."
+  },
+  "popupReady": {
+    "message": "Prêt à traduire la page actuelle."
+  },
+  "popupChecking": {
+    "message": "Vérification de l'état de la page…"
+  },
+  "popupTranslate": {
+    "message": "Traduire cette page"
+  },
+  "popupDisable": {
+    "message": "Désactiver sur cette page"
+  },
+  "popupOptions": {
+    "message": "Options"
+  },
+  "popupOpenWebpage": {
+    "message": "Ouvre une page web pour utiliser Margin."
+  },
+  "popupUnreachable": {
+    "message": "Impossible d'accéder à cette page."
+  },
+  "popupCannotTranslate": {
+    "message": "Cette page ne peut pas être traduite. Essaie une page web classique."
+  }
+}

@@ -1,6 +1,6 @@
 import { DEFAULT_SETTINGS, SETTINGS_KEY } from "../shared/defaults";
+import { applyI18n, msg } from "../shared/i18n";
 import { getSettings, getStoredSettings, saveSettings } from "../shared/storage";
-import { applyOptionsI18n, detectOptionsLocale, t } from "./i18n";
 import { initializeDisplayPreview } from "./displayPreview";
 import { initializeLanguageSelect } from "./languageSelect";
 import { getPreferredLanguageOption } from "./languages";
@@ -15,8 +15,8 @@ const clearCacheButton = document.querySelector<HTMLButtonElement>("#clear-cache
 void initialize();
 
 async function initialize(): Promise<void> {
-  const locale = detectOptionsLocale(navigator.languages);
-  applyOptionsI18n(locale);
+  applyI18n();
+  document.title = msg("title");
 
   const [settings, storedSettings] = await Promise.all([getSettings(), getStoredSettings()]);
   const browserTargetLanguage = getPreferredLanguageOption(navigator.languages).promptName;
@@ -31,8 +31,8 @@ async function initialize(): Promise<void> {
   fillForm(initialSettings);
   initializeTargetLanguage(initialSettings.targetLanguage);
   initializeSourceLanguage(initialSettings.sourceLanguage);
-  initializeProviderSettings({ locale, readForm, setStatus });
-  initializeDisplayPreview(locale);
+  initializeProviderSettings({ readForm, setStatus });
+  initializeDisplayPreview();
 
   let currentCacheMode = initialSettings.cacheMode;
   form?.addEventListener("submit", (event) => {
@@ -43,13 +43,13 @@ async function initialize(): Promise<void> {
       clearPersistentCache: () => chrome.runtime.sendMessage({ type: "CLEAR_CACHE" })
     }).then((cacheMode) => {
       currentCacheMode = cacheMode;
-      setStatus(t(locale, "statusSettingsSaved"));
+      setStatus(msg("statusSettingsSaved"));
     });
   });
 
   clearCacheButton?.addEventListener("click", () => {
     void chrome.runtime.sendMessage({ type: "CLEAR_CACHE" }).then(() => {
-      setStatus(t(locale, "statusCacheCleared"));
+      setStatus(msg("statusCacheCleared"));
     });
   });
 

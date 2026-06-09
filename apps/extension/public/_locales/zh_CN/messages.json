@@ -1,0 +1,244 @@
+{
+  "extDescription": {
+    "message": "注重隐私的双语网页翻译，原文保留在原位，阅读时不失语境。"
+  },
+  "apiKey": {
+    "message": "API 密钥"
+  },
+  "apiKeyHint": {
+    "message": "粘贴原始 provider API key。Local OpenAI-compatible 与 Anthropic-compatible endpoint 可以留空。"
+  },
+  "cacheBehavior": {
+    "message": "缓存行为"
+  },
+  "cacheBehaviorHint": {
+    "message": "“仅本次浏览会话”是隐私优先的默认值。“持久保存”会把译文存在此浏览器 profile，直到你清除缓存。"
+  },
+  "cacheDisabled": {
+    "message": "停用"
+  },
+  "cachePersistent": {
+    "message": "持久保存"
+  },
+  "cacheSession": {
+    "message": "仅本次浏览会话"
+  },
+  "clearCache": {
+    "message": "清除缓存"
+  },
+  "debugHint": {
+    "message": "在 popup 显示页面检测、队列与 provider 错误细节。"
+  },
+  "debugMode": {
+    "message": "Debug 模式"
+  },
+  "displayBalanced": {
+    "message": "平衡双语"
+  },
+  "displayCard": {
+    "message": "区块"
+  },
+  "displayFocus": {
+    "message": "翻译优先"
+  },
+  "displayHighlighted": {
+    "message": "醒目区块"
+  },
+  "displayIntegrated": {
+    "message": "融入原文"
+  },
+  "displayPreview": {
+    "message": "预览"
+  },
+  "displayPreviewOriginal": {
+    "message": "原文会留在近处，阅读时不需要猜测。"
+  },
+  "displayPreviewTranslation": {
+    "message": "译文安静地放在旁边，但仍然清楚可辨。"
+  },
+  "displayQuiet": {
+    "message": "低干扰"
+  },
+  "displayStyle": {
+    "message": "显示样式"
+  },
+  "endpointPreset": {
+    "message": "Endpoint preset"
+  },
+  "endpointPresetHint": {
+    "message": "选择 preset 会切换到 OpenAI Compatible 并填入 endpoint。"
+  },
+  "fetchModels": {
+    "message": "获取模型列表"
+  },
+  "fetchModelsBusy": {
+    "message": "获取中..."
+  },
+  "floatingButton": {
+    "message": "浮动翻译按钮"
+  },
+  "floatingButtonHint": {
+    "message": "在网页上显示小型按钮，只有点击后才会开始翻译。"
+  },
+  "localAnthropicEndpointHint": {
+    "message": "请使用 Anthropic Messages API endpoint，例如 http://localhost:8000/v1/messages。"
+  },
+  "localAnthropicPresets": {
+    "message": "本地 Anthropic-compatible endpoint"
+  },
+  "localJsonHint": {
+    "message": "如果 local runtime 拒绝 OpenAI response_format 字段，请关闭此选项。"
+  },
+  "localJsonMode": {
+    "message": "要求 JSON mode"
+  },
+  "localPresetDefault": {
+    "message": "选择 local runtime"
+  },
+  "localPresets": {
+    "message": "Local LLM presets"
+  },
+  "model": {
+    "message": "模型"
+  },
+  "modelDefault": {
+    "message": "获取模型列表以选择模型"
+  },
+  "modelHint": {
+    "message": "从当前翻译服务获取模型列表，或保留 provider 默认模型。"
+  },
+  "optimizeXHint": {
+    "message": "默认只翻译 X timeline card 里的 tweet text。"
+  },
+  "optimizeXTimelines": {
+    "message": "优化 X timeline"
+  },
+  "provider": {
+    "message": "翻译服务"
+  },
+  "providerEndpoint": {
+    "message": "Endpoint URL"
+  },
+  "saveSettings": {
+    "message": "保存设置"
+  },
+  "sourceAuto": {
+    "message": "自动检测每段文字"
+  },
+  "sourceDetection": {
+    "message": "来源语言检测"
+  },
+  "sourceLanguage": {
+    "message": "来源语言"
+  },
+  "sourceLanguageHint": {
+    "message": "自动检测最适合多语言网页与 timeline。"
+  },
+  "sourceSpecific": {
+    "message": "指定来源语言"
+  },
+  "sourceSpecificHint": {
+    "message": "只有在每个翻译页面大多都是同一种来源语言时才需要使用。"
+  },
+  "statusCacheCleared": {
+    "message": "翻译缓存已清除。"
+  },
+  "statusFetchingModels": {
+    "message": "正在获取模型列表..."
+  },
+  "statusLoadedModels": {
+    "message": "已载入 $count$ 个模型。",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusModelsFailed": {
+    "message": "无法获取模型列表。"
+  },
+  "statusSettingsSaved": {
+    "message": "设置已保存。"
+  },
+  "targetLanguage": {
+    "message": "目标语言"
+  },
+  "targetLanguageHint": {
+    "message": "可用英文名称、原生名称、语言代码或别名搜索。"
+  },
+  "title": {
+    "message": "Margin 设置"
+  },
+  "translationMarker": {
+    "message": "译文标记"
+  },
+  "translationMarkerHint": {
+    "message": "在译文段落前显示目标语言的小型标记。"
+  },
+  "translateQuotedPosts": {
+    "message": "翻译 quoted posts"
+  },
+  "translateQuotedPostsHint": {
+    "message": "同时翻译 X card 里嵌套引用帖文的文字。"
+  },
+  "translateXArticles": {
+    "message": "翻译 X articles"
+  },
+  "translateXArticlesHint": {
+    "message": "翻译 X longform article 标题与可阅读文字区块。"
+  },
+  "youtubeCaptions": {
+    "message": "YouTube 字幕"
+  },
+  "youtubeCaptionsHint": {
+    "message": "Margin 目前会翻译 YouTube 既有字幕轨。如果视频没有手动字幕或自动生成字幕，就需要先通过语音识别生成字幕，才能进行翻译。"
+  },
+  "youtubeExistingCaptions": {
+    "message": "既有字幕"
+  },
+  "youtubeExistingCaptionsHint": {
+    "message": "支持创作者提供的字幕与 YouTube 自动字幕，并使用你选择的翻译服务进行翻译。"
+  },
+  "youtubeSpeechToText": {
+    "message": "AI 字幕"
+  },
+  "youtubeSpeechToTextHint": {
+    "message": "尚未提供。没有 YouTube 字幕的视频，需要 OpenAI 或 local speech-to-text provider 才能让 Margin 翻译。"
+  },
+  "xOptimization": {
+    "message": "X 优化"
+  },
+  "xSkipNative": {
+    "message": "略过 X 已翻译帖文"
+  },
+  "xSkipNativeHint": {
+    "message": "避免重复翻译 X 已标示翻译过的帖文。"
+  },
+  "popupBilingualEnabled": {
+    "message": "双语翻译已启用。"
+  },
+  "popupReady": {
+    "message": "可翻译当前页面。"
+  },
+  "popupChecking": {
+    "message": "正在检查页面状态…"
+  },
+  "popupTranslate": {
+    "message": "翻译此页面"
+  },
+  "popupDisable": {
+    "message": "在此页面停用"
+  },
+  "popupOptions": {
+    "message": "选项"
+  },
+  "popupOpenWebpage": {
+    "message": "请打开一个网页来使用 Margin。"
+  },
+  "popupUnreachable": {
+    "message": "无法连接到此页面。"
+  },
+  "popupCannotTranslate": {
+    "message": "此页面无法翻译，请改用普通网页。"
+  }
+}

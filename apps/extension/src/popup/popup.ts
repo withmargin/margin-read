@@ -1,3 +1,4 @@
+import { applyI18n, msg } from "../shared/i18n";
 import type { PageDebugState } from "../shared/types";
 
 interface PageStateResponse {
@@ -18,6 +19,8 @@ let debugState: PageDebugState | undefined;
 void initialize();
 
 async function initialize(): Promise<void> {
+  applyI18n();
+
   optionsLink?.addEventListener("click", (event) => {
     event.preventDefault();
     void chrome.runtime.openOptionsPage();
@@ -33,7 +36,7 @@ async function initialize(): Promise<void> {
     debugState = response.debug;
     render();
   } else {
-    setStatus(response?.error ?? "Open a webpage to use Margin.");
+    setStatus(response?.error ?? msg("popupOpenWebpage"));
     renderDebug(undefined);
   }
 }
@@ -45,7 +48,7 @@ async function sendToggle(nextEnabled: boolean): Promise<void> {
     debugState = response.debug;
     render();
   } else {
-    setStatus(response?.error ?? "Could not reach this page.");
+    setStatus(response?.error ?? msg("popupUnreachable"));
     renderDebug(undefined);
   }
 }
@@ -58,15 +61,15 @@ async function sendToActiveTab(message: unknown): Promise<PageStateResponse | un
   try {
     return await chrome.tabs.sendMessage(tab.id, message);
   } catch {
-    return { ok: false, error: "This page cannot be translated. Try a regular webpage." };
+    return { ok: false, error: msg("popupCannotTranslate") };
   }
 }
 
 function render(): void {
   if (toggleButton) {
-    toggleButton.textContent = enabled ? "Disable on this page" : "Translate this page";
+    toggleButton.textContent = msg(enabled ? "popupDisable" : "popupTranslate");
   }
-  setStatus(enabled ? "Bilingual translation is enabled." : "Ready to translate the current page.");
+  setStatus(msg(enabled ? "popupBilingualEnabled" : "popupReady"));
   renderDebug(debugState);
 }
 

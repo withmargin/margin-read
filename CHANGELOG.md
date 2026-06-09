@@ -22,8 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The extension build moved from a hand-rolled Rolldown setup to Vite + CRXJS
   (Rolldown under the hood), adding a hot-reloading dev server via `pnpm dev`.
   User-facing behavior is unchanged.
-- The Chrome Web Store listing description is now localized through `_locales`
-  (English and Traditional Chinese), and the description copy was refreshed.
+- All extension UI is now localized through a single `chrome.i18n` + `_locales`
+  system. The popup, previously English-only, is now translated, and the options
+  page moved off its bespoke dictionary onto the same mechanism. Eight locales
+  ship: English, German, Spanish, French, Japanese, Korean, Simplified Chinese,
+  and Traditional Chinese. The Chrome Web Store listing description is localized
+  the same way, and the description copy was refreshed.
 
 ### Fixed
 

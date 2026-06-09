@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { chromeI18nMock } from "../../test/chromeI18n";
 import { DEFAULT_SETTINGS, PROVIDER_DEFAULTS } from "../shared/defaults";
 import { initializeProviderSettings } from "./providerSettings";
 import { readForm } from "./settingsForm";
@@ -34,12 +35,13 @@ describe("provider settings", () => {
     vi.stubGlobal("chrome", {
       runtime: {
         sendMessage: vi.fn()
-      }
+      },
+      i18n: chromeI18nMock()
     });
   });
 
   it("keeps provider endpoints scoped to OpenAI Compatible", () => {
-    initializeProviderSettings({ locale: "en", readForm, setStatus: vi.fn() });
+    initializeProviderSettings({ readForm, setStatus: vi.fn() });
 
     expect(document.querySelector<HTMLElement>("[data-provider-section='openai-compatible']")?.hidden).toBe(true);
     expect(document.querySelector<HTMLElement>("[data-provider-section='anthropic-compatible']")?.hidden).toBe(true);
@@ -62,7 +64,7 @@ describe("provider settings", () => {
   });
 
   it("keeps provider endpoints scoped to Anthropic Compatible", () => {
-    initializeProviderSettings({ locale: "en", readForm, setStatus: vi.fn() });
+    initializeProviderSettings({ readForm, setStatus: vi.fn() });
 
     const providerInput = document.querySelector<HTMLSelectElement>('[name="provider"]')!;
     providerInput.value = "anthropic-compatible";
@@ -79,7 +81,7 @@ describe("provider settings", () => {
   });
 
   it("applies the omlx endpoint preset as OpenAI Compatible", () => {
-    initializeProviderSettings({ locale: "en", readForm, setStatus: vi.fn() });
+    initializeProviderSettings({ readForm, setStatus: vi.fn() });
 
     const localEndpointPreset = document.querySelector<HTMLSelectElement>("#local-endpoint-preset")!;
     localEndpointPreset.value = "http://localhost:8000/v1/chat/completions";
@@ -103,7 +105,7 @@ describe("provider settings", () => {
     });
     const setStatus = vi.fn();
 
-    initializeProviderSettings({ locale: "en", readForm, setStatus });
+    initializeProviderSettings({ readForm, setStatus });
     const button = document.querySelector<HTMLButtonElement>("#fetch-models")!;
     button.click();
 
@@ -127,7 +129,7 @@ describe("provider settings", () => {
     vi.mocked(chrome.runtime.sendMessage).mockResolvedValue({ ok: false, error: "Unauthorized" });
     const setStatus = vi.fn();
 
-    initializeProviderSettings({ locale: "en", readForm, setStatus });
+    initializeProviderSettings({ readForm, setStatus });
     const button = document.querySelector<HTMLButtonElement>("#fetch-models")!;
     button.click();
 
