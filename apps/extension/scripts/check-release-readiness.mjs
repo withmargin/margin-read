@@ -29,7 +29,12 @@ const sourceMessages = await readLocaleMessages(join(root, "public/_locales"), s
 checkVersionConsistency();
 await checkChangelog();
 await checkPrivacyDefaults();
-checkSourceManifest(sourceManifest, "source manifest", resolveManifestMessage(sourceManifest.description, sourceMessages));
+checkSourceManifest(
+  sourceManifest,
+  "source manifest",
+  resolveManifestMessage(sourceManifest.name, sourceMessages),
+  resolveManifestMessage(sourceManifest.description, sourceMessages)
+);
 await checkArtifact();
 
 if (failures.length > 0) {
@@ -84,9 +89,11 @@ async function checkPrivacyDefaults() {
   );
 }
 
-function checkSourceManifest(manifest, label, description) {
+function checkSourceManifest(manifest, label, name, description) {
   assert(manifest.manifest_version === 3, `${label} must use Manifest V3.`);
-  assert(manifest.name === "Margin Read", `${label} name must be Margin Read.`);
+  // name is a __MSG__ placeholder localized via _locales; `name` is the resolved default-
+  // locale text, which keeps the brand as a prefix (e.g. "Margin Read – ...").
+  assert(name.startsWith("Margin Read"), `${label} name must start with Margin Read.`);
   // The description is a __MSG__ placeholder localized via _locales; `description` is the
   // resolved default-locale text, which must stay the source-of-truth package description.
   assert(
@@ -137,7 +144,12 @@ async function checkArtifact() {
   const { version: zipVersion } = zipManifest;
   assert(zipVersion === version, `artifact manifest version must be ${version}. Got ${zipVersion}.`);
   const zipMessages = readZipJson(artifactPath, `_locales/${zipManifest.default_locale}/messages.json`) ?? {};
-  checkSourceManifest(zipManifest, "artifact manifest", resolveManifestMessage(zipManifest.description, zipMessages));
+  checkSourceManifest(
+    zipManifest,
+    "artifact manifest",
+    resolveManifestMessage(zipManifest.name, zipMessages),
+    resolveManifestMessage(zipManifest.description, zipMessages)
+  );
   checkRequiredManifestFiles(zipManifest, entrySet);
   checkZipContents(entries);
   checkZipTextContents(entries);

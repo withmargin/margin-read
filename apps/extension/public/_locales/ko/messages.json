@@ -1,4 +1,7 @@
 {
+  "extName": {
+    "message": "Margin Read – 이중 언어 웹 번역"
+  },
   "extDescription": {
     "message": "프라이버시 우선 이중 언어 웹 번역. 원문을 그 자리에 두어 문맥을 잃지 않습니다."
   },

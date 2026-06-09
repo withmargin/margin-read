@@ -14,7 +14,8 @@ const packageName = `margin-read-v${version}.zip`;
 const outputPath = join(artifacts, packageName);
 const failures = [];
 
-assert(manifest.name === "Margin Read", "dist manifest name must be Margin Read.");
+const name = await resolveManifestMessage(manifest.name, join(dist, "_locales"), manifest.default_locale);
+assert(name.startsWith("Margin Read"), "dist manifest name must start with Margin Read.");
 const description = await resolveManifestMessage(manifest.description, join(dist, "_locales"), manifest.default_locale);
 assert(description.includes("Privacy-first"), "dist manifest description must include Privacy-first.");
 

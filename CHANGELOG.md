@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The extension name is now localized per language via `_locales` (for example
+  "Margin Read – Bilingual web translation" in English and
+  "Margin Read – 雙語網頁翻譯" in Traditional Chinese), so the toolbar and Chrome
+  Web Store title read in the viewer's language while keeping the Margin Read
+  brand as a prefix.
+
 ## [0.3.5] - 2026-06-08
 
 ### Added

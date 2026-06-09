@@ -1,4 +1,8 @@
 {
+  "extName": {
+    "message": "Margin Read – Bilingual web translation",
+    "description": "Extension name shown in the toolbar and Chrome Web Store (max 45 characters)."
+  },
   "extDescription": {
     "message": "Privacy-first bilingual web translation that keeps the original text in place so you never lose context.",
     "description": "Chrome Web Store summary shown under the extension name (max 132 characters)."
