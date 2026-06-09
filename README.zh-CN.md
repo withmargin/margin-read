@@ -26,7 +26,7 @@ Margin 目前仍是早期 MVP，支持 Chrome 与其他 Chromium 浏览器，并
 - 支持本地 OpenAI-compatible runtime，例如 LM Studio、Ollama、llama.cpp server 与 omlx（Apple Silicon）。
 - 可从 options 页面获取 provider 模型列表。
 - 可选择融入原文或醒目提示的译文显示样式。
-- 可选择在页面显示浮动翻译按钮，且只有用户点击后才开始翻译。
+- 在页面显示浮动翻译按钮（默认启用），点击后才开始翻译。按钮可沿屏幕边缘垂直拖动并记住位置，会根据页面深浅背景调整外观，也可从关闭（×）或 options 页面停用。
 - 可选择持久缓存、仅 session 缓存，或停用翻译缓存。
 - 在 popup 显示文字检测、队列状态与 provider 错误等诊断信息。
 - 可检测并处理动态插入的内容。
@@ -125,7 +125,7 @@ pnpm test
 pnpm build
 ```
 
-Build 使用 Rolldown，并会将 unpacked extension 输出到 `apps/extension/dist/`。
+Build 使用 Vite 搭配 CRXJS plugin（底层为 Rolldown），并会将 unpacked extension 输出到 `apps/extension/dist/`。开发时可执行 `pnpm --filter @margin/extension dev` 启动 Vite + CRXJS 的热重载 dev server。
 
 ## 项目结构
 
@@ -136,7 +136,8 @@ apps/extension/src/options/        Extension options 页面
 apps/extension/src/popup/          Popup UI 与诊断信息
 apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         共用 types、defaults、storage 与 messages
-apps/extension/public/             静态 extension UI 与 content CSS
+apps/extension/public/             静态资源（icons），原样复制到 build
+apps/extension/*.html              Popup 与 options 的 HTML 入口
 apps/extension/scripts/            Build 与 extension validation scripts
 docs/                              Product、roadmap、principles 与 threat model
 ```

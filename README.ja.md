@@ -26,7 +26,7 @@ Margin は Chrome と Chromium 系ブラウザ向けの早期 MVP で、Manifest
 - LM Studio、Ollama、llama.cpp server、omlx（Apple Silicon）などのローカル OpenAI-compatible runtime に対応。
 - Options ページから provider のモデル一覧を取得。
 - 翻訳表示を本文統合または強調表示から選択。
-- 任意でページ上にフローティング翻訳ボタンを表示し、ユーザーがクリックした後だけ翻訳を開始。
+- ページにフローティング翻訳ボタンを表示（デフォルトで有効）。クリック後に翻訳を開始します。ボタンは画面端に沿って縦にドラッグでき、位置を記憶し、ページの明暗の背景に合わせて見た目が変わり、閉じる（×）や options ページから無効にできます。
 - 永続、セッションのみ、無効の翻訳キャッシュを選択。
 - Popup にテキスト検出、キュー状態、provider エラーの診断情報を表示。
 - 動的に挿入されたコンテンツを検出して処理。
@@ -125,7 +125,7 @@ pnpm test
 pnpm build
 ```
 
-Build は Rolldown を使用し、unpacked extension を `apps/extension/dist/` に出力します。
+Build は CRXJS プラグイン付きの Vite（内部は Rolldown）を使用し、unpacked extension を `apps/extension/dist/` に出力します。開発時は `pnpm --filter @margin/extension dev` で Vite + CRXJS のホットリロード dev server を起動できます。
 
 ## プロジェクト構成
 
@@ -136,7 +136,8 @@ apps/extension/src/options/        Extension options ページ
 apps/extension/src/popup/          Popup UI と診断情報
 apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         共通 types、defaults、storage、messages
-apps/extension/public/             静的 extension UI と content CSS
+apps/extension/public/             静的アセット（icons）。そのまま build にコピー
+apps/extension/*.html              Popup と options の HTML エントリ
 apps/extension/scripts/            Build と extension validation scripts
 docs/                              Product、roadmap、principles、threat model
 ```

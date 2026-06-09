@@ -26,7 +26,7 @@ Die Erweiterung ist fuer normale Artikelseiten, alte textlastige Seiten und eini
 - Unterstuetzt lokale OpenAI-compatible runtimes wie LM Studio, Ollama, llama.cpp server und omlx (Apple Silicon).
 - Ruft provider model lists von der Optionsseite ab.
 - Bietet integrierte oder hervorgehobene Uebersetzungsanzeige.
-- Optional einen schwebenden Seitenbutton anzeigen, der die Uebersetzung erst nach einem Nutzerklick startet.
+- Zeigt einen schwebenden Seitenbutton (standardmaessig aktiviert), der die Uebersetzung erst nach einem Klick startet. Der Button laesst sich am Bildschirmrand vertikal ziehen, merkt sich seine Position, passt sein Aussehen an den hellen oder dunklen Seitenhintergrund an und laesst sich ueber sein Schliessen-Symbol (x) oder die Optionsseite deaktivieren.
 - Erlaubt persistenten, sitzungsbasierten oder deaktivierten Uebersetzungs-Cache.
 - Zeigt Popup-Diagnosen fuer Texterkennung, Queue-Zustand und provider-Fehler.
 - Beobachtet dynamisch eingefuegte Inhalte.
@@ -125,7 +125,7 @@ pnpm test
 pnpm build
 ```
 
-Der Build verwendet Rolldown und schreibt die unpacked extension nach `apps/extension/dist/`.
+Der Build verwendet Vite mit dem CRXJS-Plugin (Rolldown im Hintergrund) und schreibt die unpacked extension nach `apps/extension/dist/`. Fuer die Entwicklung startet `pnpm --filter @margin/extension dev` einen Vite + CRXJS Dev-Server mit Hot Reload.
 
 ## Projektstruktur
 
@@ -136,7 +136,8 @@ apps/extension/src/options/        Extension options page
 apps/extension/src/popup/          Popup UI und Diagnosen
 apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         Gemeinsame types, defaults, storage und messages
-apps/extension/public/             Statische extension UI und content CSS
+apps/extension/public/             Statische Assets (icons), unveraendert in den Build kopiert
+apps/extension/*.html              HTML-Einstiegspunkte fuer Popup und options
 apps/extension/scripts/            Build und extension validation scripts
 docs/                              Product, roadmap, principles und threat model
 ```

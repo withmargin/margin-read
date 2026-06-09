@@ -26,7 +26,7 @@ Margin 目前仍是早期 MVP，支援 Chrome 與其他 Chromium 系瀏覽器，
 - 支援本機 OpenAI-compatible runtime，例如 LM Studio、Ollama、llama.cpp server 與 omlx（Apple Silicon），以及 Anthropic Messages API-compatible endpoint。
 - 可從 options 頁面取得 provider 的模型列表。
 - 可選擇融入原文或醒目提示的譯文顯示樣式。
-- 可選擇在頁面顯示浮動翻譯按鈕，且只有使用者點擊後才開始翻譯。
+- 在頁面顯示浮動翻譯按鈕（預設啟用），點擊後才開始翻譯。按鈕可沿螢幕邊緣垂直拖曳並記住位置，會依頁面深淺背景調整外觀，也可從它的關閉（×）或 options 頁面停用。
 - 可選擇持久快取、僅 session 快取，或停用翻譯快取。
 - 在 popup 顯示文字偵測、佇列狀態與 provider 錯誤等診斷資訊。
 - 可偵測並處理動態插入的內容。
@@ -141,6 +141,12 @@ corepack enable
 pnpm install
 ```
 
+以熱重載（Vite + CRXJS）執行 dev server。先把 `apps/extension/dist/` 載入為 unpacked extension 一次，之後修改原始碼擴充功能就會自動重載：
+
+```sh
+pnpm --filter @margin/extension dev
+```
+
 執行 type check：
 
 ```sh
@@ -171,7 +177,7 @@ pnpm test
 pnpm build
 ```
 
-Build 使用 Rolldown，並會將 unpacked extension 輸出到 `apps/extension/dist/`。
+Build 使用 Vite 搭配 CRXJS plugin（底層為 Rolldown），並會將 unpacked extension 輸出到 `apps/extension/dist/`。
 
 ## 專案結構
 
@@ -182,7 +188,8 @@ apps/extension/src/options/        Extension options 頁面
 apps/extension/src/popup/          Popup UI 與診斷資訊
 apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         共用 types、defaults、storage 與 messages
-apps/extension/public/             靜態 extension UI 與 content CSS
+apps/extension/public/             靜態資源（icons），原樣複製到 build
+apps/extension/*.html              Popup 與 options 的 HTML 進入點
 apps/extension/scripts/            Build 與 extension validation scripts
 docs/                              Product、roadmap、principles 與 threat model
 ```

@@ -26,7 +26,7 @@ Margin 는 Chrome 및 Chromium 브라우저용 초기 MVP 이며 Manifest V3 를
 - LM Studio, Ollama, llama.cpp server, omlx (Apple Silicon) 같은 로컬 OpenAI-compatible runtime 지원.
 - Options 페이지에서 provider 모델 목록 가져오기.
 - 본문 통합 또는 강조 표시 번역 스타일 선택.
-- 선택적으로 페이지에 플로팅 번역 버튼을 표시하고 사용자가 클릭한 뒤에만 번역 시작.
+- 페이지에 플로팅 번역 버튼 표시(기본 활성화), 클릭한 후에만 번역을 시작합니다. 버튼은 화면 가장자리를 따라 세로로 드래그하고 위치를 기억하며, 페이지의 밝거나 어두운 배경에 맞춰 모양이 바뀌고, 닫기(×) 또는 options 페이지에서 끌 수 있습니다.
 - 영구, 세션, 비활성 번역 캐시 동작 선택.
 - Popup 에 텍스트 감지, 큐 상태, provider 오류 진단 표시.
 - 동적으로 삽입된 콘텐츠 감지 및 처리.
@@ -125,7 +125,7 @@ pnpm test
 pnpm build
 ```
 
-Build 는 Rolldown 을 사용하며 unpacked extension 을 `apps/extension/dist/` 에 출력합니다.
+Build 는 CRXJS 플러그인이 적용된 Vite(내부적으로 Rolldown)를 사용하며 unpacked extension 을 `apps/extension/dist/` 에 출력합니다. 개발 시 `pnpm --filter @margin/extension dev` 로 Vite + CRXJS 의 핫 리로드 dev server 를 실행할 수 있습니다.
 
 ## 프로젝트 구조
 
@@ -136,7 +136,8 @@ apps/extension/src/options/        Extension options 페이지
 apps/extension/src/popup/          Popup UI 와 진단
 apps/extension/src/background/providers/      Provider adapters
 apps/extension/src/shared/         공통 types, defaults, storage, messages
-apps/extension/public/             정적 extension UI 와 content CSS
+apps/extension/public/             정적 자산(icons), 그대로 build에 복사
+apps/extension/*.html              Popup 및 options HTML 진입점
 apps/extension/scripts/            Build 와 extension validation scripts
 docs/                              Product, roadmap, principles, threat model
 ```
