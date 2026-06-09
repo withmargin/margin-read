@@ -1,42 +1,55 @@
 # Margin Read
 
+[![CI](https://github.com/withmargin/margin-read/actions/workflows/ci.yml/badge.svg)](https://github.com/withmargin/margin-read/actions/workflows/ci.yml)
+[![Release](https://github.com/withmargin/margin-read/actions/workflows/release.yml/badge.svg)](https://github.com/withmargin/margin-read/actions/workflows/release.yml)
+[![CodeQL](https://github.com/withmargin/margin-read/actions/workflows/codeql.yml/badge.svg)](https://github.com/withmargin/margin-read/actions/workflows/codeql.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/withmargin/margin-read)](https://github.com/withmargin/margin-read/releases)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/clgdnabgpfiffmfdboefecbhggbepjde?label=chrome%20web%20store)](https://chromewebstore.google.com/detail/clgdnabgpfiffmfdboefecbhggbepjde)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 言語：[English](README.md) · [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-Margin Read は、プライバシーを優先したバイリンガル Web ページ翻訳ブラウザ拡張機能です。
+Margin Read は、プライバシーを最優先する Web ページ対訳翻訳のためのブラウザ拡張機能です。
 
-Margin は元のページ本文を置き換えず、対応する原文ブロックの下に翻訳を挿入します。読者はページの文脈を保ったまま、原文と翻訳を比較できます。
+プライバシーを最優先する Web 対訳翻訳。原文をそのまま残すので、文脈を見失うことがありません。
 
-Repository: https://github.com/withmargin/margin-read
+Margin は Web ページの原文をそのままの位置に残し、対応する原文ブロックの下に翻訳文を挿入します。これにより、読者はページの文脈を失うことなく両方のバージョンを見比べられます。
 
-## 現在の状態
+リポジトリ: https://github.com/withmargin/margin-read
 
-Margin は Chrome と Chromium 系ブラウザ向けの早期 MVP で、Manifest V3 を使用しています。
+## ステータス
 
-通常の記事ページ、古い文字中心のページ、一部の動的ページでは利用できますが、まだ開発中です。高度にインタラクティブな Web app、特殊なレイアウト、DOM を頻繁に書き換えるサイトでは粗さが残る可能性があります。
+Margin は、Manifest V3 を採用した Chrome および Chromium 系ブラウザ向けの初期 MVP です。
 
-## 主な機能
+この拡張機能は、通常の記事ページ、テキスト中心のレガシーページ、そして一部の動的ページで利用できますが、現在も活発に開発が進められています。インタラクティブ性の高い Web アプリ、特殊なレイアウト構造を持つページ、DOM を積極的に書き換えるサイトでは、まだ粗さが残る点にご留意ください。
 
-- 拡張機能の popup から現在のページを翻訳。
-- 原文を保持し、対応する原文ブロックの下に翻訳を挿入。
-- 段落、見出し、リスト項目、引用などの読みやすいテキストブロックを検出。
-- 古い `table`、`font`、`br` 区切りのページに対応。
-- ナビゲーション、フォーム、ボタン、コードブロック、非表示テキスト、ページ UI などの非読書領域を回避。
-- ユーザーが設定した provider endpoint と API key を使用。
-- OpenAI、Anthropic Claude、Google Gemini の provider adapter に対応。
-- LM Studio、Ollama、llama.cpp server、omlx（Apple Silicon）などのローカル OpenAI-compatible runtime に対応。
-- Options ページから provider のモデル一覧を取得。
-- 翻訳表示を本文統合または強調表示から選択。
-- ページにフローティング翻訳ボタンを表示（デフォルトで有効）。クリック後に翻訳を開始します。ボタンは画面端に沿って縦にドラッグでき、位置を記憶し、ページの明暗の背景に合わせて見た目が変わり、閉じる（×）や options ページから無効にできます。
-- 永続、セッションのみ、無効の翻訳キャッシュを選択。
-- Popup にテキスト検出、キュー状態、provider エラーの診断情報を表示。
-- 動的に挿入されたコンテンツを検出して処理。
-- X timeline card と longform article ページを最適化し、読みやすい本文だけを対象にして、プロフィール名、数値、メディア、操作ボタンを避けます。
+## 機能
 
-Margin には PDF 翻訳、EPUB 翻訳、字幕翻訳、OCR、入力欄翻訳、クラウド同期、アカウント、ソーシャル機能、既定 telemetry、公式の有料翻訳枠は含まれていません。
+- 拡張機能の popup から現在の Web ページを翻訳できます。
+- 原文をそのまま残し、対応する原文ブロックの下に翻訳を挿入します。
+- 段落、見出し、リスト項目、引用などの読みやすいテキストブロックを検出します。
+- レガシーな `table`、`font`、`br` で区切られたページに対応します。
+- ナビゲーション、フォーム、ボタン、コードブロック、非表示テキスト、ページ周辺の UI など、読む対象ではない一般的な領域を回避します。
+- ユーザーが設定した provider の endpoint と API key を使用します。
+- OpenAI、Anthropic Claude、Google Gemini、および互換 provider アダプターをサポートします。
+- LM Studio、Ollama、llama.cpp server、omlx（Apple Silicon）などのローカル OpenAI 互換ランタイム、さらに Anthropic Messages API 互換 endpoint をサポートします。
+- options ページから provider のモデル一覧を取得します。
+- 統合表示またはハイライト表示の翻訳スタイルを選べます。
+- フローティングのページボタン（デフォルトで有効）を表示します。このボタンはユーザーがクリックした後にのみ翻訳を開始します。画面の端に沿って上下にドラッグでき、位置を記憶し、ページの明暗の背景に応じて外観を調整します。閉じる（×）コントロールまたは options ページからオフにできます。
+- デフォルトでセッション限定の翻訳キャッシュを使用します。永続化キャッシュおよびキャッシュ無効のオプションも選べます。
+- テキスト検出、キューの状態、provider エラーに関する popup の診断情報を表示します。
+- 動的に挿入されたコンテンツを監視します。
+- 読みやすいコンテンツを対象とし、プロフィール名・アクション数・メディア・操作要素を避けることで、X のタイムラインカードや長文記事ページを最適化します。
 
-## ソースからインストール
+Margin には、PDF 翻訳、EPUB 翻訳、字幕翻訳、OCR、入力ボックス翻訳、クラウド同期、アカウント、ソーシャル機能、デフォルトの telemetry、公式の有料翻訳クォータシステムは含まれていません。
 
-Margin はまだブラウザ拡張ストアで配布されていません。Unpacked extension として読み込んでください。
+## ベータテスト
+
+ベータテスターは、招待を受けた際に Chrome Web Store のベータ版リスティングから、GitHub Release の ZIP から、またはローカルのソースビルドから Margin をインストールできます。セットアップとフィードバックの詳しいワークフローについては、[ベータテストガイド](docs/BETA_TESTING.md)をご覧ください。
+
+## ソースからのインストール
+
+ローカル開発では、Margin を展開済み拡張機能として読み込みます。
 
 ```sh
 corepack enable
@@ -44,21 +57,21 @@ pnpm install
 pnpm build
 ```
 
-次に：
+その後:
 
 1. `chrome://extensions` を開きます。
-2. Developer mode を有効にします。
-3. Load unpacked を選択します。
-4. 生成された `apps/extension/dist/` ディレクトリを選択します。
-5. Margin options を開きます。
-6. provider、API key、model、翻訳先言語、キャッシュ設定を構成します。
-7. Web ページを開き、Margin popup から Translate this page をクリックします。
+2. デベロッパーモードを有効にします。
+3. 「パッケージ化されていない拡張機能を読み込む」を選びます。
+4. 生成された `apps/extension/dist/` ディレクトリを選びます。
+5. Margin の options を開きます。
+6. provider、API key、モデル、ターゲット言語、キャッシュの動作を設定します。
+7. Web ページを開き、Margin の popup から「このページを翻訳」をクリックします。
 
-## Provider 設定
+## Provider のセットアップ
 
-Margin には API key は同梱されていません。`Bearer` プレフィックスなしで、自分の provider API key を入力します。
+Margin に API key は同梱されていません。ユーザーは自身の生の provider API key を、`Bearer` プレフィックスなしで指定します。
 
-組み込み provider は既定 endpoint を使用します。
+組み込みの provider はデフォルトの endpoint を使用します。
 
 ```text
 OpenAI: https://api.openai.com/v1/chat/completions
@@ -66,101 +79,161 @@ Anthropic Claude: https://api.anthropic.com/v1/messages
 Google Gemini: https://generativelanguage.googleapis.com/v1beta/models
 ```
 
-Endpoint フィールドは OpenAI Compatible / Local LLM の設定時だけ表示されます。この場合、ユーザーがローカル endpoint を選択または入力する必要があります。
+endpoint フィールドは、互換 / ローカル LLM 構成の場合にのみ表示され、ユーザーはローカルの endpoint を選択または入力することになります。
 
-Fetch models は選択中の provider から利用可能なモデルを取得します。
+「Fetch models」アクションは、選択した provider から利用可能なモデルを読み込みます。
 
 - OpenAI: `GET /v1/models`
 - Anthropic Claude: `GET /v1/models`
 - Google Gemini: `GET /v1beta/models`
+- OpenAI Compatible / Anthropic Compatible: `GET /v1/models`
 
-取得したモデルは model selector に表示されます。Provider default や保存済みモデルが一覧に含まれない場合でも、Margin はその値を選択肢として保持します。
+取得したモデルはモデルセレクターに表示されます。provider のデフォルト、または以前に保存したモデルが provider の一覧に返されない場合でも、Margin は現在設定されているモデルを選択肢として保持します。
 
 ## プライバシー
 
-Margin は選択されたテキスト片だけを設定済み provider に送信します。既定ではページ全体の HTML を送らず、ログインも不要で、クラウド同期や既定 telemetry も含みません。
+Margin は、選択されたテキストセグメントのみを設定済みの provider に送信します。デフォルトではページの完全な HTML を送信せず、ログインを必要とせず、クラウド同期を使用せず、デフォルトで telemetry を含みません。
 
-Provider request は拡張機能の service worker から送信され、ユーザーが設定した endpoint と API key を使用します。Provider 側のデータ処理は、選択した endpoint とモデル provider に依存します。
+provider へのリクエストは、ユーザーが設定した endpoint と API key を使って拡張機能の service worker から行われます。provider のプライバシーは、選択した endpoint とモデル provider に依存します。
 
-API key はブラウザの extension storage に保存されます。ブラウザ profile は信頼できる環境の一部として扱ってください。
+API key はブラウザ拡張機能のストレージに保存されます。ブラウザのプロファイルは、信頼できる環境の一部として扱ってください。
 
-## X 最適化
+## X の最適化
 
-Margin には X timeline card と longform article ページ向けの任意の X-specific detector があります。有効にすると、表示中のすべてのテキストノードではなく、tweet article 内の `tweetText` と X article view 内の読みやすいブロックを優先して翻訳します。
+Margin には、タイムラインカードと長文記事ページ向けの、X 専用のオプションの検出機能が含まれています。有効にすると、表示されているすべてのテキストノードをスキャンするのではなく、ツイートの article 内の `tweetText` コンテンツと、X の記事ビュー内の読みやすいブロックを対象とします。
 
-Quoted posts は既定では翻訳されませんが、options で有効にできます。X がすでに翻訳済みとして示す投稿は、重複翻訳を避けるため既定でスキップされます。
+引用ポストはデフォルトで無効になっており、options から有効にできます。X がすでに翻訳済みとしてマークしているポストは、重複翻訳を避けるためデフォルトでスキップされます。
 
 ## ローカル LLM
 
-Margin は OpenAI Compatible provider を通じてローカル LLM runtime に対応します。この provider は OpenAI 形式の `/v1/chat/completions` API を使い、API key を空にでき、ローカル推論向けに低めの既定 translation concurrency を使用します。
+Margin は、互換 provider を通じてローカル LLM ランタイムをサポートします。
 
-よく使う endpoint preset：
+- OpenAI Compatible は、OpenAI スタイルの `/v1/chat/completions` API を使用します。
+- Anthropic Compatible は、ツールの `input_schema` による構造化出力を備えた、Anthropic Messages スタイルの `/v1/messages` API を使用します。これは互換のローカルまたはゲートウェイ endpoint 向けのワイヤープロトコルのオプションであり、Anthropic がホストする別個のサービスではありません。
+
+どちらの互換 provider でも空の API key を許可し、ローカル推論向けに低めのデフォルト翻訳同時実行数を使用します。Anthropic 互換ゲートウェイが key を必要とする場合、Margin はそれを `Authorization: Bearer ...` として送信します。
+
+一般的な互換 endpoint:
 
 ```text
 LM Studio: http://localhost:1234/v1/chat/completions
 Ollama: http://localhost:11434/v1/chat/completions
 llama.cpp server: http://localhost:8080/v1/chat/completions
 omlx: http://localhost:8000/v1/chat/completions
+Generic Anthropic-compatible: http://localhost:8000/v1/messages
+Ollama Anthropic compatibility: http://localhost:11434/v1/messages
 ```
 
-ローカル runtime を使うには：
+ローカルランタイムを使うには:
 
-1. ローカル model server を起動します。
-2. Margin options を開きます。
-3. Provider として OpenAI Compatible を選択します。
-4. Endpoint preset を選ぶか、runtime が表示する endpoint URL を入力します。
-5. ローカル gateway が必要としない限り、API key は空にできます。
-6. Fetch models をクリックし、model selector から提供されたモデルを選びます。
-7. Runtime が対応している場合は Request JSON mode を有効のままにします。`response_format` request field が拒否される場合は無効にしてください。
+1. ローカルのモデルサーバーを起動します。
+2. Margin の options を開きます。
+3. `/v1/chat/completions` には OpenAI Compatible を、`/v1/messages` には Anthropic Compatible を選びます。
+4. OpenAI 互換の endpoint プリセットを選ぶか、ランタイムが表示する endpoint URL を入力します。
+5. ローカルゲートウェイが必要としない限り、API key は空のままにします。
+6. 「Fetch models」をクリックし、提供されているモデルをモデルセレクターから選びます。
+7. OpenAI Compatible の場合は、サポートされているときは「Request JSON mode」を有効のままにします。ローカルランタイムが `response_format` リクエストフィールドを拒否する場合は無効にします。
+
+ランタイムに関する注意:
+
+- LM Studio は通常、`http://localhost:1234/v1/chat/completions` で OpenAI 互換のリクエストを提供します。
+- Ollama は、OpenAI 互換 API を `http://localhost:11434/v1/chat/completions` で利用可能にしておく必要があります。
+- Ollama は、Anthropic 互換のリクエストを `http://localhost:11434/v1/messages` で公開することもできます。Margin は構造化出力のためにツールを送信しますが、Anthropic 互換 endpoint に対しては `tool_choice` を強制しません。これは、一部の互換ランタイムがツールは受け入れるものの、強制的なツール選択をサポートしないためです。
+- llama.cpp server は、OpenAI 互換の HTTP サーバーを有効にして起動する必要があり、通常は `http://localhost:8080/v1/chat/completions` で提供されます。
+- omlx は Apple Silicon 向けの MLX 推論サーバーです。`omlx serve`（設定不要、モデルは `~/.omlx/models` から読み込み）または `omlx serve --model-dir /path/to/models` で起動すると、OpenAI 互換 API が `http://localhost:8000/v1/chat/completions` で利用可能になります。
+- 「Fetch models」が失敗する場合は、ローカルサーバーが実行中であること、endpoint URL が `/v1/chat/completions` または `/v1/messages` で終わっていること、ランタイムが互換の `/v1/models` endpoint を公開していることを確認してください。
+
+ローカルモデルの品質、速度、コンテキスト長、JSON の信頼性は、モデルとランタイムに依存します。翻訳には、多言語能力の高い instruct モデルをおすすめします。
 
 ## ローカル開発
+
+依存関係をインストールします。
 
 ```sh
 corepack enable
 pnpm install
+```
+
+ホットリロード対応の開発サーバー（Vite + CRXJS）を実行します。`apps/extension/dist/` を展開済み拡張機能として一度読み込めば、ソースを編集すると拡張機能が自動的にリロードされます。
+
+```sh
+pnpm --filter @margin/extension dev
+```
+
+型チェックを実行します。
+
+```sh
 pnpm check
+```
+
+lint を実行します。
+
+```sh
 pnpm lint
+```
+
+拡張機能の manifest とセキュリティのチェックを実行します。
+
+```sh
 pnpm check:extension
+```
+
+カバレッジ付きでテストを実行します。
+
+```sh
 pnpm test
+```
+
+拡張機能をビルドします。
+
+```sh
 pnpm build
 ```
 
-Build は CRXJS プラグイン付きの Vite（内部は Rolldown）を使用し、unpacked extension を `apps/extension/dist/` に出力します。開発時は `pnpm --filter @margin/extension dev` で Vite + CRXJS のホットリロード dev server を起動できます。
+ビルドは CRXJS プラグイン付きの Vite（内部では Rolldown）を使用し、展開済み拡張機能を `apps/extension/dist/` に書き出します。
 
 ## プロジェクト構成
 
 ```text
-apps/extension/src/background/     Service worker、provider request、settings、cache flow
-apps/extension/src/content/        ページのテキスト検出、キュー、翻訳挿入
-apps/extension/src/options/        Extension options ページ
-apps/extension/src/popup/          Popup UI と診断情報
-apps/extension/src/background/providers/      Provider adapters
-apps/extension/src/shared/         共通 types、defaults、storage、messages
-apps/extension/public/             静的アセット（icons）。そのまま build にコピー
-apps/extension/*.html              Popup と options の HTML エントリ
-apps/extension/scripts/            Build と extension validation scripts
-docs/                              Product、roadmap、principles、threat model
+apps/extension/src/background/     Service worker、provider リクエスト、設定、キャッシュフロー
+apps/extension/src/content/        ページのテキスト検出、キューイング、翻訳の挿入
+apps/extension/src/options/        拡張機能の options ページ
+apps/extension/src/popup/          Popup の UI と診断
+apps/extension/src/background/providers/      Provider アダプター
+apps/extension/src/shared/         共有型、デフォルト値、ストレージ、メッセージ
+apps/extension/public/             ビルドにそのままコピーされる静的アセット（アイコン）
+apps/extension/*.html              Popup と options の HTML エントリーポイント
+apps/extension/scripts/            ビルドと拡張機能の検証スクリプト
+docs/                              プロダクト、ロードマップ、原則、脅威モデル
 ```
 
 ## トラブルシューティング
 
-ページが有効に見えるのに翻訳が挿入されない場合は、Margin options で Debug mode を有効にしてください。Popup に検出数、キュー、実行中 request、pending translations、completed translations、エラー数、最新エラー、検出サンプルが表示されます。
+ページが有効になっているように見えるのに翻訳が挿入されない場合は、Margin の options で Debug モードを有効にしてください。popup には、現在のページの検出数、キュー内のブロック、実行中のリクエスト、保留中の翻訳、完了した翻訳、エラー数、最新のエラー、検出されたテキストブロックのサンプルが表示されます。
+
+これらの値を使って、主な失敗のパターンを切り分けられます。
+
+- `Detected blocks: 0` は、content script がページ上に読みやすいテキストを見つけられなかったことを意味します。
+- 検出数が正の値なのに実行中のリクエストがない場合は、通常、翻訳キューに対処が必要なことを意味します。
+- エラーブロックや最新のエラーは、通常、provider の設定、認証、モデル、endpoint、またはレスポンス形式の問題を示しています。
 
 ## 既知の制限
 
-- Firefox はまだ主要なサポート対象ではありません。
-- Site-specific DOM handling は少数の重要なケースに限られます。
-- 高度に動的な Web app は翻訳ブロックを移動または削除する可能性があります。
-- 大きなページはバッチ翻訳されるため、翻訳は段階的に表示されます。
-- Provider rate limit、モデル可用性、出力品質は設定した provider に依存します。
+- Firefox はまだ主要な対象ではありません。
+- サイト固有の DOM 処理は、価値の高い一部のケースに限られています。
+- 動的性の高い Web アプリでは、翻訳ブロックが移動または削除されることがあります。
+- 大きなページはバッチで翻訳されるため、翻訳が段階的に表示されることがあります。
+- provider のレート制限、モデルの可用性、出力品質は、設定した provider に依存します。
 
 ## ドキュメント
 
-- [Product Requirements](docs/PRD.md)
-- [Project Principles](docs/PRINCIPLES.md)
-- [Threat Model](docs/THREAT_MODEL.md)
-- [Roadmap](docs/ROADMAP.md)
+- [プロダクト要件](docs/PRD.md)
+- [プロジェクトの原則](docs/PRINCIPLES.md)
+- [脅威モデル](docs/THREAT_MODEL.md)
+- [ロードマップ](docs/ROADMAP.md)
+- [ベータテストガイド](docs/BETA_TESTING.md)
+- [リリースチェックリスト](docs/RELEASE_CHECKLIST.md)
 
-## License
+## ライセンス
 
 MIT
