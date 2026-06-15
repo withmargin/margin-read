@@ -1,6 +1,6 @@
 {
   "name": "margin",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Privacy-first bilingual web translation that keeps the original text in place so you never lose context.",
   "private": true,
   "type": "module",

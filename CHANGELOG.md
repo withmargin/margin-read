@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-06-15
+
+### Fixed
+
+- Long-form posts on x.com no longer get some paragraphs translated twice. After
+  the X adapter finished translating an article, a follow-up rescan fell back to
+  the generic extractor, which re-split the already-translated paragraphs (at
+  inline `@mention` links, and whole for link-free ones) and translated them
+  again. The generic extractor now stays out of any page an adapter has claimed.
+
 ## [0.3.6] - 2026-06-08
 
 ### Changed
