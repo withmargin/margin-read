@@ -18,10 +18,10 @@ describe("siteAdapters registry", () => {
 });
 
 describe("collectSiteAdapterBlocks", () => {
-  it("returns [] when no adapter matches the document", () => {
+  it("reports matched: false when no adapter matches the document", () => {
     const document = createDocument(`<article><p>Plain article paragraph.</p></article>`);
 
-    expect(collectSiteAdapterBlocks(document, baseOptions)).toEqual([]);
+    expect(collectSiteAdapterBlocks(document, baseOptions)).toEqual({ matched: false, blocks: [] });
   });
 
   it("returns the first matching adapter's blocks (X adapter when on X)", () => {
@@ -31,16 +31,20 @@ describe("collectSiteAdapterBlocks", () => {
       </article>
     `);
 
-    const blocks = collectSiteAdapterBlocks(document, {
+    const result = collectSiteAdapterBlocks(document, {
       ...baseOptions,
       xOptimizedTranslation: true
     });
 
-    expect(blocks).toHaveLength(1);
-    expect(blocks[0]?.dataset.marginXBlock).toBe("tweet-text");
+    expect(result.matched).toBe(true);
+    expect(result.blocks).toHaveLength(1);
+    expect(result.blocks[0]?.dataset.marginXBlock).toBe("tweet-text");
   });
 
-  it("falls through to [] when an adapter matches but yields no blocks", () => {
+  it("reports matched: true with no blocks when an adapter claims the page but yields nothing", () => {
+    // An X page where everything has already been translated must still be reported as
+    // adapter-owned so the orchestrator does not fall back to the universal extractor and
+    // double-translate the adapter's blocks.
     const document = createDocument(`
       <article data-testid="tweet" role="article">
         <div data-testid="tweetText">a</div>
@@ -52,7 +56,7 @@ describe("collectSiteAdapterBlocks", () => {
         ...baseOptions,
         xOptimizedTranslation: true
       })
-    ).toEqual([]);
+    ).toEqual({ matched: true, blocks: [] });
   });
 });
 

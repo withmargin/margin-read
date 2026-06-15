@@ -367,6 +367,53 @@ describe("createOrchestrator — DOM observers", () => {
   });
 });
 
+describe("createOrchestrator — X longform articles", () => {
+  // Mirrors x.com's longform DraftEditor: paragraphs are `data-block` divs, and an @mention
+  // paragraph carries inline link-wrapper <div>s between text spans. Once the X adapter has
+  // translated every block, a later rescan finds no fresh adapter blocks. The orchestrator must
+  // not then fall back to the universal extractor, which would re-split these paragraphs (at the
+  // inline link wrappers, and whole for link-free ones) and translate them a second time.
+  const X_ARTICLE_HTML = `
+    <article data-testid="tweet" role="article">
+      <div data-testid="twitterArticleReadView">
+        <div data-testid="twitterArticleRichTextView">
+          <div data-testid="longformRichTextComponent">
+            <div class="longform-unstyled" data-block="true">
+              <div><span data-text="true">Mythos got shut down this week and a lot of founders took notice.</span></div>
+            </div>
+            <div class="longform-unstyled" data-block="true">
+              <div><span data-text="true">By now we have a pretty good answer. We have worked with companies like </span><div class="link-wrapper"><a href="/RampLabs">@RampLabs</a></div><span data-text="true"> on the same basic playbook that keeps surprising everyone.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  `;
+
+  it("does not double-translate article paragraphs on a rescan after everything is translated", async () => {
+    seedDocument(X_ARTICLE_HTML);
+    const orchestrator = createTestOrchestrator();
+
+    await orchestrator.setEnabled(true);
+    await vi.waitFor(() => {
+      expect(document.querySelectorAll(`[${TRANSLATED_ATTR}="done"]`).length).toBe(2);
+    });
+
+    const translationsAfterFirstPass = document.querySelectorAll(`.${TRANSLATION_CLASS}`).length;
+    expect(translationsAfterFirstPass).toBe(2);
+
+    // A benign DOM mutation (not Margin-managed) triggers the orchestrator's rescan.
+    const decoy = document.createElement("span");
+    decoy.textContent = "x";
+    makeElementVisible(decoy);
+    document.querySelector('[data-testid="longformRichTextComponent"]')?.append(decoy);
+
+    await new Promise((resolve) => setTimeout(resolve, DEBOUNCE_QUIESCE_MS));
+
+    expect(document.querySelectorAll(`.${TRANSLATION_CLASS}`).length).toBe(translationsAfterFirstPass);
+  });
+});
+
 describe("createOrchestrator — settings fallbacks", () => {
   it("falls back to defaults when settings response omits fields", async () => {
     useRouter({ settings: {} });
