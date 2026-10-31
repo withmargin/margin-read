@@ -77,6 +77,7 @@ describe("anthropicProvider.translate", () => {
     expect(headers["anthropic-dangerous-direct-browser-access"]).toBe("true");
     expect(calls[0].body.model).toBe("claude-3-5-haiku-latest");
     expect(calls[0].body.tool_choice).toEqual({ type: "tool", name: "return_translations" });
+    expect(calls[0].body).not.toHaveProperty("temperature");
     expect((calls[0].body.tools as Array<{ name: string }>)[0].name).toBe("return_translations");
   });
 
@@ -155,6 +156,7 @@ describe("anthropicCompatibleProvider.translate", () => {
     expect(headers["anthropic-dangerous-direct-browser-access"]).toBeUndefined();
     expect(headers["anthropic-version"]).toBe("2023-06-01");
     expect(calls[0].body.tool_choice).toBeUndefined();
+    expect(calls[0].body.temperature).toBe(0);
     expect((calls[0].body.tools as Array<{ name: string }>)[0].name).toBe("return_translations");
   });
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Translation with the Anthropic Claude provider no longer fails on current
+  Claude models. Every request sent `temperature: 0`, which Claude 4.7 and later
+  models reject with `400 invalid_request_error` ("`temperature` is deprecated
+  for this model"), and which every model rejects under API version
+  `2026-10-21`. The Anthropic provider now omits `temperature`; the Anthropic
+  Compatible provider still sends it for local runtimes.
+
 ### Changed
 
 - Upgraded TypeScript to 7.0 (native Go compiler), cutting `tsc --noEmit` from
