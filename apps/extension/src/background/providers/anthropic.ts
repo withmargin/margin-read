@@ -47,7 +47,8 @@ async function translateWithAnthropic(
   const body: AnthropicRequestBody = {
     model: settings.model,
     max_tokens: 4096,
-    temperature: 0,
+    // Newer Claude models reject `temperature`; keep it only for compatible endpoints.
+    ...(settings.provider === "anthropic" ? {} : { temperature: 0 }),
     system: TRANSLATION_SYSTEM_PROMPT,
     tools: [
       {
